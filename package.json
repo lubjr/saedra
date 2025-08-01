@@ -4,6 +4,8 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
+    "dev:infra": "sudo docker-compose -f docker/docker-compose.yml up -d",
+    "stop:infra": "sudo docker-compose -f docker/docker-compose.yml down",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types"
