@@ -16,8 +16,8 @@
     "openai": "^5.11.0"
   },
   "devDependencies": {
-    "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
+    "@ttoss/eslint-config": "^1.26.4",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "ts-node-dev": "^2.0.0",

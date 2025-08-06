@@ -1,4 +1,3 @@
-import { config } from "@repo/eslint-config/base";
+import ttossEslintConfig from "@ttoss/eslint-config";
 
-/** @type {import("eslint").Linter.Config} */
-export default config;
+export default [...ttossEslintConfig];
