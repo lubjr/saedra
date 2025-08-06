@@ -2,19 +2,23 @@ import express from 'express';
 import cors from 'cors';
 
 import { initNats } from './services/publisher.js';
-import iacRoutes from './routes/iac.js';
 import { startWorker } from './workers/iacAnalyzer.js';
-import resultRoutes from './routes/result.js';
 import { startResultListener } from './listeners/resultListener.js';
 
+import iacRoutes from './routes/iac.js';
+import resultRoutes from './routes/result.js';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 initNats().catch((err: any) => {
   console.error('Failed to initialize NATS:', err);
 });
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 startWorker().catch((err: any) => {
   console.error('Failed to start IaC analyzer worker:', err);
 });
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 startResultListener().catch((err: any) => {
   console.error('Failed to start result listener:', err);
 });
