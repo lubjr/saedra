@@ -1,23 +1,20 @@
 # Saedra 🌱
 
-AI-powered Infrastructure as Code (IaC) analyzer that takes files (e.g., Terraform, YAML, JSON) and responds with structured, readable explanations of what each part does, risks, and suggestions.
+**Saedra** is an AI-powered Infrastructure as Code (IaC) analyzer. It takes input files such as **Terraform**, **YAML**, or **JSON**, and returns structured, human-readable explanations of:
 
-## Using this example
+- 🔍 What each part of the code does  
+- ⚠️ Potential risks and misconfigurations  
+- 💡 Suggestions for improvements and best practices
 
-Run the following command:
+---
+
+## 🚀 Getting Started
+
+To build and start the project locally:
 
 ```sh
 pnpm run build
-```
-
-and
-
-```sh
 pnpm run dev
 ```
-
-[Acess]([http://localhost:3000/])
-
-## What's inside?
 
 <img width="1899" height="930" alt="image" src="https://github.com/user-attachments/assets/d2a9d597-1d9c-4ae8-b556-1cb8a960f0f6" />
