@@ -1,12 +1,15 @@
 "use client";
+
 import * as React from "react";
 import { useState, useRef, useEffect } from "react";
 import { FaGithub, FaPaperclip, FaArrowRight } from "react-icons/fa";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const [code, setCode] = useState("");
   const [language, setLanguage] = useState("Terraform");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const textarea = textareaRef.current;
@@ -15,6 +18,11 @@ export default function Home() {
       textarea.style.height = Math.min(textarea.scrollHeight, 500) + "px";
     }
   }, [code]);
+
+  const handleProceed = () => {
+    const encodedCode = encodeURIComponent(code);
+    router.push(`/result?lang=${language}&code=${encodedCode}`);
+  };
 
   return (
     <div className="flex flex-col items-center text-center py-16 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
@@ -38,7 +46,7 @@ export default function Home() {
           </select>
 
           {code.trim() && (
-            <button className="bg-indigo-600 hover:bg-indigo-500 text-white p-2 rounded-md transition">
+            <button onClick={handleProceed} className="bg-indigo-600 hover:bg-indigo-500 text-white p-2 rounded-md transition">
               <FaArrowRight size={14} />
             </button>
           )}
