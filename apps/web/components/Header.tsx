@@ -18,8 +18,8 @@ export function Header() {
 
         <div className="flex items-center space-x-6">
           <a href="#" className="text-zinc-300 hover:text-white transition">Docs</a>
-          <a href="#" className="text-zinc-300 hover:text-white transition">Showcase</a>
-          <a href="#" className="text-zinc-300 hover:text-white transition">News</a>
+          <a href="#" className="text-zinc-300 hover:text-white transition">Blog</a>
+          <a href="#" className="text-zinc-300 hover:text-white transition">Pricing</a>
           <a href="#" className="text-zinc-300 hover:text-white transition">About</a>
 
           <a
