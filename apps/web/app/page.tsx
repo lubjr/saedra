@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 export default function Home() {
   const [code, setCode] = useState("");
   const [language, setLanguage] = useState("Terraform");
+  const [loading, setLoading] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const router = useRouter();
 
@@ -19,9 +20,34 @@ export default function Home() {
     }
   }, [code]);
 
-  const handleProceed = () => {
-    const encodedCode = encodeURIComponent(code);
-    router.push(`/result?lang=${language}&code=${encodedCode}`);
+  const handleProceed = async () => {
+    try {
+      setLoading(true);
+
+      const filename =
+        language.toLowerCase() === "terraform"
+          ? "main.tf"
+          : language.toLowerCase() === "yaml"
+          ? "main.yaml"
+          : "main.json";
+
+      const res = await fetch("http://localhost:3002/analyze-iac", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ filename, content: code }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to start analysis");
+      }
+
+      router.push(`/result?filename=${encodeURIComponent(filename)}`);
+    } catch (err) {
+      console.error(err);
+      alert("Error starting analysis");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -46,8 +72,12 @@ export default function Home() {
           </select>
 
           {code.trim() && (
-            <button onClick={handleProceed} className="bg-indigo-600 hover:bg-indigo-500 text-white p-2 rounded-md transition">
-              <FaArrowRight size={14} />
+            <button
+              onClick={handleProceed}
+              disabled={loading}
+              className="bg-indigo-600 hover:bg-indigo-500 text-white p-2 rounded-md transition disabled:opacity-50"
+            >
+              {loading ? "Processing..." : <FaArrowRight size={14} />}
             </button>
           )}
         </div>
