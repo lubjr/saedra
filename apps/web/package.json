@@ -24,6 +24,7 @@
     "@types/react": "19.1.0",
     "@types/react-dom": "19.1.1",
     "eslint": "^9.31.0",
+    "react-icons": "^5.5.0",
     "tailwindcss": "^4.1.11",
     "typescript": "5.8.2"
   }
