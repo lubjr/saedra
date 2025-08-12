@@ -1,46 +1,71 @@
-import * as React from 'react';
+"use client";
+import * as React from "react";
+import { useState, useRef, useEffect } from "react";
+import { FaGithub, FaPaperclip, FaArrowRight } from "react-icons/fa";
 
 export default function Home() {
-  return (
-    <div className="flex flex-col items-center text-center py-24 px-4 sm:px-6 lg:px-8">
-      <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-white mb-6">
-        AI-Powered IaC Analyzer
-      </h1>
+  const [code, setCode] = useState("");
+  const [language, setLanguage] = useState("Terraform");
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-      <p className="max-w-2xl text-lg sm:text-xl text-zinc-400 mb-8">
-        Upload your Infrastructure as Code files to receive clear, structured explanations, 
-        with identified risks and actionable improvement suggestions.
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = "auto";
+      textarea.style.height = Math.min(textarea.scrollHeight, 500) + "px";
+    }
+  }, [code]);
+
+  return (
+    <div className="flex flex-col items-center text-center py-16 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+      <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">
+        How to analyze your IaC?
+      </h1>
+      <p className="text-zinc-400 text-sm mb-8">
+        Secure and optimize your IaC with AI.
       </p>
 
-      <div>
-        <button className="px-6 py-3 bg-sky-800 hover:bg-sky-700 text-white font-semibold rounded-xl transition duration-200">
-          Get Started
+      <div className="w-3/4 relative bg-zinc-800 border border-zinc-700 rounded-lg overflow-hidden">
+        <div className="flex items-center justify-between px-2 py-2 border-b border-zinc-700">
+          <select
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+            className="bg-zinc-800 text-zinc-300 text-xs px-2 py-1 rounded border border-zinc-700 focus:outline-none"
+          >
+            <option>Terraform</option>
+            <option>YAML</option>
+            <option>JSON</option>
+          </select>
+
+          {code.trim() && (
+            <button className="bg-indigo-600 hover:bg-indigo-500 text-white p-2 rounded-md transition">
+              <FaArrowRight size={14} />
+            </button>
+          )}
+        </div>
+
+        <div className="relative">
+          <textarea
+            ref={textareaRef}
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            placeholder={`Paste your ${language} code here...`}
+            className="w-full min-h-[150px] max-h-[300px] bg-zinc-800 text-sm text-white font-mono p-4 pl-8 pr-10 resize-none focus:outline-none overflow-y-auto custom-scroll"
+          />
+
+          <div className="absolute bottom-3 left-3 text-zinc-500 cursor-pointer hover:text-zinc-300">
+            <FaPaperclip size={14} />
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-6 flex flex-col items-center gap-3">
+        <span className="text-zinc-500 text-xs">or import from</span>
+        <button className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-white text-sm px-3 py-1.5 rounded-full border border-zinc-700 transition">
+          <FaGithub size={14} />
+          GitHub
         </button>
       </div>
-
-      <div className="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-6xl w-full">
-        <Feature
-          title="Understand Your IaC"
-          description="Get clear explanations for every resource, even in complex configurations."
-        />
-        <Feature
-          title="Detect Security Risks"
-          description="Automatically identify risky settings like public S3 buckets or permissive IAM roles."
-        />
-        <Feature
-          title="Improve With Confidence"
-          description="Receive actionable recommendations to harden your infrastructure."
-        />
-      </div>
-    </div>
-  );
-}
-
-function Feature({ title, description }: { title: string; description: string }) {
-  return (
-    <div className="bg-zinc-800 rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow duration-300">
-      <h3 className="text-xl font-semibold text-white mb-2">{title}</h3>
-      <p className="text-zinc-400 text-sm">{description}</p>
     </div>
   );
 }

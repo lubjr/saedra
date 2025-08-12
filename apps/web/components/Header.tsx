@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 export function Header() {
   return (
-    <header className="bg-zinc-900 py-4 font-inter">
+    <header className="bg-zinc-900 py-4">
       <nav className="container mx-auto px-6 flex justify-between items-center">
         <div className="flex items-center space-x-2">
         <Link
