@@ -4,6 +4,7 @@ import { broker, codec, connectClient } from "@repo/nats-client/browser";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 import { FaArrowRight, FaGithub, FaPaperclip } from "react-icons/fa";
+import { v4 as uuidv4 } from "uuid";
 
 export default function Home() {
   const [code, setCode] = React.useState("");
@@ -25,7 +26,7 @@ export default function Home() {
       await connectClient();
       setLoading(true);
 
-      const requestId = crypto.randomUUID();
+      const requestId = uuidv4();
       const replyTopic = `iac.analysis.result.${requestId}`;
 
       const filename =
