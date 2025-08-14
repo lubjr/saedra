@@ -1,30 +1,38 @@
-import Link from 'next/link';
+import Link from "next/link";
 
-export function Header() {
+export const Header = () => {
   return (
     <header className="bg-zinc-900 py-4">
       <nav className="container mx-auto px-6 flex justify-between items-center">
         <div className="flex items-center space-x-2">
-        <Link
-          href="/"
-          className="text-white text-xl font-bold tracking-tight"
-        >
-          Saedra
-        </Link>
-        <span className="text-xs bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded-lg border border-zinc-700">
-          v1.0
-        </span>
-      </div>
+          <Link
+            href="/"
+            className="text-white text-xl font-bold tracking-tight"
+          >
+            Saedra
+          </Link>
+          <span className="text-xs bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded-lg border border-zinc-700">
+            v1.0
+          </span>
+        </div>
 
         <div className="flex items-center space-x-6">
-          <a href="#" className="text-zinc-300 hover:text-white transition">Docs</a>
-          <a href="#" className="text-zinc-300 hover:text-white transition">Blog</a>
-          <a href="#" className="text-zinc-300 hover:text-white transition">Pricing</a>
-          <a href="#" className="text-zinc-300 hover:text-white transition">About</a>
+          <a href="#" className="text-zinc-300 hover:text-white transition">
+            Docs
+          </a>
+          <a href="#" className="text-zinc-300 hover:text-white transition">
+            Blog
+          </a>
+          <a href="#" className="text-zinc-300 hover:text-white transition">
+            Pricing
+          </a>
+          <a href="#" className="text-zinc-300 hover:text-white transition">
+            About
+          </a>
 
           <a
-            href="https://github.com/lubjr/saedra" 
-            target="_blank" 
+            href="https://github.com/lubjr/saedra"
+            target="_blank"
             rel="noopener noreferrer"
             className="text-zinc-300 hover:text-white transition"
             aria-label="GitHub Repository"
@@ -44,4 +52,4 @@ export function Header() {
       </nav>
     </header>
   );
-}
+};

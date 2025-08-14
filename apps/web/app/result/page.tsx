@@ -1,10 +1,11 @@
-import { Suspense } from 'react';
-import ResultContentPage from '../../components/ResultContentPage';
+import * as React from "react";
+
+import ResultContentPage from "../../components/ResultContentPage";
 
 export default function Page() {
   return (
-    <Suspense fallback={<p>Loading...</p>}>
+    <React.Suspense fallback={<p>Loading...</p>}>
       <ResultContentPage />
-    </Suspense>
+    </React.Suspense>
   );
 }

@@ -1,18 +1,17 @@
 "use client";
 
-import * as React from "react";
-import { useState, useRef, useEffect } from "react";
-import { FaGithub, FaPaperclip, FaArrowRight } from "react-icons/fa";
 import { useRouter } from "next/navigation";
+import * as React from "react";
+import { FaArrowRight, FaGithub, FaPaperclip } from "react-icons/fa";
 
 export default function Home() {
-  const [code, setCode] = useState("");
-  const [language, setLanguage] = useState("Terraform");
-  const [loading, setLoading] = useState(false);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [code, setCode] = React.useState("");
+  const [language, setLanguage] = React.useState("Terraform");
+  const [loading, setLoading] = React.useState(false);
+  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const router = useRouter();
 
-  useEffect(() => {
+  React.useEffect(() => {
     const textarea = textareaRef.current;
     if (textarea) {
       textarea.style.height = "auto";
@@ -28,8 +27,8 @@ export default function Home() {
         language.toLowerCase() === "terraform"
           ? "main.tf"
           : language.toLowerCase() === "yaml"
-          ? "main.yaml"
-          : "main.json";
+            ? "main.yaml"
+            : "main.json";
 
       const res = await fetch("http://localhost:3002/analyze-iac", {
         method: "POST",
@@ -42,9 +41,8 @@ export default function Home() {
       }
 
       router.push(`/result?filename=${encodeURIComponent(filename)}`);
-    } catch (err) {
-      console.error(err);
-      alert("Error starting analysis");
+    } catch (error) {
+      alert("Error starting analysis: " + (error as Error).message);
     } finally {
       setLoading(false);
     }
@@ -63,7 +61,9 @@ export default function Home() {
         <div className="flex items-center justify-between px-2 py-2 border-b border-zinc-700">
           <select
             value={language}
-            onChange={(e) => setLanguage(e.target.value)}
+            onChange={(e) => {
+              return setLanguage(e.target.value);
+            }}
             className="bg-zinc-800 text-zinc-300 text-xs px-2 py-1 rounded border border-zinc-700 focus:outline-none"
           >
             <option>Terraform</option>
@@ -86,7 +86,9 @@ export default function Home() {
           <textarea
             ref={textareaRef}
             value={code}
-            onChange={(e) => setCode(e.target.value)}
+            onChange={(e) => {
+              return setCode(e.target.value);
+            }}
             placeholder={`Paste your ${language} code here...`}
             className="w-full min-h-[150px] max-h-[300px] bg-zinc-800 text-sm text-white font-mono p-4 pl-8 pr-10 resize-none focus:outline-none overflow-y-auto custom-scroll"
           />

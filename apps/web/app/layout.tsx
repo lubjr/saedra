@@ -1,8 +1,13 @@
-import './globals.css';
-import { Header } from '../components/Header';
-import { Footer } from '../components/Footer';
+import "./globals.css";
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+import { Footer } from "../components/Footer";
+import { Header } from "../components/Header";
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
       <body className="bg-zinc-900 text-zinc-100 min-h-screen flex flex-col font-inter">
