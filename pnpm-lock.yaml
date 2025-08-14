@@ -57,6 +57,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@repo/nats-client':
+        specifier: workspace:*
+        version: link:../../packages/nats-client
       '@repo/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -142,6 +145,9 @@ importers:
       nats:
         specifier: ^2.29.3
         version: 2.29.3
+      nats.ws:
+        specifier: ^1.30.3
+        version: 1.30.3
     devDependencies:
       '@repo/typescript-config':
         specifier: workspace:*
@@ -2055,6 +2061,9 @@ packages:
     resolution: {integrity: sha512-tWVJxJHmBWLy69PvO96TZMZDrzmw5KeiZBz3RHmiM2XZ9grBJ2WgMAFVVg25nqp3ZjTFUs2Ftw1JhscL3Teliw==}
     engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
     hasBin: true
+
+  nats.ws@1.30.3:
+    resolution: {integrity: sha512-aM77V2SEc+B6lbxCMZK3qfRy4jg8pmHj+wZzQKDiDIQYhLPj6U2NSHHBex0syj72Ayzl4uR5Lp3aKXTaVLbRpw==}
 
   nats@2.29.3:
     resolution: {integrity: sha512-tOQCRCwC74DgBTk4pWZ9V45sk4d7peoE2njVprMRCBXrhJ5q5cYM7i6W+Uvw2qUrcfOSnuisrX7bEx3b3Wx4QA==}
@@ -4958,6 +4967,10 @@ snapshots:
   nanoid@3.3.11: {}
 
   napi-postinstall@0.3.2: {}
+
+  nats.ws@1.30.3:
+    optionalDependencies:
+      nkeys.js: 1.1.0
 
   nats@2.29.3:
     dependencies:

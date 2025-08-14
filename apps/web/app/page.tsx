@@ -1,5 +1,6 @@
 "use client";
 
+import { broker, codec, connectClient } from "@repo/nats-client/browser";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 import { FaArrowRight, FaGithub, FaPaperclip } from "react-icons/fa";
@@ -21,7 +22,11 @@ export default function Home() {
 
   const handleProceed = async () => {
     try {
+      await connectClient();
       setLoading(true);
+
+      const requestId = crypto.randomUUID();
+      const replyTopic = `iac.analysis.result.${requestId}`;
 
       const filename =
         language.toLowerCase() === "terraform"
@@ -30,17 +35,20 @@ export default function Home() {
             ? "main.yaml"
             : "main.json";
 
-      const res = await fetch("http://localhost:3002/analyze-iac", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ filename, content: code }),
-      });
+      const payloadObj = {
+        filename,
+        content: code,
+        replyTopic,
+      };
 
-      if (!res.ok) {
-        throw new Error("Failed to start analysis");
-      }
+      broker.publish(
+        "iac.to.analyze",
+        codec.encode(JSON.stringify(payloadObj)),
+      );
 
-      router.push(`/result?filename=${encodeURIComponent(filename)}`);
+      router.push(
+        `/result?filename=${encodeURIComponent(filename)}&requestId=${requestId}`,
+      );
     } catch (error) {
       alert("Error starting analysis: " + (error as Error).message);
     } finally {
@@ -57,7 +65,7 @@ export default function Home() {
         Secure and optimize your IaC with AI.
       </p>
 
-      <div className="w-3/4 relative bg-zinc-800 border border-zinc-700 rounded-lg overflow-hidden">
+      <div className="w-full relative bg-zinc-800 border border-zinc-700 rounded-lg overflow-hidden">
         <div className="flex items-center justify-between px-2 py-2 border-b border-zinc-700">
           <select
             value={language}
