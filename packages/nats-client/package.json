@@ -9,6 +9,10 @@
     "./client": {
       "types": "./src/client.ts",
       "default": "./dist/client.js"
+    },
+    "./browser": {
+      "types": "./src/browser.ts",
+      "default": "./dist/browser.js"
     }
   },
   "devDependencies": {
@@ -16,6 +20,7 @@
     "typescript": "latest"
   },
   "dependencies": {
-    "nats": "^2.29.3"
+    "nats": "^2.29.3",
+    "nats.ws": "^1.30.3"
   }
 }
