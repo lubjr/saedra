@@ -1,8 +1,6 @@
 "use client";
 
-import { AlertTriangle, CheckCircle, Info } from "lucide-react";
-
-import { Card, CardContent } from "@/components/ui/card";
+import { AlertIcon, Card, CardContent, CheckIcon, InfoIcon } from "@repo/ui";
 
 export default function ResultContent({
   data,
@@ -47,7 +45,7 @@ export default function ResultContent({
                     {res.risks?.length > 0 && (
                       <div>
                         <p className="flex items-center font-semibold text-red-400 mb-2">
-                          <AlertTriangle className="h-5 w-5 mr-2" /> Risks
+                          <AlertIcon className="h-5 w-5 mr-2" /> Risks
                         </p>
                         <ul className="space-y-2">
                           {res.risks.map((risk: string, i: number) => {
@@ -56,7 +54,7 @@ export default function ResultContent({
                                 key={i}
                                 className="flex items-start gap-2 bg-red-500/10 border border-red-500/20 rounded-md p-2"
                               >
-                                <AlertTriangle className="h-4 w-4 mt-0.5 text-red-400" />
+                                <AlertIcon className="h-4 w-4 mt-0.5 text-red-400" />
                                 <span>{risk}</span>
                               </li>
                             );
@@ -68,8 +66,7 @@ export default function ResultContent({
                     {res.recommendations?.length > 0 && (
                       <div>
                         <p className="flex items-center font-semibold text-green-400 mb-2">
-                          <CheckCircle className="h-5 w-5 mr-2" />{" "}
-                          Recommendations
+                          <CheckIcon className="h-5 w-5 mr-2" /> Recommendations
                         </p>
                         <ul className="space-y-2">
                           {res.recommendations.map((rec: string, i: number) => {
@@ -78,7 +75,7 @@ export default function ResultContent({
                                 key={i}
                                 className="flex items-start gap-2 bg-green-500/10 border border-green-500/20 rounded-md p-2"
                               >
-                                <CheckCircle className="h-4 w-4 mt-0.5 text-green-400" />
+                                <CheckIcon className="h-4 w-4 mt-0.5 text-green-400" />
                                 <span>{rec}</span>
                               </li>
                             );
@@ -94,7 +91,7 @@ export default function ResultContent({
         ) : (
           <Card className="bg-zinc-800 text-gray-300">
             <CardContent className="p-4 flex items-center gap-2">
-              <Info className="h-5 w-5 text-blue-400" />
+              <InfoIcon className="h-5 w-5 text-blue-400" />
               <p>{data.summary}</p>
             </CardContent>
           </Card>
