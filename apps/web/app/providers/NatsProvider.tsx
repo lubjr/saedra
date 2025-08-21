@@ -29,11 +29,7 @@ export const NatsProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   if (!connected) {
-    return (
-      <div className="flex items-center justify-center h-screen text-white">
-        Connecting to NATS...
-      </div>
-    );
+    return;
   }
 
   return (
