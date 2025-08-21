@@ -1,15 +1,10 @@
 "use client";
 
-import {
-  broker,
-  codec,
-  connectClient,
-  Msg,
-  Sub,
-} from "@repo/nats-client/browser";
+import { Msg, Sub } from "@repo/nats-client/browser";
 import { useSearchParams } from "next/navigation";
 import * as React from "react";
 
+import { useNats } from "../app/providers/NatsProvider";
 import { Loading } from "./Loading";
 import ResultContent from "./ResultContent";
 
@@ -24,6 +19,7 @@ export default function ResultContentPage() {
   } | null>(null);
   const [error, setError] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(true);
+  const { broker, codec } = useNats();
 
   React.useEffect(() => {
     if (!filename || !requestId) {
@@ -37,7 +33,6 @@ export default function ResultContentPage() {
 
     const fetchData = async () => {
       try {
-        await connectClient();
         const replyTopic = `iac.analysis.result.${requestId}`;
         sub = broker.subscribe(replyTopic);
 

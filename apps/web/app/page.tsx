@@ -1,10 +1,11 @@
 "use client";
 
-import { broker, codec, connectClient } from "@repo/nats-client/browser";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 import { FaArrowRight, FaGithub, FaPaperclip } from "react-icons/fa";
 import { v4 as uuidv4 } from "uuid";
+
+import { useNats } from "./providers/NatsProvider";
 
 export default function Home() {
   const [code, setCode] = React.useState("");
@@ -12,6 +13,7 @@ export default function Home() {
   const [loading, setLoading] = React.useState(false);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const router = useRouter();
+  const { broker, codec } = useNats();
 
   React.useEffect(() => {
     const textarea = textareaRef.current;
@@ -23,7 +25,8 @@ export default function Home() {
 
   const handleProceed = async () => {
     try {
-      await connectClient();
+      if (!code.trim()) return;
+
       setLoading(true);
 
       const requestId = uuidv4();

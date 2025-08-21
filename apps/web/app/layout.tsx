@@ -1,5 +1,6 @@
 import "./globals.css";
 
+import { NatsProvider } from "../app/providers/NatsProvider";
 import { Footer } from "../components/Footer";
 import { Header } from "../components/Header";
 
@@ -11,11 +12,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="bg-zinc-900 text-zinc-100 min-h-screen flex flex-col font-inter">
-        <Header />
-        <main className="flex-grow p-8 flex flex-col items-center">
-          {children}
-        </main>
-        <Footer />
+        <NatsProvider>
+          <Header />
+          <main className="flex-grow p-8 flex flex-col items-center">
+            {children}
+          </main>
+          <Footer />
+        </NatsProvider>
       </body>
     </html>
   );
