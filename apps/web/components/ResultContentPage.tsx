@@ -10,6 +10,7 @@ import {
 import { useSearchParams } from "next/navigation";
 import * as React from "react";
 
+import { Loading } from "./Loading";
 import ResultContent from "./ResultContent";
 
 export default function ResultContentPage() {
@@ -74,7 +75,7 @@ export default function ResultContentPage() {
   }, [filename, requestId]);
 
   if (error) return <p className="text-center">{error}</p>;
-  if (loading) return <p className="text-center">Loading...</p>;
+  if (loading) return <Loading />;
 
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   return <ResultContent data={data!} />;
