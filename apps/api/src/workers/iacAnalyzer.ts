@@ -8,7 +8,7 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
 
 export const analyzeWithIA = async (content: string) => {
   const prompt = `
-  Você é um especialista em infraestrutura. Analise o arquivo IaC e retorne um JSON com a seguinte estrutura:
+  You are an infrastructure expert. Analyze the IaC file and return a JSON with the following structure:
 
   {
     "resources": [
@@ -23,7 +23,7 @@ export const analyzeWithIA = async (content: string) => {
     "summary": "..."
   }
 
-  Arquivo:
+  File:
   \`\`\`
   ${content}
   \`\`\`
