@@ -5,15 +5,12 @@ import * as React from "react";
 import { FaArrowRight, FaGithub, FaPaperclip } from "react-icons/fa";
 import { v4 as uuidv4 } from "uuid";
 
-import { useNats } from "./providers/NatsProvider";
-
 export default function Home() {
   const [code, setCode] = React.useState("");
   const [language, setLanguage] = React.useState("Terraform");
   const [loading, setLoading] = React.useState(false);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const router = useRouter();
-  const { broker, codec } = useNats();
 
   React.useEffect(() => {
     const textarea = textareaRef.current;
@@ -45,13 +42,8 @@ export default function Home() {
         replyTopic,
       };
 
-      broker.publish(
-        "iac.to.analyze",
-        codec.encode(JSON.stringify(payloadObj)),
-      );
-
       router.push(
-        `/result?filename=${encodeURIComponent(filename)}&requestId=${requestId}`,
+        `/result?payload=${encodeURIComponent(JSON.stringify(payloadObj))}`,
       );
     } catch (error) {
       alert("Error starting analysis: " + (error as Error).message);
@@ -87,9 +79,9 @@ export default function Home() {
             <button
               onClick={handleProceed}
               disabled={loading}
-              className="bg-indigo-600 hover:bg-indigo-500 text-white p-2 rounded-md transition disabled:opacity-50"
+              className="bg-indigo-600 hover:bg-indigo-500 text-white p-2 rounded-md transition disabled:opacity-50 cursor-pointer"
             >
-              {loading ? "Processing..." : <FaArrowRight size={14} />}
+              {<FaArrowRight size={14} />}
             </button>
           )}
         </div>
