@@ -91,9 +91,10 @@ export default function Home() {
           )}
         </div>
 
-        <div className="relative">
+        <div className="w-full bg-zinc-800 rounded border border-zinc-700 flex flex-col">
           <textarea
             ref={textareaRef}
+            maxLength={1000}
             value={code}
             onChange={(e) => {
               return setCode(e.target.value);
@@ -102,8 +103,12 @@ export default function Home() {
             className="w-full min-h-[150px] max-h-[300px] bg-zinc-800 text-sm text-white font-mono p-4 pl-8 pr-10 resize-none focus:outline-none overflow-y-auto custom-scroll"
           />
 
-          <div className="absolute bottom-3 left-3 text-zinc-500 cursor-pointer hover:text-zinc-300">
-            <FaPaperclip size={14} />
+          <div className="flex items-center justify-between px-3 py-2 text-zinc-500 text-xs border-t border-zinc-700">
+            <FaPaperclip
+              size={14}
+              className="cursor-pointer hover:text-zinc-300"
+            />
+            <span>{code.length}/1000</span>
           </div>
         </div>
       </div>
