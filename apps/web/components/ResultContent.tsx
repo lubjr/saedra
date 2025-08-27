@@ -14,7 +14,7 @@ export default function ResultContent({
         IaC Analysis Result
       </h1>
 
-      <div className="flex flex-col gap-6 overflow-auto bg-zinc-900 rounded-2xl p-6 shadow-lg w-full h-[calc(100vh-16rem)]">
+      <div className="flex flex-col gap-6 overflow-auto w-full h-[calc(100vh-16rem)]">
         {typeof data === "string" ? (
           <pre className="text-left whitespace-pre-wrap text-gray-300">
             {data}
