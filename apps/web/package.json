@@ -19,16 +19,19 @@
     "uuid": "^11.1.0"
   },
   "devDependencies": {
+    "@repo/tailwind-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
     "@tailwindcss/postcss": "^4.1.11",
     "@ttoss/eslint-config": "^1.26.4",
     "@types/node": "^22.15.3",
     "@types/react": "19.1.0",
     "@types/react-dom": "19.1.1",
+    "autoprefixer": "^10.4.21",
     "eslint": "^9.31.0",
+    "postcss": "^8.5.3",
     "react-icons": "^5.5.0",
     "tailwindcss": "^4.1.11",
-    "typescript": "5.8.2",
-    "tw-animate-css": "^1.3.7"
+    "tw-animate-css": "^1.3.7",
+    "typescript": "5.8.2"
   }
 }

@@ -1,6 +1,7 @@
 "use client";
 
-import { AlertIcon, Card, CardContent, CheckIcon, InfoIcon } from "@repo/ui";
+import { Card, CardContent } from "@repo/ui/card";
+import { AlertIcon, CheckIcon, InfoIcon } from "@repo/ui/lucide";
 
 export default function ResultContent({
   data,

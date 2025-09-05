@@ -1,6 +1,7 @@
 "use client";
 
-import { Card, CardContent, CheckIcon } from "@repo/ui";
+import { Card, CardContent } from "@repo/ui/card";
+import { CheckIcon } from "@repo/ui/lucide";
 
 export default function Pricing() {
   const plans = [

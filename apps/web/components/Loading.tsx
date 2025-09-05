@@ -1,4 +1,5 @@
-import { Button, LoadingIcon } from "@repo/ui";
+import { Button } from "@repo/ui/button";
+import { LoadingIcon } from "@repo/ui/lucide";
 
 export const Loading = () => {
   return (
