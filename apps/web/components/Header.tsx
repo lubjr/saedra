@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { ButtonPanel } from "./AcessPanel";
+
 export const Header = () => {
   return (
     <header className="bg-zinc-900 py-4">
@@ -12,7 +14,7 @@ export const Header = () => {
             Saedra
           </Link>
           <span className="text-xs bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded-lg border border-zinc-700">
-            v1.2
+            v1.3
           </span>
         </div>
 
@@ -52,6 +54,8 @@ export const Header = () => {
             </svg>
           </a>
         </div>
+
+        <ButtonPanel />
       </nav>
     </header>
   );
