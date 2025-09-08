@@ -1,6 +1,6 @@
 import "@repo/ui/styles.css";
-import "./globals.css";
 
+// import "./globals.css";
 import { NatsProvider } from "../app/providers/NatsProvider";
 import { Footer } from "../components/Footer";
 import { Header } from "../components/Header";
