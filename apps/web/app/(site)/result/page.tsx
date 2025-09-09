@@ -1,7 +1,7 @@
 import * as React from "react";
 
-import { Loading } from "../../components/Loading";
-import ResultContentPage from "../../components/ResultContentPage";
+import { Loading } from "../../../components/Loading";
+import ResultContentPage from "../../../components/ResultContentPage";
 
 export default function Page() {
   return (

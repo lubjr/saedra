@@ -14,7 +14,7 @@ export const Header = () => {
             Saedra
           </Link>
           <span className="text-xs bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded-lg border border-zinc-700">
-            v1.3
+            v1.4
           </span>
         </div>
 

@@ -1,9 +1,14 @@
 import "@repo/ui/styles.css";
 
-import { NatsProvider } from "../app/providers/NatsProvider";
-import { Footer } from "../components/Footer";
-import { Header } from "../components/Header";
-import { ThemeProvider } from "./providers/ThemeProvider";
+import type { Metadata } from "next";
+
+import { ThemeProviderWrapper } from "./providers/ThemeProviderWrapper";
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const metadata: Metadata = {
+  title: "Saedra",
+  description: "An open-source, self-hosted alternative to SaaS products.",
+};
 
 export default function RootLayout({
   children,
@@ -13,20 +18,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="bg-zinc-900 text-zinc-100 min-h-screen flex flex-col font-inter">
-        <NatsProvider>
-          <Header />
-          <main className="flex-grow p-8 flex flex-col items-center">
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="dark"
-              enableSystem
-              disableTransitionOnChange
-            >
-              {children}
-            </ThemeProvider>
-          </main>
-          <Footer />
-        </NatsProvider>
+        <ThemeProviderWrapper>{children}</ThemeProviderWrapper>
       </body>
     </html>
   );
