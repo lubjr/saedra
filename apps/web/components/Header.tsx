@@ -1,3 +1,4 @@
+import { Badge } from "@repo/ui/badge";
 import Link from "next/link";
 
 import { ButtonPanel } from "./AcessPanel";
@@ -14,9 +15,7 @@ export const Header = () => {
           >
             Saedra
           </Link>
-          <span className="text-xs bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded-lg border border-zinc-700">
-            v1.4
-          </span>
+          <Badge variant="outline">v1.5</Badge>
         </div>
 
         <Menu />
