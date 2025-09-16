@@ -6,7 +6,7 @@ import { AppSidebar } from "../../../components/Sidebar";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <SidebarProvider>
+    <SidebarProvider className="bg-zinc-950">
       <AppSidebar />
       <main>
         <SidebarTrigger />

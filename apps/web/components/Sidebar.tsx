@@ -8,6 +8,7 @@ import {
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -15,6 +16,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@repo/ui/sidebar";
+
+import { NavUser } from "./NavUser";
 
 const items = [
   {
@@ -44,10 +47,18 @@ const items = [
   },
 ];
 
+const data = {
+  user: {
+    name: "beta user",
+    email: "user@saedra.com",
+    avatar: "/",
+  },
+};
+
 export const AppSidebar = () => {
   return (
     <Sidebar>
-      <SidebarContent>
+      <SidebarContent className="bg-zinc-900">
         <SidebarGroup>
           <SidebarGroupLabel>Application</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -68,6 +79,9 @@ export const AppSidebar = () => {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter className="bg-zinc-900">
+        <NavUser user={data.user} />
+      </SidebarFooter>
     </Sidebar>
   );
 };
