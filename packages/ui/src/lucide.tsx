@@ -15,3 +15,7 @@ export const ChevronsUpDownIcon = Lucide.ChevronsUpDown;
 export const CreditCardIcon = Lucide.CreditCard;
 export const LogOutIcon = Lucide.LogOut;
 export const SparklesIcon = Lucide.Sparkles;
+export const LifeBuoyIcon = Lucide.LifeBuoy;
+export const SendIcon = Lucide.Send;
+
+export type { LucideIcon } from "lucide-react";

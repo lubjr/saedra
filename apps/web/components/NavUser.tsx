@@ -78,7 +78,10 @@ export const NavUser = ({
             <DropdownMenuSeparator className="bg-zinc-700" />
 
             <DropdownMenuGroup>
-              <DropdownMenuItem className="hover:bg-zinc-700 focus:bg-zinc-700">
+              <DropdownMenuItem
+                disabled
+                className="hover:bg-zinc-700 focus:bg-zinc-700"
+              >
                 <SparklesIcon />
                 Upgrade to Pro
               </DropdownMenuItem>
@@ -87,15 +90,24 @@ export const NavUser = ({
             <DropdownMenuSeparator className="bg-zinc-700" />
 
             <DropdownMenuGroup>
-              <DropdownMenuItem className="hover:bg-zinc-700 focus:bg-zinc-700">
+              <DropdownMenuItem
+                disabled
+                className="hover:bg-zinc-700 focus:bg-zinc-700"
+              >
                 <BadgeCheckIcon />
                 Account
               </DropdownMenuItem>
-              <DropdownMenuItem className="hover:bg-zinc-700 focus:bg-zinc-700">
+              <DropdownMenuItem
+                disabled
+                className="hover:bg-zinc-700 focus:bg-zinc-700"
+              >
                 <CreditCardIcon />
                 Billing
               </DropdownMenuItem>
-              <DropdownMenuItem className="hover:bg-zinc-700 focus:bg-zinc-700">
+              <DropdownMenuItem
+                disabled
+                className="hover:bg-zinc-700 focus:bg-zinc-700"
+              >
                 <BellIcon />
                 Notifications
               </DropdownMenuItem>

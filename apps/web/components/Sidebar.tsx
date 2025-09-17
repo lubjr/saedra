@@ -1,10 +1,4 @@
-import {
-  CalendarIcon,
-  HomeIcon,
-  InboxIcon,
-  SearchIcon,
-  SettingsIcon,
-} from "@repo/ui/lucide";
+import { HomeIcon, InboxIcon, LifeBuoyIcon, SendIcon } from "@repo/ui/lucide";
 import {
   Sidebar,
   SidebarContent,
@@ -17,33 +11,19 @@ import {
   SidebarMenuItem,
 } from "@repo/ui/sidebar";
 
+import { NavSecondary } from "./NavSecondary";
 import { NavUser } from "./NavUser";
 
 const items = [
   {
     title: "Home",
-    url: "#",
+    url: "/dashboard",
     icon: HomeIcon,
   },
   {
-    title: "Inbox",
+    title: "Projects",
     url: "#",
     icon: InboxIcon,
-  },
-  {
-    title: "Calendar",
-    url: "#",
-    icon: CalendarIcon,
-  },
-  {
-    title: "Search",
-    url: "#",
-    icon: SearchIcon,
-  },
-  {
-    title: "Settings",
-    url: "#",
-    icon: SettingsIcon,
   },
 ];
 
@@ -53,6 +33,18 @@ const data = {
     email: "user@saedra.com",
     avatar: "/",
   },
+  navSecondary: [
+    {
+      title: "Support",
+      url: "#",
+      icon: LifeBuoyIcon,
+    },
+    {
+      title: "Feedback",
+      url: "#",
+      icon: SendIcon,
+    },
+  ],
 };
 
 export const AppSidebar = () => {
@@ -60,7 +52,7 @@ export const AppSidebar = () => {
     <Sidebar>
       <SidebarContent className="bg-zinc-900">
         <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
+          <SidebarGroupLabel>Saedra</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => {
@@ -78,6 +70,7 @@ export const AppSidebar = () => {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter className="bg-zinc-900">
         <NavUser user={data.user} />
