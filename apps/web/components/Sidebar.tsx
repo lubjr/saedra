@@ -1,11 +1,11 @@
-import { HomeIcon, InboxIcon, LifeBuoyIcon, SendIcon } from "@repo/ui/lucide";
+import { CommandIcon, HomeIcon, LifeBuoyIcon, SendIcon } from "@repo/ui/lucide";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
+  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -20,11 +20,6 @@ const items = [
     title: "Home",
     url: "/dashboard",
     icon: HomeIcon,
-  },
-  {
-    title: "Projects",
-    url: "#",
-    icon: InboxIcon,
   },
 ];
 
@@ -57,10 +52,26 @@ const data = {
 
 export const AppSidebar = () => {
   return (
-    <Sidebar>
-      <SidebarContent className="bg-zinc-900">
+    <Sidebar variant="floating">
+      <SidebarHeader>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton size="lg" asChild>
+              <a href="/dashboard">
+                <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+                  <CommandIcon className="size-4" />
+                </div>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-medium">Saedra</span>
+                  <span className="truncate text-xs">Enterprise</span>
+                </div>
+              </a>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarHeader>
+      <SidebarContent className="bg-zinc-900 rounded-lg">
         <SidebarGroup>
-          <SidebarGroupLabel>Saedra</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => {
@@ -81,7 +92,7 @@ export const AppSidebar = () => {
         <NavProjects projects={data.projects} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
-      <SidebarFooter className="bg-zinc-900">
+      <SidebarFooter className="bg-zinc-900 rounded-lg">
         <NavUser user={data.user} />
       </SidebarFooter>
     </Sidebar>

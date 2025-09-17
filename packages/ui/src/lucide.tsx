@@ -23,5 +23,6 @@ export const TrashIcon = Lucide.Trash2;
 export const MoreHorizontalIcon = Lucide.MoreHorizontal;
 export const FrameIcon = Lucide.Frame;
 export const PlusIcon = Lucide.Plus;
+export const CommandIcon = Lucide.Command;
 
 export type { LucideIcon } from "lucide-react";
