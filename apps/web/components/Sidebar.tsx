@@ -11,6 +11,7 @@ import {
   SidebarMenuItem,
 } from "@repo/ui/sidebar";
 
+import { NavProjects } from "./NavProjects";
 import { NavSecondary } from "./NavSecondary";
 import { NavUser } from "./NavUser";
 
@@ -45,6 +46,13 @@ const data = {
       icon: SendIcon,
     },
   ],
+  projects: [
+    {
+      name: "Starting Project",
+      url: "#",
+      icon: "frame",
+    },
+  ],
 };
 
 export const AppSidebar = () => {
@@ -70,6 +78,7 @@ export const AppSidebar = () => {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        <NavProjects projects={data.projects} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter className="bg-zinc-900">

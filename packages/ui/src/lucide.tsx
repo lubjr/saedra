@@ -17,5 +17,11 @@ export const LogOutIcon = Lucide.LogOut;
 export const SparklesIcon = Lucide.Sparkles;
 export const LifeBuoyIcon = Lucide.LifeBuoy;
 export const SendIcon = Lucide.Send;
+export const FolderIcon = Lucide.Folder;
+export const ShareIcon = Lucide.Share;
+export const TrashIcon = Lucide.Trash2;
+export const MoreHorizontalIcon = Lucide.MoreHorizontal;
+export const FrameIcon = Lucide.Frame;
+export const PlusIcon = Lucide.Plus;
 
 export type { LucideIcon } from "lucide-react";
