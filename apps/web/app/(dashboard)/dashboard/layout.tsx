@@ -1,7 +1,8 @@
 import "@repo/ui/styles.css";
 
-import { SidebarProvider, SidebarTrigger } from "@repo/ui/sidebar";
+import { SidebarProvider } from "@repo/ui/sidebar";
 
+import { HeaderPanel } from "../../../components/HeaderPanel";
 import { AppSidebar } from "../../../components/Sidebar";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
@@ -9,7 +10,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     <SidebarProvider className="bg-zinc-950">
       <AppSidebar />
       <main>
-        <SidebarTrigger />
+        <HeaderPanel />
         {children}
       </main>
     </SidebarProvider>
