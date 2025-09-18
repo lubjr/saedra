@@ -25,17 +25,13 @@ import {
   useSidebar,
 } from "@repo/ui/sidebar";
 
-const iconMap: { [key: string]: React.ComponentType<any> } = {
-  frame: FrameIcon,
-};
-
 export const NavProjects = ({
   projects,
 }: {
   projects: {
     name: string;
     url: string;
-    icon: keyof typeof iconMap;
+    icon: string;
   }[];
 }) => {
   const { isMobile } = useSidebar();
@@ -45,7 +41,11 @@ export const NavProjects = ({
       <SidebarGroupLabel>Projects</SidebarGroupLabel>
       <SidebarMenu>
         {projects.map((item) => {
-          const Icon = iconMap[item.icon];
+          let Icon = null;
+
+          if (item.icon === "frame") {
+            Icon = FrameIcon;
+          }
           return (
             <SidebarMenuItem key={item.name}>
               <SidebarMenuButton asChild>
