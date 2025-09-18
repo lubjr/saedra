@@ -24,5 +24,7 @@ export const MoreHorizontalIcon = Lucide.MoreHorizontal;
 export const FrameIcon = Lucide.Frame;
 export const PlusIcon = Lucide.Plus;
 export const CommandIcon = Lucide.Command;
+export const FileUpIcon = Lucide.FileUp
+export const SquareSlashIcon = Lucide.SquareSlash;
 
 export type { LucideIcon } from "lucide-react";
