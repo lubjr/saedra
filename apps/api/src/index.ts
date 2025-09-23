@@ -1,6 +1,7 @@
 import cors from "cors";
 import express from "express";
 
+import { getUsers } from "./db/query.js";
 import { startWorker } from "./workers/index.js";
 
 startWorker().catch((error) => {
@@ -15,6 +16,11 @@ const start = async () => {
 
   app.get("/", (_req, res) => {
     res.send("API is running");
+  });
+
+  app.get("/users", async (_req, res) => {
+    const result = await getUsers();
+    res.json(result);
   });
 
   app.listen(3002, () => {
