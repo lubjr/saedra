@@ -1,6 +1,6 @@
 # Saedra 🌱
 
-## 🚀 Getting Started
+🚀 Getting Started
 
 To build and start the project locally:
 
