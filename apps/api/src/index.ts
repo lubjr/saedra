@@ -1,3 +1,4 @@
+import { projectRoutes } from "@repo/project-service/projects";
 import cors from "cors";
 import express from "express";
 
@@ -22,6 +23,8 @@ const start = async () => {
     const result = await getUsers();
     res.json(result);
   });
+
+  app.use("/projects", projectRoutes);
 
   app.listen(3002, () => {
     // eslint-disable-next-line no-console

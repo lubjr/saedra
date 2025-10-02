@@ -1,0 +1,23 @@
+{
+  "name": "@repo/project-service",
+  "type": "module",
+  "scripts": {
+    "dev": "tsc --watch",
+    "build": "tsc"
+  },
+  "exports": {
+    "./projects": {
+      "types": "./src/index.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/express": "^5.0.3",
+    "typescript": "latest"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "uuid": "^11.1.0"
+  }
+}
