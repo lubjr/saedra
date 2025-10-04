@@ -20,6 +20,9 @@ importers:
 
   apps/api:
     dependencies:
+      '@repo/aws-connector':
+        specifier: workspace:*
+        version: link:../../packages/aws-connector
       '@repo/nats-client':
         specifier: workspace:*
         version: link:../../packages/nats-client
@@ -139,6 +142,9 @@ importers:
       '@aws-sdk/client-s3':
         specifier: ^3.901.0
         version: 3.901.0
+      express:
+        specifier: ^4.18.2
+        version: 4.21.2
     devDependencies:
       '@repo/typescript-config':
         specifier: workspace:*

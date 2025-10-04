@@ -1,3 +1,4 @@
+import { AWSRoutes } from "@repo/aws-connector/aws";
 import { projectRoutes } from "@repo/project-service/projects";
 import cors from "cors";
 import express from "express";
@@ -25,6 +26,7 @@ const start = async () => {
   });
 
   app.use("/projects", projectRoutes);
+  app.use("/aws", AWSRoutes);
 
   app.listen(3002, () => {
     // eslint-disable-next-line no-console
