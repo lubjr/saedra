@@ -1,1 +1,2 @@
-export { default as AWSRoutes } from "./routes.js";
+export type { AwsCredentials, AwsResource } from "./types.js";
+export { collectResources } from "./collectors.js";
