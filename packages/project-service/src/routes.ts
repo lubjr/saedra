@@ -27,6 +27,29 @@ routes.patch('/:id/connect-aws', (req, res) => {
   res.json(project);
 });
 
+routes.get('/:id/diagram', async (req, res) => {
+  const { id } = req.params;
+
+  const project = repo.getProjectById(id);
+
+  if (!project) {
+    return res.status(404).json({ error: 'project not found' });
+  }
+
+  if (!project.awsConfig) {
+    return res.status(400).json({ error: 'project not connected to AWS' });
+  }
+
+  const diagram = await repo.createDiagramForProject(project);
+
+  if (!diagram) {
+    return res.status(500).json({ error: 'failed to generate diagram' });
+  }
+
+  res.json(diagram);
+
+});
+
 routes.get('/user/:userId', (req, res) => {
   const { userId } = req.params;
   if (!userId) {
