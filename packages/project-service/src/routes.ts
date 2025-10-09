@@ -13,6 +13,20 @@ routes.post('/create', (req, res) => {
   res.status(201).json(project);
 });
 
+routes.patch('/:id/connect-aws', (req, res) => {
+  const { id } = req.params;
+  const { awsConfig } = req.body;
+  if (!awsConfig || !id) {
+    return res.status(400).json({ error: 'id and aws config required' });
+  }
+  const project = repo.getProjectById(id);
+  if (!project) {
+    return res.status(404).json({ error: 'project not found' });
+  }
+  project.awsConfig = awsConfig;
+  res.json(project);
+});
+
 routes.get('/user/:userId', (req, res) => {
   const { userId } = req.params;
   if (!userId) {

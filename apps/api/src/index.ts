@@ -1,5 +1,3 @@
-import { type AwsCredentials, collectResources } from "@repo/aws-connector/aws";
-import { generateDiagramFromResources } from "@repo/diagram-service/diagram";
 import { projectRoutes } from "@repo/project-service/projects";
 import cors from "cors";
 import express from "express";
@@ -27,22 +25,6 @@ const start = async () => {
   });
 
   app.use("/projects", projectRoutes);
-
-  app.post("/diagram", async (req, res) => {
-    const credentials: AwsCredentials = req.body.credentials;
-
-    if (!credentials) {
-      return res.status(400).json({ error: "invalid or missing credentials" });
-    }
-
-    try {
-      const { resources } = await collectResources(credentials);
-      const diagram = generateDiagramFromResources(resources);
-      res.json({ diagram });
-    } catch (error) {
-      res.status(500).json({ error });
-    }
-  });
 
   app.listen(3002, () => {
     // eslint-disable-next-line no-console

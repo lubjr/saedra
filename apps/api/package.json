@@ -11,8 +11,6 @@
   "dependencies": {
     "@repo/nats-client": "workspace:*",
     "@repo/project-service": "workspace:*",
-    "@repo/aws-connector": "workspace:*",
-    "@repo/diagram-service": "workspace:*",
     "@supabase/supabase-js": "^2.57.4",
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
