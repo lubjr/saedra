@@ -16,7 +16,6 @@
     "typescript": "latest"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.57.4",
-    "dotenv": "^17.2.1"
+    "@supabase/supabase-js": "^2.57.4"
   }
 }
