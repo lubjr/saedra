@@ -8,6 +8,9 @@ importers:
 
   .:
     devDependencies:
+      dotenv-cli:
+        specifier: ^7.3.0
+        version: 7.4.4
       prettier:
         specifier: ^3.6.2
         version: 3.6.2
@@ -149,10 +152,19 @@ importers:
       '@supabase/supabase-js':
         specifier: ^2.57.4
         version: 2.57.4
-      dotenv:
-        specifier: ^17.2.1
-        version: 17.2.1
     devDependencies:
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      typescript:
+        specifier: latest
+        version: 5.9.3
+
+  packages/db-queries:
+    devDependencies:
+      '@repo/db-connector':
+        specifier: workspace:*
+        version: link:../db-connector
       '@repo/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
@@ -229,13 +241,13 @@ importers:
       express:
         specifier: ^4.18.2
         version: 4.21.2
-      uuid:
-        specifier: ^11.1.0
-        version: 11.1.0
     devDependencies:
       '@repo/aws-connector':
         specifier: workspace:*
         version: link:../aws-connector
+      '@repo/db-queries':
+        specifier: workspace:*
+        version: link:../db-queries
       '@repo/diagram-service':
         specifier: workspace:*
         version: link:../diagram-service
@@ -2418,8 +2430,20 @@ packages:
     resolution: {integrity: sha512-35mSku4ZXK0vfCuHEDAwt55dg2jNajHZ1odvF+8SSr82EsZY4QmXfuWso8oEd8zRhVObSN18aM0CjSdoBX7zIw==}
     engines: {node: '>=0.10.0'}
 
+  dotenv-cli@7.4.4:
+    resolution: {integrity: sha512-XkBYCG0tPIes+YZr4SpfFv76SQrV/LeCE8CI7JSEMi3VR9MvTihCGTOtbIexD6i2mXF+6px7trb1imVCXSNMDw==}
+    hasBin: true
+
+  dotenv-expand@10.0.0:
+    resolution: {integrity: sha512-GopVGCpVS1UKH75VKHGuQFqS1Gusej0z4FyQkPdwjil2gNIv+LNsqBlboOzpJFZKVT95GkCyWJbBSdFEFUWI2A==}
+    engines: {node: '>=12'}
+
   dotenv@16.0.3:
     resolution: {integrity: sha512-7GO6HghkA5fYG9TYnNxi14/7K9f5occMlp3zXAuSxn7CKCxt9xbNWG7yF8hTCSUchlfWSe3uLmlPfigevRItzQ==}
+    engines: {node: '>=12'}
+
+  dotenv@16.6.1:
+    resolution: {integrity: sha512-uBq4egWHTcTt33a72vpSG0z3HnPuIl6NqYcTrKEg2azoEyl2hpW0zqlxysq2pK9HlDIHyHyakeYaYnSAwd8bow==}
     engines: {node: '>=12'}
 
   dotenv@17.2.1:
@@ -4068,6 +4092,7 @@ packages:
   which@2.0.2:
     resolution: {integrity: sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA==}
     engines: {node: '>= 8'}
+    hasBin: true
 
   word-wrap@1.2.5:
     resolution: {integrity: sha512-BN22B5eaMMI9UMtjrGd5g5eCYPpCPDUy0FJXbYsaT5zYxjFOckS53SQDE3pWkVoWpHXVb3BrYcEN4Twa55B5cA==}
@@ -6840,7 +6865,18 @@ snapshots:
     dependencies:
       esutils: 2.0.3
 
+  dotenv-cli@7.4.4:
+    dependencies:
+      cross-spawn: 7.0.6
+      dotenv: 16.6.1
+      dotenv-expand: 10.0.0
+      minimist: 1.2.8
+
+  dotenv-expand@10.0.0: {}
+
   dotenv@16.0.3: {}
+
+  dotenv@16.6.1: {}
 
   dotenv@17.2.1: {}
 

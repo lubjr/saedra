@@ -1,8 +1,39 @@
-import { type AwsCredentials } from "@repo/aws-connector/aws";
-
-export type Project = {
+export type CreateProjectResponse = {
+  data: {
     id: string;
+    user_id: string;
     name: string;
-    userId: string;
-    awsConfig?: AwsCredentials;
-}
+    created_at: string;
+    updated_at: string;
+  };
+} | {
+  error: string;
+};
+
+export type CreateCredentialsResponse = {
+  data: {
+    id: string;
+    project_id: string;
+    acess_key_id: string;
+    secret_access_key: string;
+    region: string;
+    created_at: string;
+    updated_at: string;
+  };
+} | {
+  error: string;
+};
+
+export type CreateDiagramResponse = {
+      id: string;
+      project_id: string;
+      graph: {
+        edges: object[];
+        nodes: object[];
+      };
+      created_at: string;
+      updated_at: string;
+    }
+  | {
+      error: string;
+};

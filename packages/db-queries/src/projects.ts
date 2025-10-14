@@ -4,6 +4,7 @@ type ProjectDBType = {
   insertProject(userId: string, name: string): Promise<any>;
   getProjectsByUser(userId: string): Promise<any>;
   getProjectById(projectId: string): Promise<any>;
+  deleteProjectById(projectId: string): Promise<any>;
 }
 
 export const ProjectDB: ProjectDBType = {
@@ -18,4 +19,8 @@ export const ProjectDB: ProjectDBType = {
   async getProjectById(projectId: string) {
     return supabase.from('projects').select('*').eq('id', projectId).single();
   },
+
+  async deleteProjectById(projectId: string) {
+    return supabase.from('projects').delete().eq('id', projectId);
+  }
 };
