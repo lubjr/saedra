@@ -1,7 +1,27 @@
 import { type CreateProjectResponse, type CreateCredentialsResponse, type CreateDiagramResponse } from "./types.js";
 import { collectResources, type AwsCredentials } from "@repo/aws-connector/aws";
 import { generateDiagramFromResources } from "@repo/diagram-service/diagram";
-import { ProjectDB, AwsCredentialsDB, DiagramDB } from "@repo/db-queries/queries";
+import { ProjectDB, AwsCredentialsDB, DiagramDB, LoginDB } from "@repo/db-queries/queries";
+
+export const signUpUser = async (email: string, password: string): Promise<{ userId: string } | { error: string }> => {
+  const { data, error } = await LoginDB.signUpUser(email, password);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return { userId: data.user };
+};
+
+export const signInUser = async (email: string, password: string): Promise<{ userId: string } | { error: string }> => {
+  const { data, error } = await LoginDB.signInUser(email, password);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return { userId: data.session };
+};
 
 export const createProject = async (name: string, userId: string): Promise<CreateProjectResponse> => {
   const { data, error } = await ProjectDB.insertProject(userId, name);
