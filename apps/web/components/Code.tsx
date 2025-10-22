@@ -1,8 +1,17 @@
+"use client";
+
 import { FileUpIcon, SquareSlashIcon } from "@repo/ui/lucide";
 import { Textarea } from "@repo/ui/textarea";
 import { ToggleGroup, ToggleGroupItem } from "@repo/ui/toggle-group";
+import * as React from "react";
+import { toast } from "sonner";
 
 export const Code = () => {
+  React.useEffect(() => {
+    toast.dismiss();
+    toast.success("Logged in successfully!");
+  }, []);
+
   return (
     <div className="flex-col">
       <div className="text-center mb-4">

@@ -1,6 +1,7 @@
 import "@repo/ui/styles.css";
 
 import type { Metadata } from "next";
+import { Toaster } from "sonner";
 
 import { ThemeProviderWrapper } from "./providers/ThemeProviderWrapper";
 
@@ -18,7 +19,18 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="bg-zinc-900 text-zinc-100 min-h-screen flex flex-col font-inter">
-        <ThemeProviderWrapper>{children}</ThemeProviderWrapper>
+        <ThemeProviderWrapper>
+          <Toaster
+            theme="dark"
+            position="top-right"
+            toastOptions={{
+              style: {
+                background: "#18181b",
+              },
+            }}
+          />
+          {children}
+        </ThemeProviderWrapper>
       </body>
     </html>
   );

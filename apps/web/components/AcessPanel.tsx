@@ -14,6 +14,7 @@ import { Input } from "@repo/ui/input";
 import { Label } from "@repo/ui/label";
 import { useRouter } from "next/navigation";
 import * as React from "react";
+import { toast } from "sonner";
 
 import { login } from "../auth/login";
 
@@ -26,14 +27,17 @@ export const ButtonPanel = () => {
 
   const handleLogin = async () => {
     setLoading(true);
-
     try {
       await login(email, password);
       setOpen(false);
+      toast.loading("Logging in...");
       router.push("/dashboard");
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error instanceof Error ? error.message : "Login failed");
+      const message =
+        error instanceof Error
+          ? error.message.charAt(0).toUpperCase() + error.message.slice(1)
+          : "Unknown error";
+      toast.error(error instanceof Error ? message : "Login failed");
     } finally {
       setLoading(false);
     }
@@ -85,8 +89,10 @@ export const ButtonPanel = () => {
           <Button
             type="button"
             variant="secondary"
-            onClick={handleLogin}
             disabled={loading}
+            onClick={() => {
+              handleLogin();
+            }}
           >
             Enter
           </Button>
