@@ -1,3 +1,6 @@
+"use server";
+
+import { cookies } from "next/headers";
 export interface LoginResponse {
   session: string;
 }
@@ -12,11 +15,21 @@ export const login = async (
     body: JSON.stringify({ email, password }),
   });
 
+  const cookieStore = await cookies();
+
   const data = await res.json();
 
   if (!res.ok) {
     throw new Error(data.error || "Login failed");
   }
 
+  cookieStore.set("access_token", data.session.userId.access_token);
+
   return data;
+};
+
+export const logout = async () => {
+  const cookieStore = await cookies();
+
+  cookieStore.delete("access_token");
 };

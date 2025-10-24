@@ -25,6 +25,8 @@ import {
   useSidebar,
 } from "@repo/ui/sidebar";
 
+import { logout } from "../auth/auth";
+
 export const NavUser = ({
   user,
 }: {
@@ -115,7 +117,13 @@ export const NavUser = ({
 
             <DropdownMenuSeparator className="bg-zinc-700" />
 
-            <DropdownMenuItem className="hover:bg-zinc-700 focus:bg-zinc-700">
+            <DropdownMenuItem
+              className="hover:bg-zinc-700 focus:bg-zinc-700"
+              onClick={async () => {
+                await logout();
+                window.location.reload();
+              }}
+            >
               <LogOutIcon />
               Log out
             </DropdownMenuItem>

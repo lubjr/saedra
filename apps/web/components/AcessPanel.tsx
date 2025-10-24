@@ -16,7 +16,7 @@ import { useRouter } from "next/navigation";
 import * as React from "react";
 import { toast } from "sonner";
 
-import { login } from "../auth/login";
+import { login } from "../auth/auth";
 
 export const ButtonPanel = () => {
   const [open, setOpen] = React.useState(false);
