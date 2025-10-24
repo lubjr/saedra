@@ -30,7 +30,7 @@ export const ButtonPanel = () => {
     try {
       await login(email, password);
       setOpen(false);
-      toast.loading("Logging in...");
+      toast.loading("Logging in...", { id: "login" });
       router.push("/dashboard");
     } catch (error) {
       const message =

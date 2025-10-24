@@ -8,8 +8,7 @@ import { toast } from "sonner";
 
 export const Code = () => {
   React.useEffect(() => {
-    toast.dismiss();
-    toast.success("Logged in successfully!");
+    toast.dismiss("login");
   }, []);
 
   return (
