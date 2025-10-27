@@ -23,6 +23,16 @@ export const signInUser = async (email: string, password: string): Promise<{ use
   return { userId: data.session };
 };
 
+export const getUserByToken = async (token: string): Promise<{ user: any } | { error: string }> => {
+  const { data, error } = await LoginDB.getUserByToken(token);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return { user: data.user };
+};
+
 export const createProject = async (name: string, userId: string): Promise<CreateProjectResponse> => {
   const { data, error } = await ProjectDB.insertProject(userId, name);
 

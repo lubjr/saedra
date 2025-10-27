@@ -27,6 +27,22 @@ routes.post("/login", async (req, res) => {
     res.json({ session });
 });
 
+routes.get('/userinfo', authenticate, async (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ error: 'No token provided' });
+  }
+
+  const userInfo = await repo.getUserByToken(token);
+
+  if ('error' in userInfo) {
+    return res.status(400).json({ error: userInfo.error });
+  }
+
+  res.json({ user: userInfo });
+});
+
 routes.post('/create', authenticate, async (req, res) => {
   const { name, userId } = req.body;
 
