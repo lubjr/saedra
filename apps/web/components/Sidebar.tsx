@@ -1,3 +1,5 @@
+"use client";
+
 import { CommandIcon, HomeIcon, LifeBuoyIcon, SendIcon } from "@repo/ui/lucide";
 import {
   Sidebar,
@@ -11,6 +13,7 @@ import {
   SidebarMenuItem,
 } from "@repo/ui/sidebar";
 
+import { useUser } from "../app/contexts/UserContext";
 import { NavProjects } from "./NavProjects";
 import { NavSecondary } from "./NavSecondary";
 import { NavUser } from "./NavUser";
@@ -24,11 +27,6 @@ const items = [
 ];
 
 const data = {
-  user: {
-    name: "beta user",
-    email: "user@saedra.com",
-    avatar: "/",
-  },
   navSecondary: [
     {
       title: "Support",
@@ -51,6 +49,13 @@ const data = {
 };
 
 export const AppSidebar = () => {
+  const userData = useUser();
+
+  const user = {
+    name: "beta user",
+    email: userData?.email || " ",
+    avatar: "/",
+  };
   return (
     <Sidebar variant="floating">
       <SidebarHeader>
@@ -93,7 +98,7 @@ export const AppSidebar = () => {
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter className="bg-zinc-900 rounded-lg">
-        <NavUser user={data.user} />
+        <NavUser user={user} />
       </SidebarFooter>
     </Sidebar>
   );
