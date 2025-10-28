@@ -1,7 +1,7 @@
 import { type CreateProjectResponse, type CreateCredentialsResponse, type CreateDiagramResponse } from "./types.js";
 import { collectResources, type AwsCredentials } from "@repo/aws-connector/aws";
 import { generateDiagramFromResources } from "@repo/diagram-service/diagram";
-import { ProjectDB, AwsCredentialsDB, DiagramDB, LoginDB } from "@repo/db-queries/queries";
+import { ProjectDB, AwsCredentialsDB, DiagramDB, LoginDB, ProfileDB } from "@repo/db-queries/queries";
 
 export const signUpUser = async (email: string, password: string): Promise<{ userId: string } | { error: string }> => {
   const { data, error } = await LoginDB.signUpUser(email, password);
@@ -23,14 +23,24 @@ export const signInUser = async (email: string, password: string): Promise<{ use
   return { userId: data.session };
 };
 
-export const getUserByToken = async (token: string): Promise<{ user: any } | { error: string }> => {
-  const { data, error } = await LoginDB.getUserByToken(token);
+export const getProfileById = async (userId: string): Promise<{ user: any } | { error: string }> => {
+  const { data, error } = await ProfileDB.getProfileByUser(userId);
 
   if (error) {
     return { error: error.message };
   }
 
-  return { user: data.user };
+  return { user: data };
+};
+
+export const updateProfileById = async (userId: string, username: string, avatar_url: string): Promise<{ user: any } | { error: string }> => {  
+  const { data, error } = await ProfileDB.updateProfileByUser(userId, username, avatar_url);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return { user: data[0] };
 };
 
 export const createProject = async (name: string, userId: string): Promise<CreateProjectResponse> => {

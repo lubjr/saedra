@@ -24,6 +24,7 @@ export const login = async (
   }
 
   cookieStore.set("access_token", data.session.userId.access_token);
+  cookieStore.set("user_id", data.session.userId.user.id);
 
   return data;
 };

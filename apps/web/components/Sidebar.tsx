@@ -52,9 +52,9 @@ export const AppSidebar = () => {
   const userData = useUser();
 
   const user = {
-    name: "beta user",
+    name: userData?.username || " ",
     email: userData?.email || " ",
-    avatar: "/",
+    avatar: userData?.avatar_url || " ",
   };
   return (
     <Sidebar variant="floating">

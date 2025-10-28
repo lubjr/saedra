@@ -8,13 +8,14 @@ export const getUser = async (): Promise<
 > => {
   const cookieStore = await cookies();
   const token = cookieStore.get("access_token")?.value;
+  const userId = cookieStore.get("user_id")?.value;
 
-  if (!token) {
+  if (!token || !userId) {
     return undefined;
   }
 
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/projects/userinfo`,
+    `${process.env.NEXT_PUBLIC_API_URL}/projects/profile/${userId}`,
     {
       method: "GET",
       headers: {

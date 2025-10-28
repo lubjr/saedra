@@ -27,20 +27,37 @@ routes.post("/login", async (req, res) => {
     res.json({ session });
 });
 
-routes.get('/userinfo', authenticate, async (req, res) => {
-  const token = req.headers.authorization?.split(' ')[1];
+routes.get('/profile/:userId', authenticate, async (req, res) => {
+  const { userId } = req.params;
 
-  if (!token) {
-    return res.status(401).json({ error: 'No token provided' });
+  if (!userId) {
+    return res.status(400).json({ error: 'userId required' });
   }
 
-  const userInfo = await repo.getUserByToken(token);
+  const profile = await repo.getProfileById(userId);
 
-  if ('error' in userInfo) {
-    return res.status(400).json({ error: userInfo.error });
+  if ('error' in profile) {
+    return res.status(400).json({ error: profile.error });
   }
 
-  res.json({ user: userInfo });
+  res.json({ user: profile.user });
+});
+
+routes.put('/profile/:userId', authenticate, async (req, res) => {
+  const { userId } = req.params;
+  const { username, avatar_url } = req.body;
+
+  if (!userId || !username || !avatar_url) {
+    return res.status(400).json({ error: 'userId, username and avatar_url required' });
+  }
+
+  const profile = await repo.updateProfileById(userId, username, avatar_url);
+
+  if ('error' in profile) {
+    return res.status(400).json({ error: profile.error });
+  }
+
+  res.json(profile);
 });
 
 routes.post('/create', authenticate, async (req, res) => {
