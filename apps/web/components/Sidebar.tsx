@@ -1,6 +1,6 @@
 "use client";
 
-import { CommandIcon, HomeIcon, LifeBuoyIcon, SendIcon } from "@repo/ui/lucide";
+import { CommandIcon, HomeIcon } from "@repo/ui/lucide";
 import {
   Sidebar,
   SidebarContent,
@@ -27,6 +27,7 @@ const items = [
 ];
 
 const data = {
+  /* Create sample
   navSecondary: [
     {
       title: "Support",
@@ -38,14 +39,17 @@ const data = {
       url: "#",
       icon: SendIcon,
     },
-  ],
+  */
+  navSecondary: [],
+  /* Create sample
   projects: [
     {
-      name: "Starting Project",
+      name: "Project Alpha",
       url: "#",
       icon: "frame",
     },
-  ],
+  */
+  projects: [],
 };
 
 export const AppSidebar = () => {

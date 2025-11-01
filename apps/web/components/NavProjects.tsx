@@ -24,6 +24,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@repo/ui/sidebar";
+import Link from "next/link";
 
 export const NavProjects = ({
   projects,
@@ -49,10 +50,10 @@ export const NavProjects = ({
           return (
             <SidebarMenuItem key={item.name}>
               <SidebarMenuButton asChild>
-                <a href={item.url}>
+                <Link href={item.url}>
                   {Icon ? <Icon /> : null}
                   <span>{item.name}</span>
-                </a>
+                </Link>
               </SidebarMenuButton>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -94,10 +95,12 @@ export const NavProjects = ({
           );
         })}
         <SidebarMenuItem>
-          <SidebarMenuButton disabled>
-            <PlusIcon />
-            <span>New Project</span>
-          </SidebarMenuButton>
+          <Link href="/dashboard/new-project">
+            <SidebarMenuButton className="cursor-pointer">
+              <PlusIcon />
+              <span>New Project</span>
+            </SidebarMenuButton>
+          </Link>
         </SidebarMenuItem>
       </SidebarMenu>
     </SidebarGroup>

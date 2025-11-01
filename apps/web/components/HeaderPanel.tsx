@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -7,7 +9,19 @@ import {
 } from "@repo/ui/breadcrumb";
 import { Separator } from "@repo/ui/separator";
 import { SidebarTrigger } from "@repo/ui/sidebar";
+import { usePathname } from "next/navigation";
 export const HeaderPanel = () => {
+  const pathname = usePathname();
+
+  const lastSegment = pathname.split("/").pop() || "";
+
+  let title = lastSegment.replace(/-/g, " ").replace(/\b\w/g, (char) => {
+    return char.toUpperCase();
+  });
+
+  if (title === "Dashboard") {
+    title = "Home";
+  }
   return (
     <header className="flex h-16 shrink-0 items-center gap-2">
       <div className="flex items-center gap-2 px-4">
@@ -20,7 +34,7 @@ export const HeaderPanel = () => {
           <BreadcrumbList>
             <BreadcrumbSeparator className="hidden md:block" />
             <BreadcrumbItem>
-              <BreadcrumbPage>Home</BreadcrumbPage>
+              <BreadcrumbPage>{title}</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
