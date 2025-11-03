@@ -1,5 +1,6 @@
 "use client";
 
+import { ProjectsProvider } from "../../contexts/ProjectsContext";
 import { UserProvider } from "../../contexts/UserContext";
 
 export default function ClientWrapper({
@@ -7,5 +8,9 @@ export default function ClientWrapper({
 }: {
   children: React.ReactNode;
 }) {
-  return <UserProvider>{children}</UserProvider>;
+  return (
+    <UserProvider>
+      <ProjectsProvider>{children}</ProjectsProvider>
+    </UserProvider>
+  );
 }

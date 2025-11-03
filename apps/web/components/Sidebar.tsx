@@ -13,6 +13,7 @@ import {
   SidebarMenuItem,
 } from "@repo/ui/sidebar";
 
+import { useProjects } from "../app/contexts/ProjectsContext";
 import { useUser } from "../app/contexts/UserContext";
 import { NavProjects } from "./NavProjects";
 import { NavSecondary } from "./NavSecondary";
@@ -41,25 +42,29 @@ const data = {
     },
   */
   navSecondary: [],
-  /* Create sample
-  projects: [
-    {
-      name: "Project Alpha",
-      url: "#",
-      icon: "frame",
-    },
-  */
-  projects: [],
 };
 
 export const AppSidebar = () => {
   const userData = useUser();
+  const projectsData = useProjects();
 
   const user = {
     name: userData?.username || " ",
     email: userData?.email || " ",
     avatar: userData?.avatar_url || " ",
   };
+
+  const projects =
+    Array.isArray(projectsData) && projectsData.length > 0
+      ? projectsData.map((project) => {
+          return {
+            name: project.name,
+            url: "#",
+            icon: "frame",
+          };
+        })
+      : [];
+
   return (
     <Sidebar variant="floating">
       <SidebarHeader>
@@ -98,7 +103,7 @@ export const AppSidebar = () => {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        <NavProjects projects={data.projects} />
+        <NavProjects projects={projects} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter className="bg-zinc-900 rounded-lg">

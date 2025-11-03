@@ -4,20 +4,26 @@ import * as React from "react";
 import { toast } from "sonner";
 
 import { EmptyProjects } from "../../../components/EmptyProjects";
+import { useProjects } from "../../contexts/ProjectsContext";
 
 export default function Page() {
   React.useEffect(() => {
     toast.dismiss("login");
   }, []);
 
-  const projects: any[] = [];
+  const projects = useProjects();
+  const projectsList = Array.isArray(projects)
+    ? projects
+    : projects
+      ? [projects]
+      : [];
 
   return (
     <>
-      {projects.length === 0 ? (
+      {projectsList.length === 0 ? (
         <EmptyProjects />
       ) : (
-        <div>Your Projects Here</div>
+        <div>You have {projectsList.length} projects.</div>
       )}
     </>
   );
