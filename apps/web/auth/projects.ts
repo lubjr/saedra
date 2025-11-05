@@ -62,9 +62,6 @@ export const createProject = async ({
 
   const data = await res.json();
 
-  // eslint-disable-next-line no-console
-  console.log("Project: ", data);
-
   if (!res.ok) {
     return undefined;
   }
