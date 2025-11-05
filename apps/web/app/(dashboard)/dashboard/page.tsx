@@ -11,7 +11,8 @@ export default function Page() {
     toast.dismiss("login");
   }, []);
 
-  const projects = useProjects();
+  const { projects } = useProjects();
+
   const projectsList = Array.isArray(projects)
     ? projects
     : projects

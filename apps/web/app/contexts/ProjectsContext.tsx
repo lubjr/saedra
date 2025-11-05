@@ -2,17 +2,24 @@
 
 import * as React from "react";
 
-import { getProjects } from "../../auth/projects";
+import { createProject, getProjects } from "../../auth/projects";
 
-type ProjectsContextType = {
-  id: string;
-  name: string;
-  user_id: string;
-  created_at: string;
-  updated_at: string;
-} | null;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type ProjectsContextType = any[] | null;
 
-const ProjectsContext = React.createContext<ProjectsContextType>(null);
+const ProjectsContext = React.createContext<{
+  projects: ProjectsContextType;
+  create: typeof createProject;
+  refresh: () => Promise<void>;
+}>({
+  projects: null,
+  create: () => {
+    return Promise.reject("not ready");
+  },
+  refresh: () => {
+    return Promise.resolve();
+  },
+});
 
 export const ProjectsProvider = ({
   children,
@@ -21,17 +28,26 @@ export const ProjectsProvider = ({
 }) => {
   const [projects, setProjects] = React.useState<ProjectsContextType>(null);
 
-  React.useEffect(() => {
-    const fetchUser = async () => {
-      const userData = await getProjects();
-      setProjects(userData?.projects || null);
-    };
-
-    fetchUser();
+  const refresh = React.useCallback(async () => {
+    const data = await getProjects();
+    setProjects(data?.projects ?? null);
   }, []);
 
+  React.useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  const create = React.useCallback(
+    async (...args: Parameters<typeof createProject>) => {
+      const novoProjeto = await createProject(...args);
+      await refresh();
+      return novoProjeto;
+    },
+    [refresh],
+  );
+
   return (
-    <ProjectsContext.Provider value={projects}>
+    <ProjectsContext.Provider value={{ projects, create, refresh }}>
       {children}
     </ProjectsContext.Provider>
   );
@@ -39,5 +55,9 @@ export const ProjectsProvider = ({
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const useProjects = () => {
-  return React.useContext(ProjectsContext);
+  const context = React.useContext(ProjectsContext);
+  if (!context) {
+    throw new Error("use projects must be used within projects provider");
+  }
+  return context;
 };

@@ -46,7 +46,7 @@ const data = {
 
 export const AppSidebar = () => {
   const userData = useUser();
-  const projectsData = useProjects();
+  const { projects } = useProjects();
 
   const user = {
     name: userData?.username || " ",
@@ -54,9 +54,9 @@ export const AppSidebar = () => {
     avatar: userData?.avatar_url || " ",
   };
 
-  const projects =
-    Array.isArray(projectsData) && projectsData.length > 0
-      ? projectsData.map((project) => {
+  const projectsData =
+    Array.isArray(projects) && projects.length > 0
+      ? projects.map((project) => {
           return {
             name: project.name,
             url: "#",
@@ -103,7 +103,7 @@ export const AppSidebar = () => {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        <NavProjects projects={projects} />
+        <NavProjects projects={projectsData} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter className="bg-zinc-900 rounded-lg">

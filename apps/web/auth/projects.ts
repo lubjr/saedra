@@ -33,3 +33,41 @@ export const getProjects = async (): Promise<
 
   return { projects: data };
 };
+
+export const createProject = async ({
+  name,
+}: {
+  name: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+}): Promise<{ data: any } | undefined> => {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("access_token")?.value;
+  const userId = cookieStore.get("user_id")?.value;
+
+  if (!token || !userId) {
+    return undefined;
+  }
+
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/projects/create`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ name, userId }),
+    },
+  );
+
+  const data = await res.json();
+
+  // eslint-disable-next-line no-console
+  console.log("Project: ", data);
+
+  if (!res.ok) {
+    return undefined;
+  }
+
+  return { data };
+};
