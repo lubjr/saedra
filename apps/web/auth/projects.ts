@@ -68,3 +68,37 @@ export const createProject = async ({
 
   return { data };
 };
+
+export const deleteProject = async ({
+  projectId,
+}: {
+  projectId: string;
+}): Promise<{ sucess: boolean } | undefined> => {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("access_token")?.value;
+
+  if (!token) {
+    return undefined;
+  }
+
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}`,
+    {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  if (!res.ok) {
+    return {
+      sucess: false,
+    };
+  }
+
+  return {
+    sucess: true,
+  };
+};

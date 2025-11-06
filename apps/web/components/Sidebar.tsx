@@ -58,6 +58,7 @@ export const AppSidebar = () => {
     Array.isArray(projects) && projects.length > 0
       ? projects.map((project) => {
           return {
+            id: project.id,
             name: project.name,
             url: "#",
             icon: "frame",

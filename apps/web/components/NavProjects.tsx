@@ -26,16 +26,20 @@ import {
 } from "@repo/ui/sidebar";
 import Link from "next/link";
 
+import { useProjects } from "../app/contexts/ProjectsContext";
+
 export const NavProjects = ({
   projects,
 }: {
   projects: {
+    id: string;
     name: string;
     url: string;
     icon: string;
   }[];
 }) => {
   const { isMobile } = useSidebar();
+  const { delete: deleteProject } = useProjects();
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
@@ -83,8 +87,10 @@ export const NavProjects = ({
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-zinc-700" />
                   <DropdownMenuItem
-                    disabled
                     className="hover:bg-zinc-700 focus:bg-zinc-700"
+                    onClick={async () => {
+                      await deleteProject({ projectId: item.id });
+                    }}
                   >
                     <TrashIcon className="text-muted-foreground" />
                     <span>Delete Project</span>

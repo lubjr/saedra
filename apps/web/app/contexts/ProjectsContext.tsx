@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import { createProject, getProjects } from "../../auth/projects";
+import { createProject, deleteProject, getProjects } from "../../auth/projects";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ProjectsContextType = any[] | null;
@@ -10,10 +10,14 @@ type ProjectsContextType = any[] | null;
 const ProjectsContext = React.createContext<{
   projects: ProjectsContextType;
   create: typeof createProject;
+  delete: typeof deleteProject;
   refresh: () => Promise<void>;
 }>({
   projects: null,
   create: () => {
+    return Promise.reject("not ready");
+  },
+  delete: () => {
     return Promise.reject("not ready");
   },
   refresh: () => {
@@ -37,17 +41,28 @@ export const ProjectsProvider = ({
     refresh();
   }, [refresh]);
 
+  const deleteProj = React.useCallback(
+    async (...args: Parameters<typeof deleteProject>) => {
+      const resolve = await deleteProject(...args);
+      await refresh();
+      return resolve;
+    },
+    [refresh],
+  );
+
   const create = React.useCallback(
     async (...args: Parameters<typeof createProject>) => {
-      const novoProjeto = await createProject(...args);
+      const resolve = await createProject(...args);
       await refresh();
-      return novoProjeto;
+      return resolve;
     },
     [refresh],
   );
 
   return (
-    <ProjectsContext.Provider value={{ projects, create, refresh }}>
+    <ProjectsContext.Provider
+      value={{ projects, create, delete: deleteProj, refresh }}
+    >
       {children}
     </ProjectsContext.Provider>
   );
