@@ -15,7 +15,9 @@ export const HeaderPanel = () => {
 
   const lastSegment = pathname.split("/").pop() || "";
 
-  let title = lastSegment.replace(/-/g, " ").replace(/\b\w/g, (char) => {
+  const decodedSegment = decodeURIComponent(lastSegment);
+
+  let title = decodedSegment.replace(/-/g, " ").replace(/\b\w/g, (char) => {
     return char.toUpperCase();
   });
 
