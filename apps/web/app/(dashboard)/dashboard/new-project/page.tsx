@@ -20,7 +20,7 @@ export default function Page() {
     <div className="flex flex-col gap-4 p-8">
       <div className="flex w-full max-w-sm items-center gap-2">
         <Input
-          placeholder="project name"
+          placeholder="Your Project Name"
           value={name}
           onChange={(e) => {
             return setName(e.target.value);

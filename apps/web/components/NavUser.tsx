@@ -16,6 +16,7 @@ import {
   ChevronsUpDownIcon,
   CreditCardIcon,
   LogOutIcon,
+  SettingsIcon,
   SparklesIcon,
 } from "@repo/ui/lucide";
 import {
@@ -24,6 +25,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@repo/ui/sidebar";
+import Link from "next/link";
 
 import { logout } from "../auth/auth";
 
@@ -90,6 +92,15 @@ export const NavUser = ({
             </DropdownMenuGroup>
 
             <DropdownMenuSeparator className="bg-zinc-700" />
+
+            <Link href="/dashboard/settings">
+              <DropdownMenuGroup>
+                <DropdownMenuItem className="hover:bg-zinc-700 focus:bg-zinc-700">
+                  <SettingsIcon />
+                  Settings
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+            </Link>
 
             <DropdownMenuGroup>
               <DropdownMenuItem
