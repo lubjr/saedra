@@ -28,5 +28,9 @@ export const FileUpIcon = Lucide.FileUp
 export const SquareSlashIcon = Lucide.SquareSlash;
 export const ArrowUpRightIcon = Lucide.ArrowUpRightIcon;
 export const IconFolderCode = Lucide.FolderCode;
+export const CheckCircle2Icon = Lucide.CheckCircle2;
+export const ShieldIcon = Lucide.Shield;
+export const KeyIcon = Lucide.Key;
+export const MapPinIcon = Lucide.MapPin;
 
 export type { LucideIcon } from "lucide-react";
