@@ -20,31 +20,57 @@ import {
 } from "@repo/ui/select";
 import * as React from "react";
 import { toast } from "sonner";
+import { connectAWS } from "../../../../auth/projects";
+import { useProjects } from "../../../contexts/ProjectsContext";
 
 export default function SettingsPage() {
+  const { projects } = useProjects();
+  const [selectedProjectId, setSelectedProjectId] = React.useState<string>("");
   const [accessKey, setAccessKey] = React.useState("");
   const [secretKey, setSecretKey] = React.useState("");
   const [region, setRegion] = React.useState("us-east-1");
   const [isLoading, setIsLoading] = React.useState(false);
 
   const handleSave = async () => {
+    if (!selectedProjectId) {
+      toast.error("Please select a project");
+      return;
+    }
+
     setIsLoading(true);
 
-    await new Promise((resolve) => {
-      return setTimeout(resolve, 1000);
-    });
+    try {
+      const result = await connectAWS({
+        projectId: selectedProjectId,
+        awsConfig: {
+          accessKey,
+          secretKey,
+          region,
+        },
+      });
 
-    localStorage.setItem(
-      "aws_credentials",
-      JSON.stringify({
-        accessKey,
-        secretKey,
-        region,
-      }),
-    );
-    setIsLoading(false);
+      if ("error" in result) {
+        toast.error(result.error);
+        return;
+      }
 
-    toast.success("Credentials saved successfully !");
+      // Mantém o localStorage como backup local
+      localStorage.setItem(
+        "aws_credentials",
+        JSON.stringify({
+          accessKey,
+          secretKey,
+          region,
+        }),
+      );
+
+      toast.success("Credentials saved successfully!");
+    } catch (error) {
+      toast.error("Failed to save credentials");
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const regions = [
@@ -80,6 +106,35 @@ export default function SettingsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="project" className="flex items-center gap-2">
+                Select Project
+              </Label>
+              <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
+                <SelectTrigger id="project">
+                  <SelectValue placeholder="Choose a project..." />
+                </SelectTrigger>
+                <SelectContent className="bg-zinc-800">
+                  {projects && projects.length > 0 ? (
+                    projects.map((project) => {
+                      return (
+                        <SelectItem key={project.id} value={project.id}>
+                          {project.name}
+                        </SelectItem>
+                      );
+                    })
+                  ) : (
+                    <SelectItem value="no-projects" disabled>
+                      No projects available
+                    </SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                Select the project to connect with AWS
+              </p>
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="access-key" className="flex items-center gap-2">
                 <KeyIcon className="h-4 w-4" />
@@ -147,7 +202,7 @@ export default function SettingsPage() {
             <div className="pt-4 flex gap-3">
               <Button
                 onClick={handleSave}
-                disabled={!accessKey || !secretKey || isLoading}
+                disabled={!selectedProjectId || !accessKey || !secretKey || isLoading}
                 className="flex-1"
               >
                 {isLoading ? "Saving..." : "Save Credentials"}
