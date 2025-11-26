@@ -20,7 +20,8 @@ import {
 } from "@repo/ui/select";
 import * as React from "react";
 import { toast } from "sonner";
-import { connectAWS } from "../../../../auth/projects";
+
+import { connectAWS } from "../../../../auth/credentials";
 import { useProjects } from "../../../contexts/ProjectsContext";
 
 export default function SettingsPage() {
@@ -54,19 +55,10 @@ export default function SettingsPage() {
         return;
       }
 
-      // Mantém o localStorage como backup local
-      localStorage.setItem(
-        "aws_credentials",
-        JSON.stringify({
-          accessKey,
-          secretKey,
-          region,
-        }),
-      );
-
       toast.success("Credentials saved successfully!");
     } catch (error) {
       toast.error("Failed to save credentials");
+      // eslint-disable-next-line no-console
       console.error(error);
     } finally {
       setIsLoading(false);
@@ -110,7 +102,10 @@ export default function SettingsPage() {
               <Label htmlFor="project" className="flex items-center gap-2">
                 Select Project
               </Label>
-              <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
+              <Select
+                value={selectedProjectId}
+                onValueChange={setSelectedProjectId}
+              >
                 <SelectTrigger id="project">
                   <SelectValue placeholder="Choose a project..." />
                 </SelectTrigger>
@@ -202,7 +197,9 @@ export default function SettingsPage() {
             <div className="pt-4 flex gap-3">
               <Button
                 onClick={handleSave}
-                disabled={!selectedProjectId || !accessKey || !secretKey || isLoading}
+                disabled={
+                  !selectedProjectId || !accessKey || !secretKey || isLoading
+                }
                 className="flex-1"
               >
                 {isLoading ? "Saving..." : "Save Credentials"}
