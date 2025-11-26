@@ -78,28 +78,28 @@ export default function SettingsPage() {
   ];
 
   return (
-    <div className="flex flex-col">
-      <div className="mx-auto max-w-2xl space-y-6">
+    <div className="flex flex-col h-full">
+      <div className="mx-auto max-w-2xl w-full space-y-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
+          <p className="text-sm text-muted-foreground">
             Configure your AWS credentials for integration
           </p>
         </div>
 
-        <Card className="mt-4 bg-zinc-900">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <ShieldIcon className="h-5 w-5" />
+        <Card className="bg-zinc-900">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <ShieldIcon className="h-4 w-4" />
               AWS credentials
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-xs">
               Enter your AWS credentials to enable integration with the services
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="project" className="flex items-center gap-2">
+          <CardContent className="space-y-4">
+            <div className="space-y-1">
+              <Label htmlFor="project" className="text-sm">
                 Select Project
               </Label>
               <Select
@@ -125,14 +125,11 @@ export default function SettingsPage() {
                   )}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground">
-                Select the project to connect with AWS
-              </p>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="access-key" className="flex items-center gap-2">
-                <KeyIcon className="h-4 w-4" />
+            <div className="space-y-1">
+              <Label htmlFor="access-key" className="flex items-center gap-2 text-sm">
+                <KeyIcon className="h-3 w-3" />
                 AWS Access Key ID
               </Label>
               <Input
@@ -145,14 +142,11 @@ export default function SettingsPage() {
                 }}
                 className="font-mono"
               />
-              <p className="text-xs text-muted-foreground">
-                Your AWS public access key
-              </p>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="secret-key" className="flex items-center gap-2">
-                <ShieldIcon className="h-4 w-4" />
+            <div className="space-y-1">
+              <Label htmlFor="secret-key" className="flex items-center gap-2 text-sm">
+                <ShieldIcon className="h-3 w-3" />
                 AWS Secret Access Key
               </Label>
               <Input
@@ -165,14 +159,11 @@ export default function SettingsPage() {
                 }}
                 className="font-mono"
               />
-              <p className="text-xs text-muted-foreground">
-                Your private AWS key
-              </p>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="region" className="flex items-center gap-2">
-                <MapPinIcon className="h-4 w-4" />
+            <div className="space-y-1">
+              <Label htmlFor="region" className="flex items-center gap-2 text-sm">
+                <MapPinIcon className="h-3 w-3" />
                 AWS Region
               </Label>
               <Select value={region} onValueChange={setRegion}>
@@ -189,12 +180,9 @@ export default function SettingsPage() {
                   })}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground">
-                Select the region where your resources are hosted
-              </p>
             </div>
 
-            <div className="pt-4 flex gap-3">
+            <div className="pt-2 flex gap-3">
               <Button
                 onClick={handleSave}
                 disabled={
@@ -208,18 +196,15 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
-        <Card className="mt-4 bg-zinc-900">
-          <CardHeader>
-            <CardTitle className="text-sm font-medium">
-              About Security
+        <Card className="bg-zinc-900">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xs font-medium">
+              Security Notice
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-sm text-muted-foreground space-y-2">
-            <p>• Your credentials are stored locally in your browser.</p>
-            <p>• Never share your access keys with third parties.</p>
-            <p>
-              • Use IAM credentials with limited permissions whenever possible.
-            </p>
+          <CardContent className="text-xs text-muted-foreground space-y-1">
+            <p>• Credentials are stored securely</p>
+            <p>• Use IAM credentials with limited permissions</p>
           </CardContent>
         </Card>
       </div>
