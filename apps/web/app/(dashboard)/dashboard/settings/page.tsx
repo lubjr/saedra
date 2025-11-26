@@ -21,30 +21,48 @@ import {
 import * as React from "react";
 import { toast } from "sonner";
 
+import { connectAWS } from "../../../../auth/credentials";
+import { useProjects } from "../../../contexts/ProjectsContext";
+
 export default function SettingsPage() {
+  const { projects } = useProjects();
+  const [selectedProjectId, setSelectedProjectId] = React.useState<string>("");
   const [accessKey, setAccessKey] = React.useState("");
   const [secretKey, setSecretKey] = React.useState("");
   const [region, setRegion] = React.useState("us-east-1");
   const [isLoading, setIsLoading] = React.useState(false);
 
   const handleSave = async () => {
+    if (!selectedProjectId) {
+      toast.error("Please select a project");
+      return;
+    }
+
     setIsLoading(true);
 
-    await new Promise((resolve) => {
-      return setTimeout(resolve, 1000);
-    });
+    try {
+      const result = await connectAWS({
+        projectId: selectedProjectId,
+        awsConfig: {
+          accessKey,
+          secretKey,
+          region,
+        },
+      });
 
-    localStorage.setItem(
-      "aws_credentials",
-      JSON.stringify({
-        accessKey,
-        secretKey,
-        region,
-      }),
-    );
-    setIsLoading(false);
+      if ("error" in result) {
+        toast.error(result.error);
+        return;
+      }
 
-    toast.success("Credentials saved successfully !");
+      toast.success("Credentials saved successfully!");
+    } catch (error) {
+      toast.error("Failed to save credentials");
+      // eslint-disable-next-line no-console
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const regions = [
@@ -63,9 +81,9 @@ export default function SettingsPage() {
     <div className="flex flex-col">
       <div className="mx-auto max-w-2xl space-y-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
+          <h1 className="text-3xl font-bold tracking-tight py-2">Settings</h1>
           <p className="text-muted-foreground">
-            Configure your AWS credentials for integration
+            Connect your AWS account to integrate with cloud services
           </p>
         </div>
 
@@ -80,6 +98,38 @@ export default function SettingsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="project" className="flex items-center gap-2">
+                Select Project
+              </Label>
+              <Select
+                value={selectedProjectId}
+                onValueChange={setSelectedProjectId}
+              >
+                <SelectTrigger id="project">
+                  <SelectValue placeholder="Choose a project..." />
+                </SelectTrigger>
+                <SelectContent className="bg-zinc-800">
+                  {projects && projects.length > 0 ? (
+                    projects.map((project) => {
+                      return (
+                        <SelectItem key={project.id} value={project.id}>
+                          {project.name}
+                        </SelectItem>
+                      );
+                    })
+                  ) : (
+                    <SelectItem value="no-projects" disabled>
+                      No projects available
+                    </SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                Select the project to connect with AWS
+              </p>
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="access-key" className="flex items-center gap-2">
                 <KeyIcon className="h-4 w-4" />
@@ -147,27 +197,14 @@ export default function SettingsPage() {
             <div className="pt-4 flex gap-3">
               <Button
                 onClick={handleSave}
-                disabled={!accessKey || !secretKey || isLoading}
+                disabled={
+                  !selectedProjectId || !accessKey || !secretKey || isLoading
+                }
                 className="flex-1"
               >
                 {isLoading ? "Saving..." : "Save Credentials"}
               </Button>
             </div>
-          </CardContent>
-        </Card>
-
-        <Card className="mt-4 bg-zinc-900">
-          <CardHeader>
-            <CardTitle className="text-sm font-medium">
-              About Security
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm text-muted-foreground space-y-2">
-            <p>• Your credentials are stored locally in your browser.</p>
-            <p>• Never share your access keys with third parties.</p>
-            <p>
-              • Use IAM credentials with limited permissions whenever possible.
-            </p>
           </CardContent>
         </Card>
       </div>
