@@ -130,7 +130,13 @@ export const connectAWS = async ({
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ awsConfig }),
+      body: JSON.stringify({
+        awsConfig: {
+          accessKeyId: awsConfig.accessKey,
+          secretAccessKey: awsConfig.secretKey,
+          region: awsConfig.region,
+        },
+      }),
     },
   );
 
