@@ -126,7 +126,7 @@ export const listProjectByUserId = async (userId: string): Promise<CreateProject
     if (error) {
       return JSON.parse(`{"error": "${error.message}"}`);
     }
-    
+
     return data;
 }
 
@@ -136,7 +136,7 @@ export const getProjectById = async (id: string): Promise<CreateProjectResponse>
     if (error) {
       return JSON.parse(`{"error": "${error.message}"}`);
     }
-    
+
     return data;
 }
 

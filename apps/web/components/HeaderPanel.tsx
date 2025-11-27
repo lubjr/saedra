@@ -10,16 +10,40 @@ import {
 import { Separator } from "@repo/ui/separator";
 import { SidebarTrigger } from "@repo/ui/sidebar";
 import { usePathname } from "next/navigation";
+
+import { useProjects } from "../app/contexts/ProjectsContext";
+
 export const HeaderPanel = () => {
   const pathname = usePathname();
+  const { projects } = useProjects();
 
   const lastSegment = pathname.split("/").pop() || "";
-
   const decodedSegment = decodeURIComponent(lastSegment);
 
   let title = decodedSegment.replace(/-/g, " ").replace(/\b\w/g, (char) => {
     return char.toUpperCase();
   });
+
+  const isProjectPage = pathname.includes("/dashboard/project/");
+
+  if (isProjectPage && projects) {
+    const projectId = lastSegment;
+    const project = Array.isArray(projects)
+      ? projects.find((p) => {
+          return p.id === projectId;
+        })
+      : null;
+
+    if (project) {
+      const projectName = project.name;
+
+      title = projectName
+        .replace(/-/g, " ")
+        .replace(/\b\w/g, (char: string) => {
+          return char.toUpperCase();
+        });
+    }
+  }
 
   if (title === "Dashboard") {
     title = "Home";
