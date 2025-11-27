@@ -1,14 +1,19 @@
 import { getDiagram } from "../../../../../auth/projects";
 
 interface PageProps {
-  params: Promise<{
+  params: {
     id: string;
-  }>;
+  };
 }
 
 export default async function Page({ params }: PageProps) {
-  const { id } = await params;
+  const { id } = params;
+
+  console.log("Project ID:", id);
+
   const result = await getDiagram({ projectId: id });
+
+  console.log("Diagram result:", result);
 
   return (
     <div className="flex flex-col gap-4 p-8">
