@@ -10,16 +10,31 @@ import {
 import { Separator } from "@repo/ui/separator";
 import { SidebarTrigger } from "@repo/ui/sidebar";
 import { usePathname } from "next/navigation";
+import { useProjects } from "../app/contexts/ProjectsContext";
+
 export const HeaderPanel = () => {
   const pathname = usePathname();
+  const { projects } = useProjects();
 
   const lastSegment = pathname.split("/").pop() || "";
-
   const decodedSegment = decodeURIComponent(lastSegment);
 
   let title = decodedSegment.replace(/-/g, " ").replace(/\b\w/g, (char) => {
     return char.toUpperCase();
   });
+
+  // Check if we're on a project detail page
+  const isProjectPage = pathname.includes("/dashboard/project/");
+  if (isProjectPage && projects) {
+    const projectId = lastSegment;
+    const project = Array.isArray(projects)
+      ? projects.find((p) => p.id === projectId)
+      : null;
+
+    if (project) {
+      title = project.name;
+    }
+  }
 
   if (title === "Dashboard") {
     title = "Home";
