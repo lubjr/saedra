@@ -47,7 +47,7 @@ export const createProject = async (name: string, userId: string): Promise<Creat
   const { data, error } = await ProjectDB.insertProject(userId, name);
 
   if (error) {
-    return JSON.parse(`{"error": "${error.message}"}`);
+    return { error: error.message };
   }
 
   return data;
@@ -73,7 +73,7 @@ export const createDiagram = async (projectId: string): Promise<CreateDiagramRes
         const { data, error } = await DiagramDB.insertDiagram(projectId, diagram);
 
         if (error) {
-          return JSON.parse(`{"error": "${error.message}"}`);
+          return { error: error.message };
         }
 
         return data;
@@ -94,7 +94,7 @@ export const createCredentials = async (projectId: string, credentials: AwsCrede
   const { data, error } = await AwsCredentialsDB.insertCredentials(projectId, credentials);
 
   if (error) {
-    return JSON.parse(`{"error": "${error.message}"}`);
+    return { error: error.message };
   }
 
   return data;
@@ -110,7 +110,7 @@ export const getCredentials = async (projectId: string): Promise<AwsCredentials 
   const { data, error } = await AwsCredentialsDB.getCredentialsByProject(projectId);
 
   if (error) {
-    return JSON.parse(`{"error": "${error.message}"}`);
+    return undefined;
   }
 
   return {
@@ -124,9 +124,9 @@ export const listProjectByUserId = async (userId: string): Promise<CreateProject
     const { data, error } = await ProjectDB.getProjectsByUser(userId);
 
     if (error) {
-      return JSON.parse(`{"error": "${error.message}"}`);
+      return { error: error.message };
     }
-    
+
     return data;
 }
 
@@ -134,9 +134,9 @@ export const getProjectById = async (id: string): Promise<CreateProjectResponse>
     const { data, error } = await ProjectDB.getProjectById(id);
 
     if (error) {
-      return JSON.parse(`{"error": "${error.message}"}`);
+      return { error: error.message };
     }
-    
+
     return data;
 }
 
