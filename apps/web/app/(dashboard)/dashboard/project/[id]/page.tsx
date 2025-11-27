@@ -1,4 +1,4 @@
-import { getDiagram } from "../../../../../auth/projects";
+import { getDiagram } from "../../../../../auth/diagram";
 
 interface PageProps {
   params: {
@@ -9,11 +9,7 @@ interface PageProps {
 export default async function Page({ params }: PageProps) {
   const { id } = params;
 
-  console.log("Project ID:", id);
-
   const result = await getDiagram({ projectId: id });
-
-  console.log("Diagram result:", result);
 
   return (
     <div className="flex flex-col gap-4 p-8">
@@ -21,7 +17,9 @@ export default async function Page({ params }: PageProps) {
 
       {!result ? (
         <div className="p-4 bg-yellow-900/20 border border-yellow-700 rounded">
-          <p className="text-yellow-300">No credentials registered for this project</p>
+          <p className="text-yellow-300">
+            No credentials registered for this project
+          </p>
         </div>
       ) : "error" in result ? (
         <div className="p-4 bg-red-900/20 border border-red-700 rounded">

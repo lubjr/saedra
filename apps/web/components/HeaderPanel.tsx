@@ -10,6 +10,7 @@ import {
 import { Separator } from "@repo/ui/separator";
 import { SidebarTrigger } from "@repo/ui/sidebar";
 import { usePathname } from "next/navigation";
+
 import { useProjects } from "../app/contexts/ProjectsContext";
 
 export const HeaderPanel = () => {
@@ -23,16 +24,24 @@ export const HeaderPanel = () => {
     return char.toUpperCase();
   });
 
-  // Check if we're on a project detail page
   const isProjectPage = pathname.includes("/dashboard/project/");
+
   if (isProjectPage && projects) {
     const projectId = lastSegment;
     const project = Array.isArray(projects)
-      ? projects.find((p) => p.id === projectId)
+      ? projects.find((p) => {
+          return p.id === projectId;
+        })
       : null;
 
     if (project) {
-      title = project.name;
+      const projectName = project.name;
+
+      title = projectName
+        .replace(/-/g, " ")
+        .replace(/\b\w/g, (char: string) => {
+          return char.toUpperCase();
+        });
     }
   }
 
