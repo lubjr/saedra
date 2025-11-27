@@ -1,13 +1,13 @@
 import { getDiagram } from "../../../../../auth/diagram";
 
 interface PageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default async function Page({ params }: PageProps) {
-  const { id } = params;
+  const { id } = await params;
 
   const result = await getDiagram({ projectId: id });
 
