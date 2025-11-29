@@ -6,15 +6,18 @@
     "dev": "dotenv -e .env -- turbo run dev --concurrency=20",
     "dev:infra": "sudo docker-compose -f docker/docker-compose.yml up -d",
     "stop:infra": "sudo docker-compose -f docker/docker-compose.yml down",
+    "dev:apps": "concurrently --names \"WEB,API\" --prefix-colors \"cyan,magenta\" \"pnpm run dev --filter ./apps/web\" \"pnpm run dev --filter ./apps/api\"",
+    "dev:all": "pnpm run dev:infra && sleep 5 && pnpm run dev:apps",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types"
   },
   "devDependencies": {
+    "concurrently": "^9.2.1",
+    "dotenv-cli": "^7.3.0",
     "prettier": "^3.6.2",
     "turbo": "^2.5.5",
-    "typescript": "5.8.3",
-    "dotenv-cli": "^7.3.0"
+    "typescript": "5.8.3"
   },
   "packageManager": "pnpm@9.0.0",
   "engines": {
