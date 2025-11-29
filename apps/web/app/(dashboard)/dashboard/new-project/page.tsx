@@ -17,16 +17,28 @@ export default function Page() {
   };
 
   return (
-    <div className="flex flex-col gap-4 p-8">
-      <div className="flex w-full max-w-sm items-center gap-2">
-        <Input
-          placeholder="Your Project Name"
-          value={name}
-          onChange={(e) => {
-            return setName(e.target.value);
-          }}
-        />
-        <Button onClick={handleSubmit}>Create</Button>
+    <div className="flex flex-col">
+      <div className="mx-auto max-w-6xl w-full space-y-6 px-4">
+        {/* Header */}
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight py-2">
+            Create project
+          </h1>
+          <p className="text-muted-foreground">
+            Create a new project to get started
+          </p>
+        </div>
+
+        <div className="flex gap-2 max-w-md bg-zinc-900">
+          <Input
+            placeholder="Your Project Name"
+            value={name}
+            onChange={(e) => {
+              return setName(e.target.value);
+            }}
+          />
+          <Button onClick={handleSubmit}>Create</Button>
+        </div>
       </div>
     </div>
   );
