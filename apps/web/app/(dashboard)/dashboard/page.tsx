@@ -24,7 +24,9 @@ export default function Page() {
       {projectsList.length === 0 ? (
         <EmptyProjects />
       ) : (
-        <div>You have {projectsList.length} projects.</div>
+        <div className="flex flex-col justify-center items-center h-full">
+          <div>You have {projectsList.length} projects.</div>
+        </div>
       )}
     </>
   );

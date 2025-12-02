@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Badge } from "@repo/ui/badge";
 import {
   Card,
@@ -30,7 +31,7 @@ export default async function Page({ params }: PageProps) {
         <div>
           <h1 className="text-3xl font-bold tracking-tight py-2">Diagram</h1>
           <p className="text-muted-foreground">
-            Your project's infrastructure diagram and resource overview
+            Your project&apos;s infrastructure diagram and resource overview
           </p>
         </div>
 
