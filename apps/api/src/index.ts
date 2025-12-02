@@ -2,12 +2,13 @@ import { projectRoutes } from "@repo/project-service/projects";
 import cors from "cors";
 import express from "express";
 
-import { startWorker } from "./workers/index.js";
+/* Disable worker for now */
+// import { startWorker } from "./workers/index.js";
 
-startWorker().catch((error) => {
-  // eslint-disable-next-line no-console
-  console.error("Failed to start worker:", error);
-});
+// startWorker().catch((error) => {
+//   // eslint-disable-next-line no-console
+//   console.error("Failed to start worker:", error);
+// });
 
 const start = async () => {
   const app = express();
