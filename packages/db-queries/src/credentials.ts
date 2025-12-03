@@ -9,6 +9,8 @@ interface AwsCredentials {
 type AwsCredentialsDBType = {
   insertCredentials(projectId: string, creds: AwsCredentials): Promise<any>;
   getCredentialsByProject(projectId: string): Promise<any>;
+  getCredentialsByUser(userId: string): Promise<any>;
+  deleteCredentialsByProject(projectId: string): Promise<any>;
 }
 
 export const AwsCredentialsDB: AwsCredentialsDBType = {
@@ -23,5 +25,16 @@ export const AwsCredentialsDB: AwsCredentialsDBType = {
 
   async getCredentialsByProject(projectId: string) {
     return supabase.from('aws_credentials').select('*').eq('project_id', projectId).single();
+  },
+
+  async getCredentialsByUser(userId: string) {
+    return supabase
+      .from('aws_credentials')
+      .select('*, projects!inner(user_id, name, id)')
+      .eq('projects.user_id', userId);
+  },
+
+  async deleteCredentialsByProject(projectId: string) {
+    return supabase.from('aws_credentials').delete().eq('project_id', projectId);
   },
 };

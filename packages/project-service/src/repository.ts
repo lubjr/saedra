@@ -120,6 +120,40 @@ export const getCredentials = async (projectId: string): Promise<AwsCredentials 
   }
 }
 
+export const listCredentialsByUserId = async (userId: string): Promise<any> => {
+  const { data, error } = await AwsCredentialsDB.getCredentialsByUser(userId);
+
+  if (error) {
+    return JSON.parse(`{"error": "${error.message}"}`);
+  }
+
+  return data.map((cred: any) => ({
+    id: cred.id,
+    projectId: cred.project_id,
+    projectName: cred.projects.name,
+    accessKeyId: cred.access_key_id,
+    region: cred.region,
+    createdAt: cred.created_at,
+  }));
+}
+
+export const deleteCredentials = async (projectId: string): Promise<boolean> => {
+  const project = await getProjectById(projectId);
+
+  if (!project || 'error' in project) {
+    return false;
+  }
+
+  const { error } = await AwsCredentialsDB.deleteCredentialsByProject(projectId);
+
+  if (error) {
+    console.log(`{"error": "${error.message}"}`);
+    return false;
+  }
+
+  return true;
+}
+
 export const listProjectByUserId = async (userId: string): Promise<CreateProjectResponse> => {
     const { data, error } = await ProjectDB.getProjectsByUser(userId);
 
