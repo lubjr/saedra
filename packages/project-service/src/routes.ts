@@ -72,6 +72,22 @@ routes.post('/create', authenticate, async (req, res) => {
   res.status(201).json(project);
 });
 
+routes.get('/credentials/user/:userId', authenticate, async (req, res) => {
+  const { userId } = req.params;
+
+  if (!userId) {
+    return res.status(400).json({ error: 'userId required' });
+  }
+
+  const credentials = await repo.listCredentialsByUserId(userId);
+
+  if ('error' in credentials) {
+    return res.status(400).json({ error: credentials.error });
+  }
+
+  res.json(credentials);
+});
+
 routes.post('/:id/connect-aws', authenticate, async (req, res) => {
   const { id } = req.params;
   const { awsConfig } = req.body;
@@ -87,6 +103,38 @@ routes.post('/:id/connect-aws', authenticate, async (req, res) => {
   }
 
   res.json(credentials);
+});
+
+routes.get('/:projectId/credentials', authenticate, async (req, res) => {
+  const { projectId } = req.params;
+
+  if (!projectId) {
+    return res.status(400).json({ error: 'projectId required' });
+  }
+
+  const credentials = await repo.getCredentials(projectId);
+
+  if (!credentials) {
+    return res.status(404).json({ error: 'credentials not found' });
+  }
+
+  res.json(credentials);
+});
+
+routes.delete('/:projectId/credentials', authenticate, async (req, res) => {
+  const { projectId } = req.params;
+
+  if (!projectId) {
+    return res.status(400).json({ error: 'projectId required' });
+  }
+
+  const success = await repo.deleteCredentials(projectId);
+
+  if (!success) {
+    return res.status(404).json({ error: 'error deleting credentials' });
+  }
+
+  res.status(204).json({ message: 'credentials deleted' });
 });
 
 routes.get('/:id/diagram', authenticate, async (req, res) => {
