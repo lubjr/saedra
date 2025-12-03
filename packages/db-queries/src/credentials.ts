@@ -24,7 +24,7 @@ export const AwsCredentialsDB: AwsCredentialsDBType = {
   },
 
   async getCredentialsByProject(projectId: string) {
-    return supabase.from('aws_credentials').select('*').eq('project_id', projectId).single();
+    return supabase.from('aws_credentials').select('*').eq('project_id', projectId);
   },
 
   async getCredentialsByUser(userId: string) {

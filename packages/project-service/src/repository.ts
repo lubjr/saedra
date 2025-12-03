@@ -113,11 +113,7 @@ export const getCredentials = async (projectId: string): Promise<AwsCredentials 
     return JSON.parse(`{"error": "${error.message}"}`);
   }
 
-  return {
-    accessKeyId: data.access_key_id,
-    secretAccessKey: data.secret_access_key,
-    region: data.region,
-  }
+  return data;
 }
 
 export const listCredentialsByUserId = async (userId: string): Promise<any> => {
