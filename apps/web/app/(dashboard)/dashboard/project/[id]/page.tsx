@@ -1,5 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+"use client";
+
 import { Badge } from "@repo/ui/badge";
+import { Button } from "@repo/ui/button";
 import {
   Card,
   CardContent,
@@ -7,8 +10,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@repo/ui/select";
+import { use, useEffect, useState } from "react";
 
-import { getDiagram } from "../../../../../auth/diagram";
+import { getProjectCredentials } from "../../../../../auth/credentials";
+import { generateDiagram } from "../../../../../auth/diagram";
 
 interface PageProps {
   params: Promise<{
@@ -16,13 +28,65 @@ interface PageProps {
   }>;
 }
 
-export default async function Page({ params }: PageProps) {
-  const { id } = await params;
+export default function Page({ params }: PageProps) {
+  const { id } = use(params);
+  const [credentials, setCredentials] = useState<any[]>([]);
+  const [selectedCredentialId, setSelectedCredentialId] = useState<string>("");
+  const [diagram, setDiagram] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string>("");
 
-  const result = (await getDiagram({ projectId: id })) as any;
+  useEffect(() => {
+    const fetchCredentials = async () => {
+      const result = await getProjectCredentials({ projectId: id });
 
-  const nodes = result.data?.graph?.nodes;
-  const edges = result.data?.graph?.edges;
+      if ("error" in result) {
+        setError(result.error);
+        return;
+      }
+
+      if (result.data && Array.isArray(result.data)) {
+        setCredentials(result.data);
+        if (result.data.length > 0) {
+          setSelectedCredentialId(result.data[0].id);
+        }
+      }
+    };
+
+    fetchCredentials();
+  }, [id]);
+
+  const handleGenerateDiagram = async () => {
+    if (!selectedCredentialId) {
+      setError("Please select a credential");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    const result = await generateDiagram({
+      projectId: id,
+      credentialId: selectedCredentialId,
+    });
+
+    setLoading(false);
+
+    if (!result) {
+      setError("Failed to generate diagram");
+      return;
+    }
+
+    if ("error" in result) {
+      setError(result.error);
+      return;
+    }
+
+    setDiagram(result.data);
+  };
+
+  const nodes = diagram?.graph?.nodes || [];
+  const edges = diagram?.graph?.edges || [];
 
   return (
     <div className="flex flex-col">
@@ -35,15 +99,59 @@ export default async function Page({ params }: PageProps) {
           </p>
         </div>
 
-        {!result ? (
-          <div>
-            <p>No credentials registered for this project</p>
-          </div>
-        ) : "error" in result ? (
-          <div>
-            <p>No credentials registered for this project</p>
-          </div>
-        ) : (
+        {/* Credential Selection */}
+        <Card className="bg-zinc-900">
+          <CardHeader>
+            <CardTitle>Generate Diagram</CardTitle>
+            <CardDescription>
+              Select a credential and generate your infrastructure diagram
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {credentials.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                No credentials registered for this project. Please add AWS credentials first.
+              </p>
+            ) : (
+              <>
+                <div className="flex gap-4 items-end">
+                  <div className="flex-1">
+                    <label className="text-sm font-medium mb-2 block">
+                      Select Credential
+                    </label>
+                    <Select
+                      value={selectedCredentialId}
+                      onValueChange={setSelectedCredentialId}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a credential" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {credentials.map((cred: any) => (
+                          <SelectItem key={cred.id} value={cred.id}>
+                            {cred.region} - {cred.access_key_id}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Button
+                    onClick={handleGenerateDiagram}
+                    disabled={loading || !selectedCredentialId}
+                  >
+                    {loading ? "Generating..." : "Generate Diagram"}
+                  </Button>
+                </div>
+                {error && (
+                  <p className="text-sm text-red-500">{error}</p>
+                )}
+              </>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Diagram Display */}
+        {diagram && (
           <>
             {/* Stats */}
             <div className="grid gap-4 md:grid-cols-3">
