@@ -61,7 +61,6 @@ export const createDiagram = async (projectId: string, credentialId: string): Pr
     return undefined;
   }
 
-  // Convert database format to AwsCredentials format
   const awsCredentials: AwsCredentials = {
     accessKeyId: credentials.access_key_id,
     secretAccessKey: credentials.secret_access_key,

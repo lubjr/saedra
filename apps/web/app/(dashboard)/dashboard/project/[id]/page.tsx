@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@repo/ui/select";
-import { use, useEffect, useState } from "react";
+import * as React from "react";
 
 import { getProjectCredentials } from "../../../../../auth/credentials";
 import { generateDiagram } from "../../../../../auth/diagram";
@@ -29,14 +29,15 @@ interface PageProps {
 }
 
 export default function Page({ params }: PageProps) {
-  const { id } = use(params);
-  const [credentials, setCredentials] = useState<any[]>([]);
-  const [selectedCredentialId, setSelectedCredentialId] = useState<string>("");
-  const [diagram, setDiagram] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string>("");
+  const { id } = React.use(params);
+  const [credentials, setCredentials] = React.useState<any[]>([]);
+  const [selectedCredentialId, setSelectedCredentialId] =
+    React.useState<string>("");
+  const [diagram, setDiagram] = React.useState<any>(null);
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState<string>("");
 
-  useEffect(() => {
+  React.useEffect(() => {
     const fetchCredentials = async () => {
       const result = await getProjectCredentials({ projectId: id });
 
@@ -110,30 +111,35 @@ export default function Page({ params }: PageProps) {
           <CardContent className="space-y-4">
             {credentials.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                No credentials registered for this project. Please add AWS credentials first.
+                No credentials registered for this project. Please add AWS
+                credentials first.
               </p>
             ) : (
               <>
                 <div className="flex gap-4 items-end">
                   <div className="flex-1">
-                    <label className="text-sm font-medium mb-2 block">
-                      Select Credential
-                    </label>
-                    <Select
-                      value={selectedCredentialId}
-                      onValueChange={setSelectedCredentialId}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a credential" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {credentials.map((cred: any) => (
-                          <SelectItem key={cred.id} value={cred.id}>
-                            {cred.region} - {cred.access_key_id}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div className="flex flex-col gap-2">
+                      <label className="text-sm font-medium">
+                        Select Credential
+                      </label>
+                      <Select
+                        value={selectedCredentialId}
+                        onValueChange={setSelectedCredentialId}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a credential" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-zinc-800">
+                          {credentials.map((cred: any) => {
+                            return (
+                              <SelectItem key={cred.id} value={cred.id}>
+                                {cred.access_key_id?.slice(0, 4) ?? "N/A"}*****
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                   <Button
                     onClick={handleGenerateDiagram}
@@ -142,9 +148,7 @@ export default function Page({ params }: PageProps) {
                     {loading ? "Generating..." : "Generate Diagram"}
                   </Button>
                 </div>
-                {error && (
-                  <p className="text-sm text-red-500">{error}</p>
-                )}
+                {error && <p className="text-sm text-red-500">{error}</p>}
               </>
             )}
           </CardContent>
