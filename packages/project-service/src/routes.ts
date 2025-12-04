@@ -137,11 +137,16 @@ routes.delete('/:projectId/credentials', authenticate, async (req, res) => {
   res.status(204).json({ message: 'credentials deleted' });
 });
 
-routes.get('/:id/diagram', authenticate, async (req, res) => {
+routes.post('/:id/diagram', authenticate, async (req, res) => {
   const { id } = req.params;
+  const { credentialId } = req.body;
 
   if (!id) {
     return res.status(400).json({ error: 'id required' });
+  }
+
+  if (!credentialId) {
+    return res.status(400).json({ error: 'credentialId required' });
   }
 
   const project = await repo.getProjectById(id);
@@ -150,7 +155,7 @@ routes.get('/:id/diagram', authenticate, async (req, res) => {
     return res.status(404).json({ error: 'project not found' });
   }
 
-  const diagram = await repo.createDiagram(id);
+  const diagram = await repo.createDiagram(id, credentialId);
 
   if (!diagram) {
     return res.status(500).json({ error: 'failed to generate diagram' });

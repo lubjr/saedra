@@ -53,12 +53,19 @@ export const createProject = async (name: string, userId: string): Promise<Creat
   return data;
 };
 
-export const createDiagram = async (projectId: string): Promise<CreateDiagramResponse | undefined> => {
-  const credentials = await getCredentials(projectId);
+export const createDiagram = async (projectId: string, credentialId: string): Promise<CreateDiagramResponse | undefined> => {
+  const { data: credentials, error } = await AwsCredentialsDB.getCredentialById(credentialId);
 
-  if (!credentials || 'error' in credentials) {
+  if (error || !credentials) {
+    console.log(`error fetching credentials: ${error?.message}`);
     return undefined;
   }
+
+  const awsCredentials: AwsCredentials = {
+    accessKeyId: credentials.access_key_id,
+    secretAccessKey: credentials.secret_access_key,
+    region: credentials.region,
+  };
 
   const getDiagram = await DiagramDB.getDiagramByProject(projectId);
 
@@ -67,7 +74,7 @@ export const createDiagram = async (projectId: string): Promise<CreateDiagramRes
   }
 
   try {
-        const { resources } = await collectResources(credentials);
+        const { resources } = await collectResources(awsCredentials);
         const diagram = generateDiagramFromResources(resources);
 
         const { data, error } = await DiagramDB.insertDiagram(projectId, diagram);
@@ -81,7 +88,7 @@ export const createDiagram = async (projectId: string): Promise<CreateDiagramRes
         const message = error instanceof Error ? error.message : JSON.stringify(error);
         console.log(`error generating diagram for project ${projectId}, message: ${message}`);
         return undefined;
-    } 
+    }
 }
 
 export const createCredentials = async (projectId: string, credentials: AwsCredentials): Promise<CreateCredentialsResponse | undefined> => {
@@ -100,7 +107,7 @@ export const createCredentials = async (projectId: string, credentials: AwsCrede
   return data;
 }
 
-export const getCredentials = async (projectId: string): Promise<AwsCredentials | undefined> => {
+export const getCredentials = async (projectId: string): Promise<any[] | undefined> => {
   const project = await getProjectById(projectId);
 
   if (!project || 'error' in project) {
@@ -110,10 +117,10 @@ export const getCredentials = async (projectId: string): Promise<AwsCredentials 
   const { data, error } = await AwsCredentialsDB.getCredentialsByProject(projectId);
 
   if (error) {
-    return JSON.parse(`{"error": "${error.message}"}`);
+    return undefined;
   }
 
-  return data;
+  return data || [];
 }
 
 export const listCredentialsByUserId = async (userId: string): Promise<any> => {
