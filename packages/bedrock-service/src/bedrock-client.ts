@@ -29,7 +29,6 @@ export class BedrockService {
     modelId: string,
     request: BedrockRequest
   ): Promise<BedrockResponse> {
-    // Base structure - needs to be adapted based on model provider
     const input = {
       modelId,
       contentType: "application/json",
@@ -45,7 +44,6 @@ export class BedrockService {
     const command = new InvokeModelCommand(input);
     const response = await this.runtimeClient.send(command);
 
-    // Parse response - structure depends on the model
     const responseBody = JSON.parse(new TextDecoder().decode(response.body));
 
     return {

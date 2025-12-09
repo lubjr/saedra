@@ -1,36 +1,32 @@
 # Bedrock Service
 
-Package para integração com AWS Bedrock.
+Package for AWS Bedrock integration.
 
-## Configuração Inicial
+## Initial Setup
 
-Este package fornece uma estrutura básica para trabalhar com AWS Bedrock, incluindo:
+This package provides a basic structure for working with AWS Bedrock, including:
 
-- Cliente configurado para Bedrock Runtime
-- Tipos TypeScript para requisições e respostas
-- Métodos base para invocar modelos
+- Configured client for Bedrock Runtime
+- TypeScript types for requests and responses
+- Base methods to invoke models
 
-## Uso Básico
+## Basic Usage
 
 ```typescript
 import { BedrockService } from "@repo/bedrock-service/bedrock";
 
-// Inicializar o serviço
 const bedrock = new BedrockService({
   region: "us-east-1",
-  // Opcionalmente, fornecer credenciais
   credentials: {
     accessKeyId: "YOUR_ACCESS_KEY",
     secretAccessKey: "YOUR_SECRET_KEY",
   },
 });
 
-// Listar modelos disponíveis
 const models = await bedrock.listModels();
 
-// Invocar um modelo
 const response = await bedrock.invokeModel("anthropic.claude-v2", {
-  prompt: "Olá, como você está?",
+  prompt: "Hello, how are you?",
   config: {
     temperature: 0.7,
     maxTokens: 1000,
@@ -38,18 +34,18 @@ const response = await bedrock.invokeModel("anthropic.claude-v2", {
 });
 ```
 
-## Configuração AWS
+## AWS Configuration
 
-Certifique-se de ter:
-- Credenciais AWS configuradas (via variáveis de ambiente, arquivo de credenciais ou IAM Role)
-- Permissões necessárias para Bedrock (bedrock:InvokeModel, bedrock:ListFoundationModels)
-- Região AWS que suporta Bedrock
+Make sure you have:
+- AWS credentials configured (via environment variables, credentials file, or IAM Role)
+- Required permissions for Bedrock (bedrock:InvokeModel, bedrock:ListFoundationModels)
+- AWS region that supports Bedrock
 
-## Próximos Passos
+## Next Steps
 
-Este é um setup inicial. Você pode estender com:
-- Suporte específico para diferentes providers (Claude, Llama, etc.)
-- Streaming de respostas
+This is an initial setup. You can extend it with:
+- Specific support for different providers (Claude, Llama, etc.)
+- Response streaming
 - Embeddings
-- Gestão de contexto e histórico
-- Rate limiting e retry logic
+- Context and history management
+- Rate limiting and retry logic
