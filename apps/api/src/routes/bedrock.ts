@@ -1,7 +1,7 @@
 import { BedrockService } from "@repo/bedrock-service/bedrock";
-import { Router } from "express";
+import { Router, type Router as RouterType } from "express";
 
-export const bedrockRoutes = Router();
+export const bedrockRoutes: RouterType = Router();
 
 // Initialize Bedrock service
 const bedrockService = new BedrockService({
