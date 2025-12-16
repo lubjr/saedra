@@ -26,6 +26,9 @@ importers:
 
   apps/api:
     dependencies:
+      '@repo/bedrock-service':
+        specifier: workspace:*
+        version: link:../../packages/bedrock-service
       '@repo/nats-client':
         specifier: workspace:*
         version: link:../../packages/nats-client
