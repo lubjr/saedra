@@ -14,11 +14,13 @@
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
+    "@types/node": "^20.0.0",
     "typescript": "latest"
   },
   "dependencies": {
     "@aws-sdk/client-bedrock": "^3.900.0",
     "@aws-sdk/client-bedrock-runtime": "^3.900.0",
-    "aws-sdk": "^2.1692.0"
+    "aws-sdk": "^2.1692.0",
+    "zod": "^3.22.4"
   }
 }
