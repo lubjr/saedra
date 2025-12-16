@@ -1,6 +1,7 @@
 import { projectRoutes } from "@repo/project-service/projects";
 import cors from "cors";
 import express from "express";
+import { bedrockRoutes } from "./routes/bedrock.js";
 
 /* Disable worker for now */
 // import { startWorker } from "./workers/index.js";
@@ -20,6 +21,7 @@ const start = async () => {
   });
 
   app.use("/projects", projectRoutes);
+  app.use("/bedrock", bedrockRoutes);
 
   app.listen(3002, () => {
     // eslint-disable-next-line no-console
