@@ -4,14 +4,6 @@ import express from "express";
 
 import { bedrockRoutes } from "./routes/bedrock.js";
 
-/* Disable worker for now */
-// import { startWorker } from "./workers/index.js";
-
-// startWorker().catch((error) => {
-//   // eslint-disable-next-line no-console
-//   console.error("Failed to start worker:", error);
-// });
-
 const start = async () => {
   const app = express();
   app.use(cors());
