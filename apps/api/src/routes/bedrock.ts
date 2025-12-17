@@ -9,25 +9,34 @@ const bedrockService = new BedrockService({
 
 bedrockRoutes.post("/chat", async (req, res) => {
   try {
-    const { message, modelId = "anthropic.claude-3-sonnet-20240229-v1:0" } =
-      req.body;
+    const { message, modelId = "amazon.titan-text-express-v1" } = req.body;
 
     if (!message) {
       return res.status(400).json({ error: "Message is required" });
     }
 
-    const response = await bedrockService.invokeWithMessages(modelId, {
-      messages: [
-        {
-          role: "user",
-          content: message,
-        },
-      ],
-      config: {
-        maxTokens: 1000,
-        temperature: 0.7,
-      },
-    });
+    const isAnthropicModel = modelId.startsWith("anthropic.");
+
+    const response = isAnthropicModel
+      ? await bedrockService.invokeWithMessages(modelId, {
+          messages: [
+            {
+              role: "user",
+              content: message,
+            },
+          ],
+          config: {
+            maxTokens: 1000,
+            temperature: 0.7,
+          },
+        })
+      : await bedrockService.invokeModel(modelId, {
+          prompt: `\n\nHuman: ${message}\n\nAssistant:`,
+          config: {
+            maxTokens: 1000,
+            temperature: 0.7,
+          },
+        });
 
     res.json({
       response: response.completion,
