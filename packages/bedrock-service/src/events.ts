@@ -1,26 +1,15 @@
 import { EventEmitter } from "events";
 import type { StreamChunk, BedrockResponse } from "./schemas.js";
-
-/**
- * Event types for the Bedrock service
- */
 export interface BedrockServiceEvents {
-  // Streaming events
   streamStart: (modelId: string) => void;
   streamChunk: (chunk: StreamChunk) => void;
   streamComplete: (response: BedrockResponse) => void;
   streamError: (error: Error) => void;
 
-  // General events
   modelInvoked: (modelId: string, tokensUsed: number) => void;
   error: (error: Error) => void;
 }
-
-/**
- * Type-safe event emitter for Bedrock service
- */
 export class BedrockEventEmitter extends EventEmitter {
-  // Override emit and on methods for type safety
   emit<K extends keyof BedrockServiceEvents>(
     event: K,
     ...args: Parameters<BedrockServiceEvents[K]>
@@ -49,11 +38,6 @@ export class BedrockEventEmitter extends EventEmitter {
     return super.off(event, listener);
   }
 }
-
-/**
- * Stream response aggregator
- * Collects chunks and emits complete response
- */
 export class StreamAggregator {
   private chunks: string[] = [];
   private tokenCount = 0;
