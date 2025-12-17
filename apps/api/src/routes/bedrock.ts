@@ -16,6 +16,7 @@ bedrockRoutes.post("/chat", async (req, res) => {
     }
 
     const isAnthropicModel = modelId.startsWith("anthropic.");
+    const isTitanModel = modelId.startsWith("amazon.titan");
 
     const response = isAnthropicModel
       ? await bedrockService.invokeWithMessages(modelId, {
@@ -31,7 +32,7 @@ bedrockRoutes.post("/chat", async (req, res) => {
           },
         })
       : await bedrockService.invokeModel(modelId, {
-          prompt: `\n\nHuman: ${message}\n\nAssistant:`,
+          prompt: isTitanModel ? message : `\n\nHuman: ${message}\n\nAssistant:`,
           config: {
             maxTokens: 1000,
             temperature: 0.7,
