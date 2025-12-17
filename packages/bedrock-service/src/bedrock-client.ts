@@ -28,7 +28,6 @@ export class BedrockService extends BedrockEventEmitter {
   constructor(config: BedrockConfig) {
     super();
 
-    // Validate config with Zod
     const validatedConfig = BedrockConfigSchema.parse(config);
 
     const clientConfig = {
@@ -42,9 +41,6 @@ export class BedrockService extends BedrockEventEmitter {
     this.bedrockClient = new BedrockClient(clientConfig);
   }
 
-  /**
-   * List available foundation models
-   */
   async listModels(): Promise<ModelInfo[]> {
     try {
       const command = new ListFoundationModelsCommand({});
@@ -68,33 +64,42 @@ export class BedrockService extends BedrockEventEmitter {
     }
   }
 
-  /**
-   * Invoke model with standard request/response
-   */
   async invokeModel(
     modelId: string,
     request: BedrockRequest
   ): Promise<BedrockResponse> {
     try {
-      // Validate request with Zod
       const validatedRequest = BedrockRequestSchema.parse(request);
+
+      const isTitanModel = modelId.startsWith("amazon.titan");
+
+      const bodyPayload = isTitanModel
+        ? {
+            inputText: validatedRequest.prompt,
+            textGenerationConfig: {
+              maxTokenCount: validatedRequest.config?.maxTokens || 1000,
+              temperature: validatedRequest.config?.temperature || 0.7,
+              topP: validatedRequest.config?.topP || 0.9,
+            },
+          }
+        : {
+            prompt: validatedRequest.prompt,
+            temperature: validatedRequest.config?.temperature || 0.7,
+            max_tokens: validatedRequest.config?.maxTokens || 1000,
+            top_p: validatedRequest.config?.topP || 0.9,
+            ...(validatedRequest.config?.topK && {
+              top_k: validatedRequest.config.topK,
+            }),
+            ...(validatedRequest.config?.stopSequences && {
+              stop_sequences: validatedRequest.config.stopSequences,
+            }),
+          };
 
       const input = {
         modelId,
         contentType: "application/json",
         accept: "application/json",
-        body: JSON.stringify({
-          prompt: validatedRequest.prompt,
-          temperature: validatedRequest.config?.temperature || 0.7,
-          max_tokens: validatedRequest.config?.maxTokens || 1000,
-          top_p: validatedRequest.config?.topP || 0.9,
-          ...(validatedRequest.config?.topK && {
-            top_k: validatedRequest.config.topK,
-          }),
-          ...(validatedRequest.config?.stopSequences && {
-            stop_sequences: validatedRequest.config.stopSequences,
-          }),
-        }),
+        body: JSON.stringify(bodyPayload),
       };
 
       const command = new InvokeModelCommand(input);
@@ -102,20 +107,29 @@ export class BedrockService extends BedrockEventEmitter {
 
       const responseBody = JSON.parse(new TextDecoder().decode(response.body));
 
-      const result: BedrockResponse = {
-        completion:
-          responseBody.completion || responseBody.results?.[0]?.outputText || "",
-        metadata: {
-          inputTokens: responseBody.inputTextTokenCount,
-          outputTokens: responseBody.results?.[0]?.tokenCount,
-          stopReason: responseBody.stopReason,
-        },
-      };
+      const result: BedrockResponse = isTitanModel
+        ? {
+            completion: responseBody.results?.[0]?.outputText || "",
+            metadata: {
+              inputTokens: responseBody.inputTextTokenCount,
+              outputTokens: responseBody.results?.[0]?.tokenCount,
+              stopReason: responseBody.results?.[0]?.completionReason,
+            },
+          }
+        : {
+            completion:
+              responseBody.completion ||
+              responseBody.results?.[0]?.outputText ||
+              "",
+            metadata: {
+              inputTokens: responseBody.inputTextTokenCount,
+              outputTokens: responseBody.results?.[0]?.tokenCount,
+              stopReason: responseBody.stopReason,
+            },
+          };
 
-      // Validate response
       const validatedResponse = BedrockResponseSchema.parse(result);
 
-      // Emit event
       const tokensUsed =
         (validatedResponse.metadata?.inputTokens || 0) +
         (validatedResponse.metadata?.outputTokens || 0);
@@ -130,15 +144,11 @@ export class BedrockService extends BedrockEventEmitter {
     }
   }
 
-  /**
-   * Invoke model with Messages API (modern Claude API)
-   */
   async invokeWithMessages(
     modelId: string,
     request: MessagesRequest
   ): Promise<BedrockResponse> {
     try {
-      // Validate request
       const validatedRequest = MessagesRequestSchema.parse(request);
 
       const input = {
@@ -176,10 +186,8 @@ export class BedrockService extends BedrockEventEmitter {
         },
       };
 
-      // Validate response
       const validatedResponse = BedrockResponseSchema.parse(result);
 
-      // Emit event
       const tokensUsed =
         (validatedResponse.metadata?.inputTokens || 0) +
         (validatedResponse.metadata?.outputTokens || 0);
@@ -196,15 +204,11 @@ export class BedrockService extends BedrockEventEmitter {
     }
   }
 
-  /**
-   * Invoke model with streaming response
-   */
   async invokeModelStream(
     modelId: string,
     request: BedrockRequest
   ): Promise<BedrockResponse> {
     try {
-      // Validate request
       const validatedRequest = BedrockRequestSchema.parse(request);
 
       const input = {
@@ -258,7 +262,6 @@ export class BedrockService extends BedrockEventEmitter {
               this.emit("streamChunk", streamChunk);
             }
 
-            // Track tokens
             if (chunkData.outputTextTokenCount) {
               aggregator.addTokens(chunkData.outputTextTokenCount);
             }
@@ -266,7 +269,6 @@ export class BedrockService extends BedrockEventEmitter {
         }
       }
 
-      // Emit final chunk
       const finalChunk: StreamChunk = {
         chunk: "",
         index: chunkIndex,
@@ -294,15 +296,11 @@ export class BedrockService extends BedrockEventEmitter {
     }
   }
 
-  /**
-   * Invoke model with streaming using Messages API
-   */
   async invokeWithMessagesStream(
     modelId: string,
     request: MessagesRequest
   ): Promise<BedrockResponse> {
     try {
-      // Validate request
       const validatedRequest = MessagesRequestSchema.parse(request);
 
       const input = {
@@ -343,7 +341,6 @@ export class BedrockService extends BedrockEventEmitter {
               new TextDecoder().decode(event.chunk.bytes)
             );
 
-            // Handle different chunk types
             if (chunkData.type === "message_start") {
               inputTokens = chunkData.message?.usage?.input_tokens || 0;
             } else if (chunkData.type === "content_block_delta") {
@@ -366,7 +363,6 @@ export class BedrockService extends BedrockEventEmitter {
         }
       }
 
-      // Emit final chunk
       const finalChunk: StreamChunk = {
         chunk: "",
         index: chunkIndex,

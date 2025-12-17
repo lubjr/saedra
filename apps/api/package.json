@@ -9,6 +9,7 @@
     "start": "node dist/index.js"
   },
   "dependencies": {
+    "@repo/bedrock-service": "workspace:*",
     "@repo/nats-client": "workspace:*",
     "@repo/project-service": "workspace:*",
     "cors": "^2.8.5",

@@ -1,10 +1,5 @@
 import { z } from "zod";
 
-/**
- * Zod schemas for runtime validation and type safety
- */
-
-// Configuration schemas
 export const BedrockConfigSchema = z.object({
   region: z.string().min(1, "Region is required"),
   credentials: z
@@ -24,13 +19,11 @@ export const BedrockModelConfigSchema = z.object({
   stopSequences: z.array(z.string()).optional(),
 });
 
-// Request schemas
 export const BedrockRequestSchema = z.object({
   prompt: z.string().min(1, "Prompt cannot be empty"),
   config: BedrockModelConfigSchema.partial().optional(),
 });
 
-// Messages API schema (modern Claude API)
 export const MessageSchema = z.object({
   role: z.enum(["user", "assistant"]),
   content: z.string(),
@@ -41,7 +34,6 @@ export const MessagesRequestSchema = z.object({
   config: BedrockModelConfigSchema.partial().optional(),
 });
 
-// Response schemas
 export const BedrockResponseMetadataSchema = z.object({
   inputTokens: z.number().optional(),
   outputTokens: z.number().optional(),
@@ -53,14 +45,12 @@ export const BedrockResponseSchema = z.object({
   metadata: BedrockResponseMetadataSchema.optional(),
 });
 
-// Streaming chunk schema
 export const StreamChunkSchema = z.object({
   chunk: z.string(),
   index: z.number(),
   isComplete: z.boolean(),
 });
 
-// Model info schema
 export const ModelInfoSchema = z.object({
   modelId: z.string(),
   modelName: z.string().optional(),
@@ -70,7 +60,6 @@ export const ModelInfoSchema = z.object({
   customizationsSupported: z.array(z.string()).optional(),
 });
 
-// Export inferred types from schemas
 export type BedrockConfig = z.infer<typeof BedrockConfigSchema>;
 export type BedrockModelConfig = z.infer<typeof BedrockModelConfigSchema>;
 export type BedrockRequest = z.infer<typeof BedrockRequestSchema>;
