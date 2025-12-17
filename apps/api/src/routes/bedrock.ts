@@ -32,7 +32,9 @@ bedrockRoutes.post("/chat", async (req, res) => {
           },
         })
       : await bedrockService.invokeModel(modelId, {
-          prompt: isTitanModel ? message : `\n\nHuman: ${message}\n\nAssistant:`,
+          prompt: isTitanModel
+            ? message
+            : `\n\nHuman: ${message}\n\nAssistant:`,
           config: {
             maxTokens: 1000,
             temperature: 0.7,
