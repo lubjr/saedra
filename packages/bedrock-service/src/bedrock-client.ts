@@ -76,25 +76,37 @@ export class BedrockService extends BedrockEventEmitter {
     request: BedrockRequest
   ): Promise<BedrockResponse> {
     try {
-      // Validate request with Zod
       const validatedRequest = BedrockRequestSchema.parse(request);
+
+      const isTitanModel = modelId.startsWith("amazon.titan");
+
+      const bodyPayload = isTitanModel
+        ? {
+            inputText: validatedRequest.prompt,
+            textGenerationConfig: {
+              maxTokenCount: validatedRequest.config?.maxTokens || 1000,
+              temperature: validatedRequest.config?.temperature || 0.7,
+              topP: validatedRequest.config?.topP || 0.9,
+            },
+          }
+        : {
+            prompt: validatedRequest.prompt,
+            temperature: validatedRequest.config?.temperature || 0.7,
+            max_tokens: validatedRequest.config?.maxTokens || 1000,
+            top_p: validatedRequest.config?.topP || 0.9,
+            ...(validatedRequest.config?.topK && {
+              top_k: validatedRequest.config.topK,
+            }),
+            ...(validatedRequest.config?.stopSequences && {
+              stop_sequences: validatedRequest.config.stopSequences,
+            }),
+          };
 
       const input = {
         modelId,
         contentType: "application/json",
         accept: "application/json",
-        body: JSON.stringify({
-          prompt: validatedRequest.prompt,
-          temperature: validatedRequest.config?.temperature || 0.7,
-          max_tokens: validatedRequest.config?.maxTokens || 1000,
-          top_p: validatedRequest.config?.topP || 0.9,
-          ...(validatedRequest.config?.topK && {
-            top_k: validatedRequest.config.topK,
-          }),
-          ...(validatedRequest.config?.stopSequences && {
-            stop_sequences: validatedRequest.config.stopSequences,
-          }),
-        }),
+        body: JSON.stringify(bodyPayload),
       };
 
       const command = new InvokeModelCommand(input);
@@ -102,20 +114,29 @@ export class BedrockService extends BedrockEventEmitter {
 
       const responseBody = JSON.parse(new TextDecoder().decode(response.body));
 
-      const result: BedrockResponse = {
-        completion:
-          responseBody.completion || responseBody.results?.[0]?.outputText || "",
-        metadata: {
-          inputTokens: responseBody.inputTextTokenCount,
-          outputTokens: responseBody.results?.[0]?.tokenCount,
-          stopReason: responseBody.stopReason,
-        },
-      };
+      const result: BedrockResponse = isTitanModel
+        ? {
+            completion: responseBody.results?.[0]?.outputText || "",
+            metadata: {
+              inputTokens: responseBody.inputTextTokenCount,
+              outputTokens: responseBody.results?.[0]?.tokenCount,
+              stopReason: responseBody.results?.[0]?.completionReason,
+            },
+          }
+        : {
+            completion:
+              responseBody.completion ||
+              responseBody.results?.[0]?.outputText ||
+              "",
+            metadata: {
+              inputTokens: responseBody.inputTextTokenCount,
+              outputTokens: responseBody.results?.[0]?.tokenCount,
+              stopReason: responseBody.stopReason,
+            },
+          };
 
-      // Validate response
       const validatedResponse = BedrockResponseSchema.parse(result);
 
-      // Emit event
       const tokensUsed =
         (validatedResponse.metadata?.inputTokens || 0) +
         (validatedResponse.metadata?.outputTokens || 0);
