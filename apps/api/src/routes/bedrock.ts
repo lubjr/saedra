@@ -1,6 +1,6 @@
 import { BedrockService } from "@repo/bedrock-service/bedrock";
 import { Router, type Router as RouterType } from "express";
-import rateLimit from "express-rate-limit";
+import { rateLimit } from "express-rate-limit";
 
 export const bedrockRoutes: RouterType = Router();
 
@@ -8,20 +8,17 @@ const bedrockService = new BedrockService({
   region: process.env.AWS_REGION || "us-east-1",
 });
 
-// Rate limiting para proteger contra abuso nas rotas de IA
-// Limite: 20 requisições por minuto por IP
 const bedrockLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minuto
-  max: 20, // limite de 20 requisições por janela
+  windowMs: 60 * 1000,
+  max: 20,
   message: {
     error: "Too many requests from this IP, please try again later.",
     retryAfter: "1 minute",
   },
-  standardHeaders: true, // Retorna informações de rate limit nos headers `RateLimit-*`
-  legacyHeaders: false, // Desabilita headers `X-RateLimit-*`
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
-// Aplica rate limiting em todas as rotas do Bedrock
 bedrockRoutes.use(bedrockLimiter);
 
 bedrockRoutes.post("/chat", async (req, res) => {
