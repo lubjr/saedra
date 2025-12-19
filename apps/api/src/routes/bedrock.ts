@@ -1,11 +1,25 @@
 import { BedrockService } from "@repo/bedrock-service/bedrock";
 import { Router, type Router as RouterType } from "express";
+import { rateLimit } from "express-rate-limit";
 
 export const bedrockRoutes: RouterType = Router();
 
 const bedrockService = new BedrockService({
   region: process.env.AWS_REGION || "us-east-1",
 });
+
+const bedrockLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 20,
+  message: {
+    error: "Too many requests from this IP, please try again later.",
+    retryAfter: "1 minute",
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+bedrockRoutes.use(bedrockLimiter);
 
 bedrockRoutes.post("/chat", async (req, res) => {
   try {
