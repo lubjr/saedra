@@ -1,6 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
 
-// ANSI color codes for terminal output
 const colors = {
   reset: "\x1b[0m",
   bright: "\x1b[1m",
@@ -56,22 +55,17 @@ export const requestLogger = (
 ) => {
   const startTime = Date.now();
 
-  // Listen for response finish event
   res.on("finish", () => {
     const duration = Date.now() - startTime;
     const statusColor = getStatusColor(res.statusCode);
     const timestamp = getTimestamp();
 
-    // Format method with fixed width for alignment
     const method = `${colors.cyan}${req.method.padEnd(7)}${colors.reset}`;
 
-    // Format status code with color
     const status = `${statusColor}${res.statusCode}${colors.reset}`;
 
-    // Format duration
     const time = formatDuration(duration);
 
-    // Log the request
     // eslint-disable-next-line no-console
     console.log(`${timestamp} ${method} ${req.path} → ${status} ${time}`);
   });

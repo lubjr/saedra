@@ -21,7 +21,10 @@ const start = async () => {
       timestamp: new Date().toISOString(),
       environment: {
         node: process.version,
-        region: process.env.AWS_REGION || "not configured",
+        aws_region: process.env.AWS_REGION ? "configured" : "not configured",
+        supabase_url: process.env.SUPABASE_URL
+          ? "configured"
+          : "not configured",
       },
     });
   });
