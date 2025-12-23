@@ -24,6 +24,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@repo/ui/sidebar";
+import { Skeleton } from "@repo/ui/skeleton";
 import Link from "next/link";
 
 import { useProjects } from "../app/contexts/ProjectsContext";
@@ -52,9 +53,9 @@ export const NavProjects = ({
             {[1, 2, 3].map((i) => {
               return (
                 <SidebarMenuItem key={`skeleton-${i}`}>
-                  <SidebarMenuButton disabled>
-                    <div className="h-4 w-4 bg-zinc-700 rounded animate-pulse" />
-                    <div className="h-4 w-32 bg-zinc-700 rounded animate-pulse" />
+                  <SidebarMenuButton disabled className="gap-2">
+                    <Skeleton className="h-4 w-4 rounded" />
+                    <Skeleton className="h-4 flex-1" />
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               );
