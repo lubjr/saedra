@@ -30,6 +30,7 @@ import { useProjects } from "../app/contexts/ProjectsContext";
 
 export const NavProjects = ({
   projects,
+  isLoading = false,
 }: {
   projects: {
     id: string;
@@ -37,6 +38,7 @@ export const NavProjects = ({
     url: string;
     icon: string;
   }[];
+  isLoading?: boolean;
 }) => {
   const { isMobile } = useSidebar();
   const { delete: deleteProject } = useProjects();
@@ -45,7 +47,21 @@ export const NavProjects = ({
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
       <SidebarGroupLabel>Projects</SidebarGroupLabel>
       <SidebarMenu>
-        {projects.map((item) => {
+        {isLoading ? (
+          // Skeleton loading state
+          <>
+            {[1, 2, 3].map((i) => (
+              <SidebarMenuItem key={`skeleton-${i}`}>
+                <SidebarMenuButton disabled>
+                  <div className="h-4 w-4 bg-zinc-700 rounded animate-pulse" />
+                  <div className="h-4 w-32 bg-zinc-700 rounded animate-pulse" />
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </>
+        ) : (
+          <>
+            {projects.map((item) => {
           let Icon = null;
 
           if (item.icon === "frame") {
@@ -100,14 +116,16 @@ export const NavProjects = ({
             </SidebarMenuItem>
           );
         })}
-        <SidebarMenuItem>
-          <Link href="/dashboard/new-project">
-            <SidebarMenuButton className="cursor-pointer">
-              <PlusIcon />
-              <span>New Project</span>
-            </SidebarMenuButton>
-          </Link>
-        </SidebarMenuItem>
+            <SidebarMenuItem>
+              <Link href="/dashboard/new-project">
+                <SidebarMenuButton className="cursor-pointer">
+                  <PlusIcon />
+                  <span>New Project</span>
+                </SidebarMenuButton>
+              </Link>
+            </SidebarMenuItem>
+          </>
+        )}
       </SidebarMenu>
     </SidebarGroup>
   );

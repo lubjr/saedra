@@ -9,11 +9,13 @@ type ProjectsContextType = any[] | null;
 
 const ProjectsContext = React.createContext<{
   projects: ProjectsContextType;
+  isLoading: boolean;
   create: typeof createProject;
   delete: typeof deleteProject;
   refresh: () => Promise<void>;
 }>({
   projects: null,
+  isLoading: true,
   create: () => {
     return Promise.reject("not ready");
   },
@@ -31,10 +33,13 @@ export const ProjectsProvider = ({
   children: React.ReactNode;
 }) => {
   const [projects, setProjects] = React.useState<ProjectsContextType>(null);
+  const [isLoading, setIsLoading] = React.useState(true);
 
   const refresh = React.useCallback(async () => {
+    setIsLoading(true);
     const data = await getProjects();
     setProjects(data?.projects ?? null);
+    setIsLoading(false);
   }, []);
 
   React.useEffect(() => {
@@ -61,7 +66,7 @@ export const ProjectsProvider = ({
 
   return (
     <ProjectsContext.Provider
-      value={{ projects, create, delete: deleteProj, refresh }}
+      value={{ projects, isLoading, create, delete: deleteProj, refresh }}
     >
       {children}
     </ProjectsContext.Provider>
