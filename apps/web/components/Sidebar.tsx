@@ -12,6 +12,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@repo/ui/sidebar";
+import Link from "next/link";
 
 import { useProjects } from "../app/contexts/ProjectsContext";
 import { useUser } from "../app/contexts/UserContext";
@@ -45,8 +46,8 @@ const data = {
 };
 
 export const AppSidebar = () => {
-  const userData = useUser();
-  const { projects } = useProjects();
+  const { user: userData, isLoading: isUserLoading } = useUser();
+  const { projects, isLoading } = useProjects();
 
   const user = {
     name: userData?.username || " ",
@@ -68,11 +69,11 @@ export const AppSidebar = () => {
 
   return (
     <Sidebar variant="floating">
-      <SidebarHeader>
+      <SidebarHeader className="bg-zinc-900 rounded-lg">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="/dashboard">
+              <Link href="/dashboard">
                 <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                   <CommandIcon className="size-4" />
                 </div>
@@ -80,7 +81,7 @@ export const AppSidebar = () => {
                   <span className="truncate font-medium">Saedra</span>
                   <span className="truncate text-xs">Enterprise</span>
                 </div>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -93,10 +94,10 @@ export const AppSidebar = () => {
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
-                      <a href={item.url}>
+                      <Link href={item.url}>
                         <item.icon />
                         <span>{item.title}</span>
-                      </a>
+                      </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );
@@ -104,11 +105,11 @@ export const AppSidebar = () => {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        <NavProjects projects={projectsData} />
+        <NavProjects projects={projectsData} isLoading={isLoading} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter className="bg-zinc-900 rounded-lg">
-        <NavUser user={user} />
+        <NavUser user={user} isLoading={isUserLoading} />
       </SidebarFooter>
     </Sidebar>
   );
