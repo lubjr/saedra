@@ -46,7 +46,7 @@ const data = {
 };
 
 export const AppSidebar = () => {
-  const userData = useUser();
+  const { user: userData, isLoading: isUserLoading } = useUser();
   const { projects, isLoading } = useProjects();
 
   const user = {
@@ -109,7 +109,7 @@ export const AppSidebar = () => {
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter className="bg-zinc-900 rounded-lg">
-        <NavUser user={user} />
+        <NavUser user={user} isLoading={isUserLoading} />
       </SidebarFooter>
     </Sidebar>
   );

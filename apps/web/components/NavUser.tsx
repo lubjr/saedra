@@ -25,20 +25,39 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@repo/ui/sidebar";
+import { Skeleton } from "@repo/ui/skeleton";
 import Link from "next/link";
 
 import { logout } from "../auth/auth";
 
 export const NavUser = ({
   user,
+  isLoading = false,
 }: {
   user: {
     name: string;
     email: string;
     avatar: string;
   };
+  isLoading?: boolean;
 }) => {
   const { isMobile } = useSidebar();
+
+  if (isLoading) {
+    return (
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton size="lg" disabled className="gap-2">
+            <Skeleton className="h-8 w-8 rounded-lg" />
+            <div className="grid flex-1 gap-1 text-left text-sm leading-tight">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-3 w-32" />
+            </div>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    );
+  }
 
   return (
     <SidebarMenu>
