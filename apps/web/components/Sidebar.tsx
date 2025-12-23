@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { CommandIcon, HomeIcon } from "@repo/ui/lucide";
 import {
   Sidebar,
@@ -13,6 +12,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@repo/ui/sidebar";
+import Link from "next/link";
 
 import { useProjects } from "../app/contexts/ProjectsContext";
 import { useUser } from "../app/contexts/UserContext";
