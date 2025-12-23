@@ -44,8 +44,6 @@ export const NavProjects = ({
   const { isMobile } = useSidebar();
   const { delete: deleteProject } = useProjects();
 
-  // Calculate skeleton count: projects.length + 1 (for "New Project")
-  // Falls back to 3 if no projects yet (first load)
   const skeletonCount = projects.length > 0 ? projects.length + 1 : 3;
 
   return (
