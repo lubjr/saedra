@@ -44,15 +44,13 @@ export const NavProjects = ({
   const { isMobile } = useSidebar();
   const { delete: deleteProject } = useProjects();
 
-  const skeletonCount = projects.length > 0 ? projects.length + 1 : 3;
-
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
       <SidebarGroupLabel>Projects</SidebarGroupLabel>
       <SidebarMenu>
         {isLoading ? (
           <>
-            {Array.from({ length: skeletonCount }).map((_, i) => {
+            {Array.from({ length: 3 }).map((_, i) => {
               return (
                 <SidebarMenuItem key={`skeleton-${i}`}>
                   <SidebarMenuButton disabled className="gap-2">
