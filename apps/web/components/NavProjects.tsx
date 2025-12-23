@@ -44,13 +44,17 @@ export const NavProjects = ({
   const { isMobile } = useSidebar();
   const { delete: deleteProject } = useProjects();
 
+  // Calculate skeleton count: projects.length + 1 (for "New Project")
+  // Falls back to 3 if no projects yet (first load)
+  const skeletonCount = projects.length > 0 ? projects.length + 1 : 3;
+
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
       <SidebarGroupLabel>Projects</SidebarGroupLabel>
       <SidebarMenu>
         {isLoading ? (
           <>
-            {[1, 2, 3].map((i) => {
+            {Array.from({ length: skeletonCount }).map((_, i) => {
               return (
                 <SidebarMenuItem key={`skeleton-${i}`}>
                   <SidebarMenuButton disabled className="gap-2">
