@@ -54,7 +54,7 @@ export const NavProjects = ({
               return (
                 <SidebarMenuItem key={`skeleton-${i}`}>
                   <SidebarMenuButton disabled className="gap-2">
-                    <Skeleton className="h-4 w-4 rounded" />
+                    <Skeleton className="h-4 w-4" />
                     <Skeleton className="h-4 flex-1" />
                   </SidebarMenuButton>
                 </SidebarMenuItem>

@@ -69,7 +69,7 @@ export const AppSidebar = () => {
 
   return (
     <Sidebar variant="floating">
-      <SidebarHeader>
+      <SidebarHeader className="bg-zinc-900 rounded-lg">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
