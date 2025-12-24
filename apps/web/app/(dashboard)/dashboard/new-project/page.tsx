@@ -71,7 +71,7 @@ export default function Page() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="space-y-2">
+          <div className="space-y-2 max-w-md">
             <Label htmlFor="project-name" className="flex items-center gap-2">
               <FolderIcon className="h-4 w-4" />
               Project Name

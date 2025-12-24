@@ -98,7 +98,7 @@ export default function SettingsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="space-y-2">
+          <div className="space-y-2 max-w-md">
             <Label htmlFor="project" className="flex items-center gap-2">
               Select Project
             </Label>
@@ -130,7 +130,7 @@ export default function SettingsPage() {
             </p>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 max-w-md">
             <Label htmlFor="access-key" className="flex items-center gap-2">
               <KeyIcon className="h-4 w-4" />
               AWS Access Key ID
@@ -150,7 +150,7 @@ export default function SettingsPage() {
             </p>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 max-w-md">
             <Label htmlFor="secret-key" className="flex items-center gap-2">
               <ShieldIcon className="h-4 w-4" />
               AWS Secret Access Key
@@ -170,7 +170,7 @@ export default function SettingsPage() {
             </p>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 max-w-md">
             <Label htmlFor="region" className="flex items-center gap-2">
               <MapPinIcon className="h-4 w-4" />
               AWS Region

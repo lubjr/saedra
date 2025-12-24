@@ -128,7 +128,7 @@ export default function Page({ params }: PageProps) {
             </p>
           ) : (
             <>
-              <div className="space-y-2">
+              <div className="space-y-2 max-w-md">
                 <Label htmlFor="credential" className="flex items-center gap-2">
                   <KeyIcon className="h-4 w-4" />
                   Select Credential
