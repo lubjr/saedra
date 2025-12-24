@@ -26,7 +26,7 @@ import {
 } from "@repo/ui/sidebar";
 import { Skeleton } from "@repo/ui/skeleton";
 import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import { useProjects } from "../app/contexts/ProjectsContext";
 
@@ -110,7 +110,8 @@ export const NavProjects = ({
                       <DropdownMenuItem
                         className="hover:bg-zinc-700 focus:bg-zinc-700"
                         onClick={async () => {
-                          const isCurrentProject = pathname === `/dashboard/project/${item.id}`;
+                          const isCurrentProject =
+                            pathname === `/dashboard/project/${item.id}`;
                           await deleteProject({ projectId: item.id });
 
                           if (isCurrentProject) {
