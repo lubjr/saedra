@@ -105,7 +105,9 @@ export default function Page({ params }: PageProps) {
       <div className="mx-auto max-w-6xl w-full space-y-6 px-4">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold tracking-tight py-2">Diagram</h1>
+          <h1 className="text-3xl font-bold tracking-tight py-2">
+            Project Diagram
+          </h1>
           <p className="text-muted-foreground">
             Your project&apos;s infrastructure diagram and resource overview
           </p>

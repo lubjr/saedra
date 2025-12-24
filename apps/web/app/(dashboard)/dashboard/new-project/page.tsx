@@ -50,7 +50,7 @@ export default function Page() {
 
   return (
     <div className="flex flex-col">
-      <div className="mx-auto max-w-2xl w-full space-y-6 px-4">
+      <div className="mx-auto max-w-3xl w-full space-y-6 px-4">
         {/* Header */}
         <div>
           <h1 className="text-3xl font-bold tracking-tight py-2">

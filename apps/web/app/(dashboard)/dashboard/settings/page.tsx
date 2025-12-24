@@ -79,7 +79,8 @@ export default function SettingsPage() {
 
   return (
     <div className="flex flex-col">
-      <div className="mx-auto max-w-2xl space-y-6">
+      <div className="mx-auto max-w-3xl w-full space-y-6 px-4">
+        {/* Header */}
         <div>
           <h1 className="text-3xl font-bold tracking-tight py-2">Settings</h1>
           <p className="text-muted-foreground">
@@ -87,7 +88,7 @@ export default function SettingsPage() {
           </p>
         </div>
 
-        <Card className="mt-4 bg-zinc-900">
+        <Card className="bg-zinc-900">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <ShieldIcon className="h-5 w-5" />
