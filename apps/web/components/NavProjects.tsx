@@ -26,6 +26,7 @@ import {
 } from "@repo/ui/sidebar";
 import { Skeleton } from "@repo/ui/skeleton";
 import Link from "next/link";
+import { useRouter, usePathname } from "next/navigation";
 
 import { useProjects } from "../app/contexts/ProjectsContext";
 
@@ -43,6 +44,8 @@ export const NavProjects = ({
 }) => {
   const { isMobile } = useSidebar();
   const { delete: deleteProject } = useProjects();
+  const router = useRouter();
+  const pathname = usePathname();
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
@@ -107,7 +110,12 @@ export const NavProjects = ({
                       <DropdownMenuItem
                         className="hover:bg-zinc-700 focus:bg-zinc-700"
                         onClick={async () => {
+                          const isCurrentProject = pathname === `/dashboard/project/${item.id}`;
                           await deleteProject({ projectId: item.id });
+
+                          if (isCurrentProject) {
+                            router.push("/dashboard");
+                          }
                         }}
                       >
                         <TrashIcon className="text-muted-foreground" />
