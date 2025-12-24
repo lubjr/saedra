@@ -38,14 +38,13 @@ export default function Page({ params }: PageProps) {
     React.useState<string>("");
   const [diagram, setDiagram] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState<string>("");
 
   React.useEffect(() => {
     const fetchCredentials = async () => {
       const result = await getProjectCredentials({ projectId: id });
 
       if ("error" in result) {
-        setError(result.error);
+        toast.error("Failed to get credentials");
         return;
       }
 
@@ -67,7 +66,6 @@ export default function Page({ params }: PageProps) {
     }
 
     setLoading(true);
-    setError("");
 
     try {
       const result = await generateDiagram({
@@ -81,8 +79,7 @@ export default function Page({ params }: PageProps) {
       }
 
       if ("error" in result) {
-        toast.error(result.error);
-        setError(result.error);
+        toast.error("Failed to generate diagram");
         return;
       }
 
