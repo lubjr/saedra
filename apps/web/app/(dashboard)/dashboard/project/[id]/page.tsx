@@ -101,20 +101,19 @@ export default function Page({ params }: PageProps) {
   const edges = diagram?.graph?.edges || [];
 
   return (
-    <div className="flex flex-col">
-      <div className="mx-auto max-w-6xl w-full space-y-6 px-4">
-        {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight py-2">
-            Project Diagram
-          </h1>
-          <p className="text-muted-foreground">
-            Your project&apos;s infrastructure diagram and resource overview
-          </p>
-        </div>
+    <div className="mx-auto max-w-6xl space-y-6">
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight py-2">
+          Project Diagram
+        </h1>
+        <p className="text-muted-foreground">
+          Your project&apos;s infrastructure diagram and resource overview
+        </p>
+      </div>
 
-        {/* Credential Selection */}
-        <Card className="bg-zinc-900">
+      {/* Credential Selection */}
+      <Card className="bg-zinc-900">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <SparklesIcon className="h-5 w-5" />
@@ -159,11 +158,10 @@ export default function Page({ params }: PageProps) {
                   </p>
                 </div>
 
-                <div className="pt-4 flex gap-3">
+                <div className="pt-4">
                   <Button
                     onClick={handleGenerateDiagram}
                     disabled={loading || !selectedCredentialId}
-                    className="flex-1"
                   >
                     {loading ? "Generating..." : "Generate Diagram"}
                   </Button>

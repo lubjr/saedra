@@ -78,17 +78,16 @@ export default function SettingsPage() {
   ];
 
   return (
-    <div className="flex flex-col">
-      <div className="mx-auto max-w-3xl w-full space-y-6 px-4">
-        {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight py-2">Settings</h1>
-          <p className="text-muted-foreground">
-            Connect your AWS account to integrate with cloud services
-          </p>
-        </div>
+    <div className="mx-auto max-w-3xl space-y-6">
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight py-2">Settings</h1>
+        <p className="text-muted-foreground">
+          Connect your AWS account to integrate with cloud services
+        </p>
+      </div>
 
-        <Card className="bg-zinc-900">
+      <Card className="bg-zinc-900">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <ShieldIcon className="h-5 w-5" />
@@ -195,13 +194,12 @@ export default function SettingsPage() {
               </p>
             </div>
 
-            <div className="pt-4 flex gap-3">
+            <div className="pt-4">
               <Button
                 onClick={handleSave}
                 disabled={
                   !selectedProjectId || !accessKey || !secretKey || isLoading
                 }
-                className="flex-1"
               >
                 {isLoading ? "Saving..." : "Save Credentials"}
               </Button>
