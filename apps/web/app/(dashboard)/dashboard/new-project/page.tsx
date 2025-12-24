@@ -61,48 +61,44 @@ export default function Page() {
       </div>
 
       <Card className="bg-zinc-900">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <SparklesIcon className="h-5 w-5" />
-              New Project
-            </CardTitle>
-            <CardDescription>
-              Give your project a descriptive name to help you identify it later
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="project-name" className="flex items-center gap-2">
-                <FolderIcon className="h-4 w-4" />
-                Project Name
-              </Label>
-              <Input
-                id="project-name"
-                type="text"
-                placeholder="My Awesome Project"
-                value={name}
-                onChange={(e) => {
-                  return setName(e.target.value);
-                }}
-                onKeyPress={handleKeyPress}
-                disabled={isLoading}
-              />
-              <p className="text-xs text-muted-foreground">
-                Choose a unique and memorable name for your project
-              </p>
-            </div>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <SparklesIcon className="h-5 w-5" />
+            New Project
+          </CardTitle>
+          <CardDescription>
+            Give your project a descriptive name to help you identify it later
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="project-name" className="flex items-center gap-2">
+              <FolderIcon className="h-4 w-4" />
+              Project Name
+            </Label>
+            <Input
+              id="project-name"
+              type="text"
+              placeholder="My Awesome Project"
+              value={name}
+              onChange={(e) => {
+                return setName(e.target.value);
+              }}
+              onKeyPress={handleKeyPress}
+              disabled={isLoading}
+            />
+            <p className="text-xs text-muted-foreground">
+              Choose a unique and memorable name for your project
+            </p>
+          </div>
 
-            <div className="pt-4">
-              <Button
-                onClick={handleSubmit}
-                disabled={!name.trim() || isLoading}
-              >
-                {isLoading ? "Creating..." : "Create Project"}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+          <div className="pt-4">
+            <Button onClick={handleSubmit} disabled={!name.trim() || isLoading}>
+              {isLoading ? "Creating..." : "Create Project"}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
