@@ -78,136 +78,134 @@ export default function SettingsPage() {
   ];
 
   return (
-    <div className="flex flex-col">
-      <div className="mx-auto max-w-2xl space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight py-2">Settings</h1>
-          <p className="text-muted-foreground">
-            Connect your AWS account to integrate with cloud services
-          </p>
-        </div>
+    <div className="mx-auto max-w-6xl space-y-6">
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight py-2">Settings</h1>
+        <p className="text-muted-foreground">
+          Connect your AWS account to integrate with cloud services
+        </p>
+      </div>
 
-        <Card className="mt-4 bg-zinc-900">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <ShieldIcon className="h-5 w-5" />
-              AWS credentials
-            </CardTitle>
-            <CardDescription>
-              Enter your AWS credentials to enable integration with the services
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="project" className="flex items-center gap-2">
-                Select Project
-              </Label>
-              <Select
-                value={selectedProjectId}
-                onValueChange={setSelectedProjectId}
-              >
-                <SelectTrigger id="project">
-                  <SelectValue placeholder="Choose a project..." />
-                </SelectTrigger>
-                <SelectContent className="bg-zinc-800">
-                  {projects && projects.length > 0 ? (
-                    projects.map((project) => {
-                      return (
-                        <SelectItem key={project.id} value={project.id}>
-                          {project.name}
-                        </SelectItem>
-                      );
-                    })
-                  ) : (
-                    <SelectItem value="no-projects" disabled>
-                      No projects available
-                    </SelectItem>
-                  )}
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground">
-                Select the project to connect with AWS
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="access-key" className="flex items-center gap-2">
-                <KeyIcon className="h-4 w-4" />
-                AWS Access Key ID
-              </Label>
-              <Input
-                id="access-key"
-                type="text"
-                placeholder="AKIAIOSFODNN7EXAMPLE"
-                value={accessKey}
-                onChange={(e) => {
-                  return setAccessKey(e.target.value);
-                }}
-                className="font-mono"
-              />
-              <p className="text-xs text-muted-foreground">
-                Your AWS public access key
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="secret-key" className="flex items-center gap-2">
-                <ShieldIcon className="h-4 w-4" />
-                AWS Secret Access Key
-              </Label>
-              <Input
-                id="secret-key"
-                type="password"
-                placeholder="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
-                value={secretKey}
-                onChange={(e) => {
-                  return setSecretKey(e.target.value);
-                }}
-                className="font-mono"
-              />
-              <p className="text-xs text-muted-foreground">
-                Your private AWS key
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="region" className="flex items-center gap-2">
-                <MapPinIcon className="h-4 w-4" />
-                AWS Region
-              </Label>
-              <Select value={region} onValueChange={setRegion}>
-                <SelectTrigger id="region">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-zinc-800">
-                  {regions.map((r) => {
+      <Card className="bg-zinc-900">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <ShieldIcon className="h-5 w-5" />
+            AWS credentials
+          </CardTitle>
+          <CardDescription>
+            Enter your AWS credentials to enable integration with the services
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="space-y-2 max-w-md">
+            <Label htmlFor="project" className="flex items-center gap-2">
+              Select Project
+            </Label>
+            <Select
+              value={selectedProjectId}
+              onValueChange={setSelectedProjectId}
+            >
+              <SelectTrigger id="project">
+                <SelectValue placeholder="Choose a project..." />
+              </SelectTrigger>
+              <SelectContent className="bg-zinc-800">
+                {projects && projects.length > 0 ? (
+                  projects.map((project) => {
                     return (
-                      <SelectItem key={r} value={r}>
-                        {r}
+                      <SelectItem key={project.id} value={project.id}>
+                        {project.name}
                       </SelectItem>
                     );
-                  })}
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground">
-                Select the region where your resources are hosted
-              </p>
-            </div>
+                  })
+                ) : (
+                  <SelectItem value="no-projects" disabled>
+                    No projects available
+                  </SelectItem>
+                )}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              Select the project to connect with AWS
+            </p>
+          </div>
 
-            <div className="pt-4 flex gap-3">
-              <Button
-                onClick={handleSave}
-                disabled={
-                  !selectedProjectId || !accessKey || !secretKey || isLoading
-                }
-                className="flex-1"
-              >
-                {isLoading ? "Saving..." : "Save Credentials"}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+          <div className="space-y-2 max-w-md">
+            <Label htmlFor="access-key" className="flex items-center gap-2">
+              <KeyIcon className="h-4 w-4" />
+              AWS Access Key ID
+            </Label>
+            <Input
+              id="access-key"
+              type="text"
+              placeholder="AKIAIOSFODNN7EXAMPLE"
+              value={accessKey}
+              onChange={(e) => {
+                return setAccessKey(e.target.value);
+              }}
+              className="font-mono"
+            />
+            <p className="text-xs text-muted-foreground">
+              Your AWS public access key
+            </p>
+          </div>
+
+          <div className="space-y-2 max-w-md">
+            <Label htmlFor="secret-key" className="flex items-center gap-2">
+              <ShieldIcon className="h-4 w-4" />
+              AWS Secret Access Key
+            </Label>
+            <Input
+              id="secret-key"
+              type="password"
+              placeholder="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+              value={secretKey}
+              onChange={(e) => {
+                return setSecretKey(e.target.value);
+              }}
+              className="font-mono"
+            />
+            <p className="text-xs text-muted-foreground">
+              Your private AWS key
+            </p>
+          </div>
+
+          <div className="space-y-2 max-w-md">
+            <Label htmlFor="region" className="flex items-center gap-2">
+              <MapPinIcon className="h-4 w-4" />
+              AWS Region
+            </Label>
+            <Select value={region} onValueChange={setRegion}>
+              <SelectTrigger id="region">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-zinc-800">
+                {regions.map((r) => {
+                  return (
+                    <SelectItem key={r} value={r}>
+                      {r}
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              Select the region where your resources are hosted
+            </p>
+          </div>
+
+          <div className="pt-4">
+            <Button
+              onClick={handleSave}
+              disabled={
+                !selectedProjectId || !accessKey || !secretKey || isLoading
+              }
+            >
+              {isLoading ? "Saving..." : "Save Credentials"}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
