@@ -30,14 +30,16 @@ export const ButtonPanel = () => {
     try {
       await login(email, password);
       setOpen(false);
-      toast.loading("Logging in...", { id: "login" });
+      toast.loading("Logging in...", { id: "login", position: "top-center" });
       router.push("/dashboard");
     } catch (error) {
       const message =
         error instanceof Error
           ? error.message.charAt(0).toUpperCase() + error.message.slice(1)
           : "Unknown error";
-      toast.error(error instanceof Error ? message : "Login failed");
+      toast.error(error instanceof Error ? message : "Login failed", {
+        position: "top-center",
+      });
     } finally {
       setLoading(false);
     }
