@@ -87,7 +87,7 @@ export const ButtonPanel = () => {
           </div>
         </div>
 
-        <SheetFooter className="sm:justify-start">
+        <SheetFooter className="sm:justify-between">
           <Button
             type="button"
             variant="secondary"
@@ -97,6 +97,9 @@ export const ButtonPanel = () => {
             }}
           >
             Enter
+          </Button>
+          <Button type="button" variant="ghost" disabled>
+            Request Access
           </Button>
         </SheetFooter>
       </SheetContent>
