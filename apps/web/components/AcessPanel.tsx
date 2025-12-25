@@ -1,17 +1,17 @@
 "use client";
 
 import { Button } from "@repo/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@repo/ui/dialog";
 import { Input } from "@repo/ui/input";
 import { Label } from "@repo/ui/label";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@repo/ui/sheet";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 import { toast } from "sonner";
@@ -30,34 +30,36 @@ export const ButtonPanel = () => {
     try {
       await login(email, password);
       setOpen(false);
-      toast.loading("Logging in...", { id: "login" });
+      toast.loading("Logging in...", { id: "login", position: "top-center" });
       router.push("/dashboard");
     } catch (error) {
       const message =
         error instanceof Error
           ? error.message.charAt(0).toUpperCase() + error.message.slice(1)
           : "Unknown error";
-      toast.error(error instanceof Error ? message : "Login failed");
+      toast.error(error instanceof Error ? message : "Login failed", {
+        position: "top-center",
+      });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
         <Button variant="outline">Login</Button>
-      </DialogTrigger>
+      </SheetTrigger>
 
-      <DialogContent className="sm:max-w-md bg-zinc-900">
-        <DialogHeader>
-          <DialogTitle>Login to your account</DialogTitle>
-          <DialogDescription>
+      <SheetContent side="right" className="sm:max-w-md bg-zinc-900">
+        <SheetHeader>
+          <SheetTitle>Login to your account</SheetTitle>
+          <SheetDescription>
             Enter your credentials to access the dashboard.
-          </DialogDescription>
-        </DialogHeader>
+          </SheetDescription>
+        </SheetHeader>
 
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 p-4">
           <div className="grid gap-2">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -85,7 +87,7 @@ export const ButtonPanel = () => {
           </div>
         </div>
 
-        <DialogFooter className="sm:justify-start mt-4">
+        <SheetFooter className="sm:justify-between">
           <Button
             type="button"
             variant="secondary"
@@ -96,8 +98,11 @@ export const ButtonPanel = () => {
           >
             Enter
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          <Button type="button" variant="outline" disabled>
+            Request Access
+          </Button>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
   );
 };
