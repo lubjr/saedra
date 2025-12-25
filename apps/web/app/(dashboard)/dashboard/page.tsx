@@ -23,10 +23,10 @@ export default function Page() {
   if (isLoading) {
     return (
       <div className="flex flex-col justify-center items-center h-full gap-4">
-        <div className="w-full max-w-2xl space-y-4">
-          <Skeleton className="h-32 w-full" />
-          <Skeleton className="h-32 w-full" />
-          <Skeleton className="h-32 w-full" />
+        <div className="w-full max-w-2xl space-y-4 p-4">
+          <Skeleton className="w-full" style={{ height: '128px' }} />
+          <Skeleton className="w-full" style={{ height: '128px' }} />
+          <Skeleton className="w-full" style={{ height: '128px' }} />
         </div>
       </div>
     );
