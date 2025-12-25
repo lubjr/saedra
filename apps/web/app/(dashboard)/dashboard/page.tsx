@@ -1,11 +1,11 @@
 "use client";
 
+import { Skeleton } from "@repo/ui/skeleton";
 import * as React from "react";
 import { toast } from "sonner";
 
 import { EmptyProjects } from "../../../components/EmptyProjects";
 import { useProjects } from "../../contexts/ProjectsContext";
-import { Skeleton } from "@repo/ui/skeleton";
 
 export default function Page() {
   React.useEffect(() => {
@@ -24,9 +24,9 @@ export default function Page() {
     return (
       <div className="flex flex-col justify-center items-center h-full gap-4">
         <div className="w-full max-w-2xl space-y-4 p-4">
-          <Skeleton className="w-full" style={{ height: '128px' }} />
-          <Skeleton className="w-full" style={{ height: '128px' }} />
-          <Skeleton className="w-full" style={{ height: '128px' }} />
+          <Skeleton className="w-full" style={{ height: "128px" }} />
+          <Skeleton className="w-full" style={{ height: "128px" }} />
+          <Skeleton className="w-full" style={{ height: "128px" }} />
         </div>
       </div>
     );
