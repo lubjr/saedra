@@ -98,7 +98,7 @@ export const ButtonPanel = () => {
           >
             Enter
           </Button>
-          <Button type="button" variant="ghost" disabled>
+          <Button type="button" variant="outline" disabled>
             Request Access
           </Button>
         </SheetFooter>
