@@ -11,7 +11,7 @@ export default function SiteLayout({
   return (
     <>
       <Header />
-      <main className="flex-grow">
+      <main className="flex-grow pt-20">
         {children}
       </main>
       <Footer />
