@@ -41,8 +41,8 @@ export default function Home() {
           Welcome to Saedra
         </h1>
         <p className="text-xl text-zinc-400 max-w-2xl mb-8">
-          The modern platform for code analysis and validation.
-          Start testing your projects today.
+          The modern platform for code analysis and validation. Start testing
+          your projects today.
         </p>
         <div className="flex gap-4">
           <button className="py-3 px-6 rounded-lg bg-white text-zinc-900 font-semibold hover:bg-zinc-100 transition">
@@ -104,7 +104,9 @@ export default function Home() {
                   <p className="text-3xl font-bold text-white mt-2">
                     {plan.price}
                   </p>
-                  <p className="text-zinc-400 text-sm mt-2">{plan.description}</p>
+                  <p className="text-zinc-400 text-sm mt-2">
+                    {plan.description}
+                  </p>
 
                   <ul className="mt-4 flex-1 space-y-2">
                     {plan.features.map((feature, i) => {
