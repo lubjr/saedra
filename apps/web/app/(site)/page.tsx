@@ -36,7 +36,7 @@ export default function Home() {
   return (
     <main className="min-h-screen">
       {/* Hero Section */}
-      <section className="flex flex-col items-center justify-center text-center py-20 px-4 sm:px-6 lg:px-8 min-h-[80vh]">
+      <section className="flex flex-col items-center justify-center text-center pt-32 pb-20 px-4 sm:px-6 lg:px-8 min-h-[80vh]">
         <h1 className="text-5xl sm:text-6xl font-bold text-white mb-6">
           Welcome to Saedra
         </h1>
