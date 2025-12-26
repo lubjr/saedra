@@ -42,7 +42,7 @@ export const Menu = () => {
 
   return (
     <div className="flex items-center gap-4">
-      <NavigationMenu>
+      <NavigationMenu viewport={false}>
         <NavigationMenuList>
           {links.map(({ href, label }) => {
             return (
