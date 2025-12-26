@@ -15,22 +15,25 @@ export const Menu = () => {
     { href: "#about", label: "About" },
   ];
 
-  const handleScrollTo = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+  const handleScrollTo = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    href: string,
+  ) => {
     e.preventDefault();
     const targetId = href.replace("#", "");
     const element = document.getElementById(targetId);
 
     if (element) {
-      const headerOffset = 80; // altura do header fixo
+      const headerOffset = 80;
       const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+      const offsetPosition =
+        elementPosition + window.pageYOffset - headerOffset;
 
       window.scrollTo({
         top: offsetPosition,
-        behavior: "smooth"
+        behavior: "smooth",
       });
 
-      // Update URL without triggering navigation
       window.history.pushState({}, "", href);
     }
 
@@ -48,7 +51,9 @@ export const Menu = () => {
                   <a
                     href={href}
                     className={`${navigationMenuTriggerStyle()} bg-zinc-900`}
-                    onClick={(e) => handleScrollTo(e, href)}
+                    onClick={(e) => {
+                      return handleScrollTo(e, href);
+                    }}
                   >
                     {label}
                   </a>
