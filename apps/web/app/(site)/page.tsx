@@ -40,18 +40,6 @@ export default function Home() {
         <h1 className="text-5xl sm:text-6xl font-bold text-white mb-6">
           Welcome to Saedra
         </h1>
-        <p className="text-xl text-zinc-400 max-w-2xl mb-8">
-          The modern platform for code analysis and validation. Start testing
-          your projects today.
-        </p>
-        <div className="flex gap-4">
-          <button className="py-3 px-6 rounded-lg bg-white text-zinc-900 font-semibold hover:bg-zinc-100 transition">
-            Get Started
-          </button>
-          <button className="py-3 px-6 rounded-lg bg-zinc-800 text-white font-semibold hover:bg-zinc-700 transition border border-zinc-700">
-            Learn More
-          </button>
-        </div>
       </section>
 
       {/* Docs Section */}
@@ -60,11 +48,6 @@ export default function Home() {
         className="flex flex-col items-center justify-center py-20 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto min-h-screen scroll-mt-20"
       >
         <h2 className="text-4xl font-bold text-white mb-8">Docs</h2>
-        <Card className="w-96 h-96 bg-zinc-800 border border-zinc-700 rounded-2xl flex items-center justify-center">
-          <CardContent className="text-center">
-            <p className="text-zinc-500 text-sm">Coming soon</p>
-          </CardContent>
-        </Card>
       </section>
 
       {/* Blog Section */}
@@ -73,11 +56,6 @@ export default function Home() {
         className="flex flex-col items-center justify-center py-20 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto min-h-screen bg-zinc-900/50 scroll-mt-20"
       >
         <h2 className="text-4xl font-bold text-white mb-8">Blog</h2>
-        <Card className="w-96 h-96 bg-zinc-800 border border-zinc-700 rounded-2xl flex items-center justify-center">
-          <CardContent className="text-center">
-            <p className="text-zinc-500 text-sm">Coming soon</p>
-          </CardContent>
-        </Card>
       </section>
 
       {/* Pricing Section */}
@@ -141,11 +119,6 @@ export default function Home() {
         className="flex flex-col items-center justify-center py-20 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto min-h-screen bg-zinc-900/50 scroll-mt-20"
       >
         <h2 className="text-4xl font-bold text-white mb-8">About</h2>
-        <Card className="w-96 h-96 bg-zinc-800 border border-zinc-700 rounded-2xl flex items-center justify-center">
-          <CardContent className="text-center">
-            <p className="text-zinc-500 text-sm">Coming soon</p>
-          </CardContent>
-        </Card>
       </section>
     </main>
   );
