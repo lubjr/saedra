@@ -18,7 +18,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="bg-zinc-900 text-zinc-100 min-h-screen flex flex-col font-inter">
+      <body className="bg-zinc-900 text-zinc-100 min-h-screen flex flex-col font-inter [scrollbar-gutter:stable]">
         <ThemeProviderWrapper>
           <Toaster
             theme="dark"
