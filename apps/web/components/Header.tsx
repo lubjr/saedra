@@ -6,7 +6,7 @@ import { Menu } from "./Menu";
 
 export const Header = () => {
   return (
-    <header className="bg-zinc-900 py-4">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-zinc-900 py-4 border-b border-zinc-800">
       <nav className="container mx-auto px-6 flex justify-between items-center">
         <div className="flex items-center space-x-2">
           <Link
@@ -15,7 +15,7 @@ export const Header = () => {
           >
             Saedra
           </Link>
-          <Badge variant="outline">v1.5.1</Badge>
+          <Badge variant="outline">v1.5.2</Badge>
         </div>
 
         <Menu />

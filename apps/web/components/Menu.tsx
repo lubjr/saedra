@@ -6,15 +6,40 @@ import {
   NavigationMenuList,
   navigationMenuTriggerStyle,
 } from "@repo/ui/navigation-menu";
-import Link from "next/link";
 
 export const Menu = () => {
   const links = [
-    { href: "/docs", label: "Docs" },
-    { href: "/blog", label: "Blog" },
-    { href: "/pricing", label: "Pricing" },
-    { href: "/about", label: "About" },
+    { href: "#docs", label: "Docs" },
+    { href: "#blog", label: "Blog" },
+    { href: "#pricing", label: "Pricing" },
+    { href: "#about", label: "About" },
   ];
+
+  const handleScrollTo = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    href: string,
+  ) => {
+    e.preventDefault();
+    const targetId = href.replace("#", "");
+    const element = document.getElementById(targetId);
+
+    if (element) {
+      const headerOffset = 80;
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition =
+        elementPosition + window.pageYOffset - headerOffset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth",
+      });
+
+      window.history.pushState({}, "", href);
+    }
+
+    e.currentTarget.blur();
+  };
+
   return (
     <div className="flex items-center gap-4">
       <NavigationMenu>
@@ -23,15 +48,15 @@ export const Menu = () => {
             return (
               <NavigationMenuItem key={href}>
                 <NavigationMenuLink asChild>
-                  <Link
+                  <a
                     href={href}
                     className={`${navigationMenuTriggerStyle()} bg-zinc-900`}
                     onClick={(e) => {
-                      return e.currentTarget.blur();
+                      return handleScrollTo(e, href);
                     }}
                   >
                     {label}
-                  </Link>
+                  </a>
                 </NavigationMenuLink>
               </NavigationMenuItem>
             );

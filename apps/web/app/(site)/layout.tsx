@@ -11,9 +11,7 @@ export default function SiteLayout({
   return (
     <>
       <Header />
-      <main className="flex-grow p-8 flex flex-col items-center">
-        {children}
-      </main>
+      <main className="flex-grow">{children}</main>
       <Footer />
     </>
   );
