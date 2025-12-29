@@ -1,5 +1,3 @@
-import "@repo/ui/styles.css";
-
 import { Footer } from "../../components/Footer";
 import { Header } from "../../components/Header";
 

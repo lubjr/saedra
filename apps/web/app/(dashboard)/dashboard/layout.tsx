@@ -1,5 +1,3 @@
-import "@repo/ui/styles.css";
-
 import { SidebarInset, SidebarProvider } from "@repo/ui/sidebar";
 
 import { HeaderPanel } from "../../../components/HeaderPanel";
