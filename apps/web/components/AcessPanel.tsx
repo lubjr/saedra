@@ -47,7 +47,7 @@ export const ButtonPanel = () => {
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
+      <SheetTrigger asChild disabled>
         <Button variant="outline">Login</Button>
       </SheetTrigger>
 
