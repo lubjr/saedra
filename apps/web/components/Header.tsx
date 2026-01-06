@@ -1,7 +1,7 @@
 import { Badge } from "@repo/ui/badge";
+import { Button } from "@repo/ui/button";
 import Link from "next/link";
 
-import { ButtonPanel } from "./AcessPanel";
 import { Menu } from "./Menu";
 
 export const Header = () => {
@@ -20,7 +20,9 @@ export const Header = () => {
 
         <Menu />
 
-        <ButtonPanel />
+        <Link href="/login" className="mr-4">
+          <Button variant="outline">Login</Button>
+        </Link>
       </nav>
     </header>
   );
