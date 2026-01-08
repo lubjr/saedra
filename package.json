@@ -3,11 +3,15 @@
   "private": true,
   "scripts": {
     "build": "turbo run build",
+    "build:fresh": "pnpm run clean && pnpm run build",
     "dev": "dotenv -e .env -- turbo run dev --concurrency=20",
+    "dev:fresh": "pnpm run clean && pnpm run dev",
     "dev:infra": "sudo docker-compose -f docker/docker-compose.yml up -d",
     "stop:infra": "sudo docker-compose -f docker/docker-compose.yml down",
     "dev:apps": "concurrently --names \"WEB,API\" --prefix-colors \"cyan,magenta\" \"pnpm run dev --filter ./apps/web\" \"pnpm run dev --filter ./apps/api\"",
     "dev:all": "pnpm run dev:infra && sleep 5 && pnpm run dev:apps",
+    "clean": "rm -rf .next .turbo node_modules/.cache apps/*/.next packages/*/dist packages/*/.next && echo '✨ Cache cleaned!'",
+    "clean:all": "pnpm run clean && rm -rf node_modules apps/*/node_modules packages/*/node_modules && echo '✨ Full clean complete! Run: pnpm install'",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types"
