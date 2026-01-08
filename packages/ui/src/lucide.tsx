@@ -32,5 +32,8 @@ export const CheckCircle2Icon = Lucide.CheckCircle2;
 export const ShieldIcon = Lucide.Shield;
 export const KeyIcon = Lucide.Key;
 export const MapPinIcon = Lucide.MapPin;
+export const BookOpenIcon = Lucide.BookOpen;
+export const CodeIcon = Lucide.Code;
+export const ZapIcon = Lucide.Zap;
 
 export type { LucideIcon } from "lucide-react";
