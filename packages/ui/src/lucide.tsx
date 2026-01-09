@@ -35,5 +35,6 @@ export const MapPinIcon = Lucide.MapPin;
 export const BookOpenIcon = Lucide.BookOpen;
 export const CodeIcon = Lucide.Code;
 export const ZapIcon = Lucide.Zap;
+export const ClockIcon = Lucide.Clock;
 
 export type { LucideIcon } from "lucide-react";
