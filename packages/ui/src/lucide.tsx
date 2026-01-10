@@ -36,5 +36,7 @@ export const BookOpenIcon = Lucide.BookOpen;
 export const CodeIcon = Lucide.Code;
 export const ZapIcon = Lucide.Zap;
 export const ClockIcon = Lucide.Clock;
+export const TargetIcon = Lucide.Target;
+export const UsersIcon = Lucide.Users;
 
 export type { LucideIcon } from "lucide-react";
