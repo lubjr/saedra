@@ -34,6 +34,12 @@ export const LoginForm = ({
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!email || !password) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+
     setLoading(true);
     try {
       await login(email, password);
@@ -61,7 +67,7 @@ export const LoginForm = ({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleLogin}>
+          <form onSubmit={handleLogin} noValidate>
             <FieldGroup>
               <Field>
                 <FieldLabel htmlFor="email" className="text-zinc-300">
