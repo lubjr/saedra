@@ -116,7 +116,7 @@ export const LoginForm = ({
               <div className="text-center text-sm text-zinc-500 -mt-1">
                 Don&apos;t have an account?{" "}
                 <a
-                  href="#"
+                  href="/signup"
                   className="text-zinc-500 hover:text-white underline transition-colors"
                 >
                   Sign up
