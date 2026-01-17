@@ -17,8 +17,11 @@ import {
 import { Input } from "@repo/ui/input";
 import { cn } from "@repo/ui/lib/utils";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import * as React from "react";
 import { toast } from "sonner";
+
+import { signup } from "../auth/auth";
 
 export const SignUpForm = ({
   className,
@@ -29,6 +32,7 @@ export const SignUpForm = ({
   const [password, setPassword] = React.useState("");
   const [confirmPassword, setConfirmPassword] = React.useState("");
   const [loading, setLoading] = React.useState(false);
+  const router = useRouter();
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,7 +54,9 @@ export const SignUpForm = ({
 
     setLoading(true);
     try {
+      await signup(email, password);
       toast.success("Account created successfully!");
+      router.push("/login");
     } catch (error) {
       const message =
         error instanceof Error
