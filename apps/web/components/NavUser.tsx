@@ -27,12 +27,15 @@ import {
 } from "@repo/ui/sidebar";
 import { Skeleton } from "@repo/ui/skeleton";
 import Link from "next/link";
+import * as React from "react";
 
 import { logout } from "../auth/auth";
+import { AccountSettingsDialog } from "./AccountSettingsDialog";
 
 export const NavUser = ({
   user,
   isLoading = false,
+  refreshUser,
 }: {
   user: {
     name: string;
@@ -40,8 +43,10 @@ export const NavUser = ({
     avatar: string;
   };
   isLoading?: boolean;
+  refreshUser?: () => Promise<void>;
 }) => {
   const { isMobile } = useSidebar();
+  const [accountDialogOpen, setAccountDialogOpen] = React.useState(false);
 
   if (isLoading) {
     return (
@@ -123,8 +128,10 @@ export const NavUser = ({
 
             <DropdownMenuGroup>
               <DropdownMenuItem
-                disabled
                 className="hover:bg-zinc-700 focus:bg-zinc-700"
+                onSelect={() => {
+                  return setAccountDialogOpen(true);
+                }}
               >
                 <BadgeCheckIcon />
                 Account
@@ -159,6 +166,13 @@ export const NavUser = ({
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        <AccountSettingsDialog
+          open={accountDialogOpen}
+          onOpenChange={setAccountDialogOpen}
+          currentUsername={user.name || ""}
+          currentAvatarUrl={user.avatar || ""}
+          onProfileUpdated={refreshUser || (async () => {})}
+        />
       </SidebarMenuItem>
     </SidebarMenu>
   );
