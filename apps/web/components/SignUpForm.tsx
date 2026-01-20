@@ -27,7 +27,6 @@ export const SignUpForm = ({
   className,
   ...props
 }: React.ComponentProps<"div">) => {
-  const [fullName, setFullName] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [confirmPassword, setConfirmPassword] = React.useState("");
@@ -37,7 +36,7 @@ export const SignUpForm = ({
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!fullName || !email || !password || !confirmPassword) {
+    if (!email || !password || !confirmPassword) {
       toast.error("Please fill in all fields");
       return;
     }
@@ -82,23 +81,6 @@ export const SignUpForm = ({
         <CardContent>
           <form onSubmit={handleSignUp} noValidate>
             <FieldGroup>
-              <Field>
-                <FieldLabel htmlFor="fullName" className="text-zinc-300">
-                  Full Name
-                </FieldLabel>
-                <Input
-                  id="fullName"
-                  type="text"
-                  placeholder="Your Name"
-                  value={fullName}
-                  onChange={(e) => {
-                    return setFullName(e.target.value);
-                  }}
-                  required
-                  disabled={loading}
-                  className="bg-zinc-700/50 border-zinc-600 focus:border-teal-500 focus:ring-teal-500/20 text-white placeholder:text-zinc-500 transition-all duration-300"
-                />
-              </Field>
               <Field>
                 <FieldLabel htmlFor="email" className="text-zinc-300">
                   Email
