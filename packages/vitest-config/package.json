@@ -1,23 +1,23 @@
 {
-  "name": "@repo/db-queries",
+  "name": "@repo/vitest-config",
+  "version": "0.0.0",
+  "private": true,
   "type": "module",
   "scripts": {
     "dev": "tsc --watch",
-    "build": "tsc",
-    "test": "vitest run",
-    "test:watch": "vitest"
+    "build": "tsc"
   },
   "exports": {
-    "./queries": {
+    ".": {
       "types": "./src/index.ts",
       "default": "./dist/index.js"
     }
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
-    "@repo/vitest-config": "workspace:*",
-    "@repo/db-connector": "workspace:*",
-    "typescript": "latest",
+    "typescript": "latest"
+  },
+  "dependencies": {
     "vitest": "^3.1.4"
   }
 }
