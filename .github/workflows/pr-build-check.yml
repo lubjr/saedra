@@ -21,8 +21,6 @@ jobs:
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 10.26.2
 
       - name: Get pnpm store directory
         id: pnpm-cache
@@ -44,5 +42,8 @@ jobs:
       - name: Run build
         run: pnpm run build
 
+      - name: Run tests
+        run: pnpm run test
+
       - name: Build successful
-        run: echo "✅ Build completed successfully!"
+        run: echo "✅ Build and tests completed successfully!"
