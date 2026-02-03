@@ -1,51 +1,51 @@
 # Testing Guide - db-queries
 
-Este documento explica como funcionam os testes unitários do pacote `@repo/db-queries`, como rodá-los e como criar novos testes.
+This document explains how unit tests work in the `@repo/db-queries` package, how to run them, and how to create new tests.
 
 ## Table of Contents
 
-- [Visão Geral](#visão-geral)
-- [Executando os Testes](#executando-os-testes)
-- [Estrutura dos Testes](#estrutura-dos-testes)
-- [Padrões Utilizados](#padrões-utilizados)
-- [Criando um Novo Teste](#criando-um-novo-teste)
-- [Referência Rápida](#referência-rápida)
+- [Overview](#overview)
+- [Running Tests](#running-tests)
+- [Test Structure](#test-structure)
+- [Patterns Used](#patterns-used)
+- [Creating a New Test](#creating-a-new-test)
+- [Quick Reference](#quick-reference)
 
-## Visão Geral
+## Overview
 
-O pacote `db-queries` utiliza [Vitest](https://vitest.dev/) como framework de testes. Todos os testes são unitários e utilizam mocks para simular as respostas do Supabase, garantindo que os testes sejam rápidos e não dependam de uma conexão real com o banco de dados.
+The `db-queries` package uses [Vitest](https://vitest.dev/) as its testing framework. All tests are unit tests that use mocks to simulate Supabase responses, ensuring tests are fast and don't require a real database connection.
 
-### Arquivos de Teste
+### Test Files
 
 ```
 packages/db-queries/src/tests/
-├── auth.test.ts        # Testes de autenticação (login, signup, validação de token)
-├── credentials.test.ts # Testes de credenciais AWS
-├── diagrams.test.ts    # Testes de diagramas
-├── profiles.test.ts    # Testes de perfis de usuário
-└── projects.test.ts    # Testes de projetos
+├── auth.test.ts        # Authentication tests (login, signup, token validation)
+├── credentials.test.ts # AWS credentials tests
+├── diagrams.test.ts    # Diagram tests
+├── profiles.test.ts    # User profile tests
+└── projects.test.ts    # Project tests
 ```
 
-## Executando os Testes
+## Running Tests
 
-### Comandos Disponíveis
+### Available Commands
 
 ```bash
-# Rodar todos os testes uma vez
+# Run all tests once
 pnpm run test --filter=@repo/db-queries
 
-# Rodar testes em modo watch (re-executa ao salvar)
+# Run tests in watch mode (re-runs on save)
 pnpm run test:watch --filter=@repo/db-queries
 
-# Ou navegue até o pacote
+# Or navigate to the package
 cd packages/db-queries
-pnpm run test        # Executa uma vez
-pnpm run test:watch  # Modo watch
+pnpm run test        # Run once
+pnpm run test:watch  # Watch mode
 ```
 
-### Configuração
+### Configuration
 
-O Vitest é configurado através do arquivo `vitest.config.ts`:
+Vitest is configured through the `vitest.config.ts` file:
 
 ```ts
 import { createConfig } from '@repo/vitest-config'
@@ -53,15 +53,15 @@ import { createConfig } from '@repo/vitest-config'
 export default createConfig()
 ```
 
-A configuração base vem do pacote `@repo/vitest-config`, garantindo consistência entre todos os pacotes do monorepo.
+The base configuration comes from the `@repo/vitest-config` package, ensuring consistency across all monorepo packages.
 
-## Estrutura dos Testes
+## Test Structure
 
-Todos os testes seguem uma estrutura consistente com quatro partes principais:
+All tests follow a consistent structure with four main parts:
 
-### 1. Mock Data (Dados de Teste)
+### 1. Mock Data
 
-Definimos constantes com dados de teste no início do arquivo:
+We define test data constants at the beginning of each file:
 
 ```ts
 const MOCK_USER = {
@@ -83,9 +83,9 @@ const MOCK_RESPONSES = {
 }
 ```
 
-### 2. Mock do Supabase
+### 2. Supabase Mock
 
-O Supabase é mockado usando `vi.mock()`, substituindo as funções reais por mocks controlados:
+Supabase is mocked using `vi.mock()`, replacing real functions with controlled mocks:
 
 ```ts
 vi.mock('@repo/db-connector/db', () => {
@@ -103,7 +103,7 @@ vi.mock('@repo/db-connector/db', () => {
   }
 })
 
-// Importa os mocks para uso nos testes
+// Import mocks for use in tests
 const { mockSignUp, mockSignInWithPassword } = (
   await vi.importMock('@repo/db-connector/db') as any
 ).__mocks
@@ -111,27 +111,27 @@ const { mockSignUp, mockSignInWithPassword } = (
 
 ### 3. Describe Blocks
 
-Os testes são organizados em blocos `describe` aninhados:
+Tests are organized in nested `describe` blocks:
 
 ```ts
 describe('LoginDB', () => {
   beforeEach(() => {
-    vi.clearAllMocks()  // Limpa os mocks entre cada teste
+    vi.clearAllMocks()  // Clear mocks between each test
   })
 
   describe('signUpUser', () => {
-    // testes de signUpUser
+    // signUpUser tests
   })
 
   describe('signInUser', () => {
-    // testes de signInUser
+    // signInUser tests
   })
 })
 ```
 
-### 4. Test Cases com `test.each`
+### 4. Test Cases with `test.each`
 
-Os testes utilizam `test.each` para parametrização, permitindo testar múltiplos cenários com a mesma estrutura:
+Tests use `test.each` for parameterization, allowing multiple scenarios to be tested with the same structure:
 
 ```ts
 test.each([
@@ -157,18 +157,18 @@ test.each([
 })
 ```
 
-## Padrões Utilizados
+## Patterns Used
 
-### Convenção de Nomenclatura
+### Naming Conventions
 
-- Arquivos de teste: `<module>.test.ts`
-- Mock data: `MOCK_<ENTITY>` ou `MOCK_<TYPE>S` (plural para listas)
+- Test files: `<module>.test.ts`
+- Mock data: `MOCK_<ENTITY>` or `MOCK_<TYPE>S` (plural for lists)
 - Mock errors: `MOCK_ERRORS`
 - Mock responses: `MOCK_RESPONSES`
 
-### Estrutura do Mock do Supabase
+### Supabase Mock Structure
 
-Para queries encadeadas do Supabase (como `supabase.from().select().eq()`), criamos mocks que retornam outros mocks:
+For chained Supabase queries (like `supabase.from().select().eq()`), we create mocks that return other mocks:
 
 ```ts
 vi.mock('@repo/db-connector/db', () => {
@@ -184,27 +184,27 @@ vi.mock('@repo/db-connector/db', () => {
 })
 ```
 
-### Padrão AAA (Arrange-Act-Assert)
+### AAA Pattern (Arrange-Act-Assert)
 
-Cada teste segue o padrão AAA:
+Each test follows the AAA pattern:
 
 ```ts
-test('exemplo', async () => {
-  // Arrange: configura o mock
+test('example', async () => {
+  // Arrange: set up the mock
   mockSingle.mockResolvedValue(mockResponse)
 
-  // Act: executa a função sendo testada
+  // Act: execute the function being tested
   const result = await ProfileDB.getProfileByUser(userId)
 
-  // Assert: verifica o resultado
+  // Assert: verify the result
   expect(mockFrom).toHaveBeenCalledWith('profiles')
   expect(result).toEqual(expected)
 })
 ```
 
-### `beforeEach` para Limpeza
+### `beforeEach` for Cleanup
 
-Sempre use `beforeEach` para limpar os mocks entre os testes:
+Always use `beforeEach` to clear mocks between tests:
 
 ```ts
 beforeEach(() => {
@@ -212,20 +212,20 @@ beforeEach(() => {
 })
 ```
 
-## Criando um Novo Teste
+## Creating a New Test
 
-### Passo a Passo
+### Step by Step
 
-1. **Crie o arquivo de teste** em `packages/db-queries/src/tests/<module>.test.ts`
+1. **Create the test file** at `packages/db-queries/src/tests/<module>.test.ts`
 
-2. **Importe as dependências do Vitest:**
+2. **Import Vitest dependencies:**
 
 ```ts
 import { describe, test, expect, vi, beforeEach } from 'vitest'
-import { SeuModuloDB } from '../seuModulo.js'
+import { YourModuleDB } from '../yourModule.js'
 ```
 
-3. **Defina os mock data:**
+3. **Define mock data:**
 
 ```ts
 const MOCK_ITEMS = {
@@ -244,7 +244,7 @@ const MOCK_ERRORS = {
 }
 ```
 
-4. **Configure o mock do Supabase:**
+4. **Set up the Supabase mock:**
 
 ```ts
 vi.mock('@repo/db-connector/db', () => {
@@ -264,10 +264,10 @@ const { mockFrom, mockSelect, mockEq, mockSingle } = (
 ).__mocks
 ```
 
-5. **Escreva os testes:**
+5. **Write the tests:**
 
 ```ts
-describe('SeuModuloDB', () => {
+describe('YourModuleDB', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
@@ -289,7 +289,7 @@ describe('SeuModuloDB', () => {
     ])('$scenario', async ({ itemId, mockResponse, expected }) => {
       mockSingle.mockResolvedValue(mockResponse)
 
-      const result = await SeuModuloDB.getItemById(itemId)
+      const result = await YourModuleDB.getItemById(itemId)
 
       expect(mockFrom).toHaveBeenCalledWith('items')
       expect(mockSelect).toHaveBeenCalledWith('*')
@@ -300,18 +300,18 @@ describe('SeuModuloDB', () => {
 })
 ```
 
-6. **Execute os testes:**
+6. **Run the tests:**
 
 ```bash
 cd packages/db-queries
 pnpm run test
 ```
 
-### Template Completo
+### Complete Template
 
 ```ts
 import { describe, test, expect, vi, beforeEach } from 'vitest'
-import { SeuModuloDB } from '../seuModulo.js'
+import { YourModuleDB } from '../yourModule.js'
 
 // ============================================
 // Mock Data
@@ -353,7 +353,7 @@ const { mockFrom, mockSelect, mockEq, mockInsert, mockSingle } = (
 // ============================================
 // Tests
 // ============================================
-describe('SeuModuloDB', () => {
+describe('YourModuleDB', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
@@ -375,7 +375,7 @@ describe('SeuModuloDB', () => {
     ])('$scenario', async ({ itemId, mockResponse, expected }) => {
       mockSingle.mockResolvedValue(mockResponse)
 
-      const result = await SeuModuloDB.getItemById(itemId)
+      const result = await YourModuleDB.getItemById(itemId)
 
       expect(mockFrom).toHaveBeenCalledWith('items')
       expect(mockSelect).toHaveBeenCalledWith('*')
@@ -401,7 +401,7 @@ describe('SeuModuloDB', () => {
     ])('$scenario', async ({ input, mockResponse, expected }) => {
       mockSingle.mockResolvedValue(mockResponse)
 
-      const result = await SeuModuloDB.insertItem(input.name)
+      const result = await YourModuleDB.insertItem(input.name)
 
       expect(mockFrom).toHaveBeenCalledWith('items')
       expect(mockInsert).toHaveBeenCalledWith({ name: input.name })
@@ -411,25 +411,25 @@ describe('SeuModuloDB', () => {
 })
 ```
 
-## Referência Rápida
+## Quick Reference
 
-### Executar Testes
+### Running Tests
 
 ```bash
-# Uma vez
+# Once
 pnpm run test --filter=@repo/db-queries
 
 # Watch mode
 pnpm run test:watch --filter=@repo/db-queries
 ```
 
-### Importações Necessárias
+### Required Imports
 
 ```ts
 import { describe, test, expect, vi, beforeEach } from 'vitest'
 ```
 
-### Mock Básico do Supabase
+### Basic Supabase Mock
 
 ```ts
 vi.mock('@repo/db-connector/db', () => {
@@ -445,22 +445,22 @@ vi.mock('@repo/db-connector/db', () => {
 })
 ```
 
-### Funções do Vitest Mais Usadas
+### Most Used Vitest Functions
 
-| Função | Descrição |
-|--------|-----------|
-| `vi.fn()` | Cria uma função mock |
-| `vi.mock()` | Mocka um módulo inteiro |
-| `vi.clearAllMocks()` | Limpa todos os mocks |
-| `mockFn.mockResolvedValue()` | Define retorno de Promise |
-| `mockFn.mockReturnValue()` | Define retorno síncrono |
-| `expect().toEqual()` | Verifica igualdade profunda |
-| `expect().toHaveBeenCalledWith()` | Verifica chamada com args |
+| Function | Description |
+|----------|-------------|
+| `vi.fn()` | Creates a mock function |
+| `vi.mock()` | Mocks an entire module |
+| `vi.clearAllMocks()` | Clears all mocks |
+| `mockFn.mockResolvedValue()` | Sets Promise return value |
+| `mockFn.mockReturnValue()` | Sets synchronous return value |
+| `expect().toEqual()` | Checks deep equality |
+| `expect().toHaveBeenCalledWith()` | Verifies call with arguments |
 
 ## Related Documentation
 
-- [DEVELOPMENT.md](./DEVELOPMENT.md) - Guia geral de desenvolvimento
-- [Vitest Documentation](https://vitest.dev/) - Documentação oficial do Vitest
+- [DEVELOPMENT.md](./DEVELOPMENT.md) - General development guide
+- [Vitest Documentation](https://vitest.dev/) - Official Vitest documentation
 
 ---
 
