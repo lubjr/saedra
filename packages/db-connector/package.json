@@ -3,7 +3,9 @@
   "type": "module",
   "scripts": {
     "dev": "tsc --watch",
-    "build": "tsc"
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "exports": {
     "./db": {
@@ -13,7 +15,9 @@
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
-    "typescript": "latest"
+    "@repo/vitest-config": "workspace:*",
+    "typescript": "latest",
+    "vitest": "^3.1.4"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4"
