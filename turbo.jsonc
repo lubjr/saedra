@@ -11,26 +11,21 @@
   ],
   "tasks": {
     "build": {
-      "description": "Build all packages and apps for production",
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/.env*"],
       "outputs": [".next/**", "!.next/cache/**", "dist/**"]
     },
     "lint": {
-      "description": "Run ESLint across all packages",
       "dependsOn": ["^lint"]
     },
     "check-types": {
-      "description": "Validate TypeScript types across all packages",
       "dependsOn": ["^check-types"]
     },
     "dev": {
-      "description": "Start all packages in development mode",
       "cache": false,
       "persistent": true
     },
     "test": {
-      "description": "Run Vitest unit tests",
       "dependsOn": ["^build"],
       "cache": false
     }

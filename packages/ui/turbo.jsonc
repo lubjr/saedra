@@ -2,28 +2,22 @@
   "extends": ["//"],
   "tasks": {
     "build": {
-      "description": "Build UI package (styles + components)",
       "dependsOn": ["build:styles", "build:components"]
     },
     "build:styles": {
-      "description": "Compile Tailwind CSS to dist",
       "outputs": ["dist/**"]
     },
     "build:components": {
-      "description": "Compile TypeScript components to dist",
       "outputs": ["dist/**"]
     },
     "dev": {
-      "description": "Watch mode for UI development",
       "with": ["dev:styles", "dev:components"]
     },
     "dev:styles": {
-      "description": "Watch and rebuild Tailwind CSS on changes",
       "cache": false,
       "persistent": true
     },
     "dev:components": {
-      "description": "Watch and rebuild TypeScript components on changes",
       "cache": false,
       "persistent": true
     }
