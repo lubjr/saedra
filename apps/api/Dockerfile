@@ -18,7 +18,8 @@ FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app ./
 COPY . .
-RUN rm -rf packages/vitest-config
+RUN rm -rf packages/vitest-config && \
+    sed -i '/"@repo\/vitest-config"/d' packages/*/package.json
 RUN pnpm run build --filter=api...
 RUN pnpm deploy --filter=api --prod --legacy /prod/api
 
