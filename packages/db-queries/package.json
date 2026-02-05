@@ -16,8 +16,10 @@
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
     "@repo/vitest-config": "workspace:*",
-    "@repo/db-connector": "workspace:*",
     "typescript": "latest",
     "vitest": "^3.1.4"
+  },
+  "dependencies": {
+    "@repo/db-connector": "workspace:*"
   }
 }
