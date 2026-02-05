@@ -18,7 +18,7 @@ FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app ./
 COPY . .
-RUN pnpm run build --filter=api...
+RUN pnpm run build --filter=api... --filter=!@repo/vitest-config
 RUN pnpm deploy --filter=api --prod --legacy /prod/api
 
 FROM node:18-alpine AS runner
