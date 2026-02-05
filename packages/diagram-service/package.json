@@ -13,7 +13,9 @@
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
-    "@repo/aws-connector": "workspace:*",
     "typescript": "latest"
+  },
+  "dependencies": {
+    "@repo/aws-connector": "workspace:*"
   }
 }

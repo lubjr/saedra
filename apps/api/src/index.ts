@@ -32,9 +32,12 @@ const start = async () => {
   app.use("/projects", projectRoutes);
   app.use("/bedrock", bedrockRoutes);
 
-  app.listen(3002, () => {
+  // eslint-disable-next-line turbo/no-undeclared-env-vars
+  const PORT = process.env.PORT || 3002;
+
+  app.listen(PORT, () => {
     // eslint-disable-next-line no-console
-    console.log("Server is running on http://localhost:3002");
+    console.log(`Server is running on port ${PORT}`);
   });
 };
 

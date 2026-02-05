@@ -1,0 +1,8 @@
+node_modules
+.next
+.turbo
+.git
+*.md
+docker/
+docs/
+.env*
