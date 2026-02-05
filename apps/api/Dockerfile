@@ -18,7 +18,15 @@ FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app ./
 COPY . .
-RUN pnpm run build --filter=api... --filter=!@repo/vitest-config
+RUN pnpm run build \
+    --filter=@repo/typescript-config \
+    --filter=@repo/aws-connector \
+    --filter=@repo/db-connector \
+    --filter=@repo/db-queries \
+    --filter=@repo/diagram-service \
+    --filter=@repo/bedrock-service \
+    --filter=@repo/project-service \
+    --filter=api
 RUN pnpm deploy --filter=api --prod --legacy /prod/api
 
 FROM node:18-alpine AS runner
