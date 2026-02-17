@@ -1,0 +1,26 @@
+{
+  "name": "@saedra/cli",
+  "version": "1.0.0",
+  "description": "CLI do Saedra",
+  "type": "module",
+  "bin": {
+    "saedra": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --clean",
+    "dev": "tsup src/index.ts --format esm --watch"
+  },
+  "dependencies": {
+    "commander": "^13.1.0",
+    "@inquirer/prompts": "^7.5.0"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "^22.0.0",
+    "tsup": "^8.5.0",
+    "typescript": "5.8.3"
+  }
+}
