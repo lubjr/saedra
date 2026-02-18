@@ -106,6 +106,49 @@ $ saedra logout
 Logged out successfully.
 ```
 
+### `saedra project create`
+
+Create a new project linked to the logged-in account. Prompts for a project name.
+
+```bash
+$ saedra project create
+
+? Project name: my-infra
+
+Project created successfully!
+  Name: my-infra
+  ID:   798593a3-139e-4ae1-a810-db1c00284b7d
+```
+
+### `saedra project list`
+
+List all projects belonging to the logged-in user.
+
+```bash
+$ saedra project list
+
+  Your projects:
+
+  - my-infra
+      ID:      798593a3-139e-4ae1-a810-db1c00284b7d
+      Created: 11/26/2025
+  - saedra-test
+      ID:      d1cab6d0-6918-49f5-bea2-4cb0c8e76a58
+      Created: 12/2/2025
+```
+
+### `saedra project delete`
+
+Delete a project by ID. Prompts for the project ID (use `saedra project list` to find it).
+
+```bash
+$ saedra project delete
+
+? Project ID to delete: 798593a3-139e-4ae1-a810-db1c00284b7d
+
+Project deleted successfully.
+```
+
 ### `saedra --version`
 
 Show the CLI version.
@@ -143,7 +186,8 @@ packages/cli/
 └── src/
     ├── index.ts            # Entry point - registers all commands
     └── commands/
-        └── login.ts        # Login, config management (getConfig, clearConfig)
+        ├── login.ts        # Login, config management (getConfig, clearConfig)
+        └── projects.ts     # project create / list / delete
 ```
 
 ## Where credentials are stored
