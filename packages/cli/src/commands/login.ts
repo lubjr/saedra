@@ -9,6 +9,7 @@ const CONFIG_FILE = join(CONFIG_DIR, "config.json");
 interface SaedraConfig {
   email: string;
   userId: string;
+  token: string;
   apiUrl: string;
 }
 
@@ -67,12 +68,18 @@ export async function loginCommand() {
     }
 
     const { session } = (await res.json()) as {
-      session: { userId: string };
+      session: {
+        userId: {
+          access_token: string;
+          user: { id: string };
+        };
+      };
     };
 
     saveConfig({
       email,
-      userId: session.userId,
+      userId: session.userId.user.id,
+      token: session.userId.access_token,
       apiUrl,
     });
 
