@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { Command } from "commander";
 import { loginCommand } from "./commands/login.js";
+import { projectCreateCommand, projectDeleteCommand, projectListCommand } from "./commands/projects.js";
 
 const program = new Command();
 
@@ -65,6 +66,25 @@ program
     await clearConfig();
     console.log("Logged out successfully.");
   });
+
+const project = program
+  .command("project")
+  .description("Manage your projects");
+
+project
+  .command("create")
+  .description("Create a new project")
+  .action(projectCreateCommand);
+
+project
+  .command("list")
+  .description("List all your projects")
+  .action(projectListCommand);
+
+project
+  .command("delete")
+  .description("Delete a project by ID")
+  .action(projectDeleteCommand);
 
 program.parse();
 
