@@ -176,6 +176,88 @@ routes.get('/user/:userId', authenticate, async (req, res) => {
   res.json(projects);
 });
 
+routes.post('/:projectId/documents', authenticate, async (req, res) => {
+  const { projectId } = req.params;
+  const { name, content } = req.body;
+
+  if (!name || !projectId) {
+    return res.status(400).json({ error: 'name and projectId required' });
+  }
+
+  const document = await repo.createDocument(projectId, name, content ?? '');
+
+  if ('error' in document) {
+    return res.status(400).json({ error: document.error });
+  }
+
+  res.status(201).json(document);
+});
+
+routes.get('/:projectId/documents', authenticate, async (req, res) => {
+  const { projectId } = req.params;
+
+  if (!projectId) {
+    return res.status(400).json({ error: 'projectId required' });
+  }
+
+  const documents = await repo.listDocumentsByProject(projectId);
+
+  if ('error' in documents) {
+    return res.status(400).json({ error: documents.error });
+  }
+
+  res.json(documents);
+});
+
+routes.get('/:projectId/documents/:documentId', authenticate, async (req, res) => {
+  const { documentId } = req.params;
+
+  if (!documentId) {
+    return res.status(400).json({ error: 'documentId required' });
+  }
+
+  const document = await repo.getDocumentById(documentId);
+
+  if (!document || 'error' in document) {
+    return res.status(404).json({ error: 'document not found' });
+  }
+
+  res.json(document);
+});
+
+routes.put('/:projectId/documents/:documentId', authenticate, async (req, res) => {
+  const { documentId } = req.params;
+  const { content } = req.body;
+
+  if (content === undefined || !documentId) {
+    return res.status(400).json({ error: 'content and documentId required' });
+  }
+
+  const success = await repo.updateDocument(documentId, content);
+
+  if (!success) {
+    return res.status(404).json({ error: 'error updating document' });
+  }
+
+  res.status(204).json({ message: 'document updated' });
+});
+
+routes.delete('/:projectId/documents/:documentId', authenticate, async (req, res) => {
+  const { documentId } = req.params;
+
+  if (!documentId) {
+    return res.status(400).json({ error: 'documentId required' });
+  }
+
+  const success = await repo.deleteDocument(documentId);
+
+  if (!success) {
+    return res.status(404).json({ error: 'error deleting document' });
+  }
+
+  res.status(204).json({ message: 'document deleted' });
+});
+
 routes.get('/:id', authenticate, async (req, res) => {
   const { id } = req.params;
 
