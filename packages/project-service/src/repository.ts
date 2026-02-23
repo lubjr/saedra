@@ -1,7 +1,7 @@
-import { type CreateProjectResponse, type CreateCredentialsResponse, type CreateDiagramResponse } from "./types.js";
+import { type CreateProjectResponse, type CreateCredentialsResponse, type CreateDiagramResponse, type DocumentResponse } from "./types.js";
 import { collectResources, type AwsCredentials } from "@repo/aws-connector/aws";
 import { generateDiagramFromResources } from "@repo/diagram-service/diagram";
-import { ProjectDB, AwsCredentialsDB, DiagramDB, LoginDB, ProfileDB } from "@repo/db-queries/queries";
+import { ProjectDB, AwsCredentialsDB, DiagramDB, LoginDB, ProfileDB, DocumentDB } from "@repo/db-queries/queries";
 
 export const signUpUser = async (email: string, password: string): Promise<{ userId: string } | { error: string }> => {
   const { data, error } = await LoginDB.signUpUser(email, password);
@@ -189,6 +189,58 @@ export const deleteProjectById = async (projectId: string): Promise<boolean> => 
   if (error) {
     console.error("error deleting project:", error.message);
 
+    return false;
+  }
+
+  return true;
+}
+
+export const createDocument = async (projectId: string, name: string, content: string): Promise<DocumentResponse> => {
+  const { data, error } = await DocumentDB.insertDocument(projectId, name, content);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return data;
+}
+
+export const listDocumentsByProject = async (projectId: string): Promise<any[] | { error: string }> => {
+  const { data, error } = await DocumentDB.getDocumentsByProject(projectId);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return data || [];
+}
+
+export const getDocumentById = async (documentId: string): Promise<DocumentResponse> => {
+  const { data, error } = await DocumentDB.getDocumentById(documentId);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return data;
+}
+
+export const updateDocument = async (documentId: string, content: string): Promise<boolean> => {
+  const { error } = await DocumentDB.updateDocumentById(documentId, content);
+
+  if (error) {
+    console.error("error updating document:", error.message);
+    return false;
+  }
+
+  return true;
+}
+
+export const deleteDocument = async (documentId: string): Promise<boolean> => {
+  const { error } = await DocumentDB.deleteDocumentById(documentId);
+
+  if (error) {
+    console.error("error deleting document:", error.message);
     return false;
   }
 

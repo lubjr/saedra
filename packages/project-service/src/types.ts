@@ -37,3 +37,14 @@ export type CreateDiagramResponse = {
   | {
       error: string;
 };
+
+export type DocumentResponse = {
+  id: string;
+  project_id: string;
+  name: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
+} | {
+  error: string;
+};
