@@ -1,4 +1,4 @@
-import { supabase } from "@repo/db-connector/db";
+import { serviceClient } from "@repo/db-connector/db";
 
 type ProjectDBType = {
   insertProject(userId: string, name: string): Promise<any>;
@@ -9,18 +9,18 @@ type ProjectDBType = {
 
 export const ProjectDB: ProjectDBType = {
   async insertProject(userId: string, name: string) {
-    return supabase.from('projects').insert({ user_id: userId, name }).select().single();
+    return serviceClient.from('projects').insert({ user_id: userId, name }).select().single();
   },
 
   async getProjectsByUser(userId: string) {
-    return supabase.from('projects').select('*').eq('user_id', userId);
+    return serviceClient.from('projects').select('*').eq('user_id', userId);
   },
 
   async getProjectById(projectId: string) {
-    return supabase.from('projects').select('*').eq('id', projectId).single();
+    return serviceClient.from('projects').select('*').eq('id', projectId).single();
   },
 
   async deleteProjectById(projectId: string) {
-    return supabase.from('projects').delete().eq('id', projectId);
+    return serviceClient.from('projects').delete().eq('id', projectId);
   }
 };

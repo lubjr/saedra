@@ -34,7 +34,7 @@ vi.mock('@repo/db-connector/db', () => {
   const mockFrom = vi.fn(() => ({ select: mockSelect, insert: mockInsert, delete: mockDelete }))
 
   return {
-    supabase: { from: mockFrom },
+    serviceClient: { from: mockFrom },
     __mocks: { mockFrom, mockSelect, mockSelectEq, mockInsert, mockDelete, mockDeleteEq, mockSingle },
   }
 })
