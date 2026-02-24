@@ -2,6 +2,7 @@
 import { Command } from "commander";
 import { loginCommand } from "./commands/login.js";
 import { projectCreateCommand, projectDeleteCommand, projectListCommand } from "./commands/projects.js";
+import { docCreateCommand, docListCommand, docReadCommand, docEditCommand, docDeleteCommand } from "./commands/documents.js";
 
 const program = new Command();
 
@@ -85,6 +86,35 @@ project
   .command("delete")
   .description("Delete a project by ID")
   .action(projectDeleteCommand);
+
+const doc = program
+  .command("doc")
+  .description("Manage documents within a project");
+
+doc
+  .command("create")
+  .description("Create a new document in a project")
+  .action(docCreateCommand);
+
+doc
+  .command("list")
+  .description("List all documents in a project")
+  .action(docListCommand);
+
+doc
+  .command("read")
+  .description("Read the content of a document")
+  .action(docReadCommand);
+
+doc
+  .command("edit")
+  .description("Update the content of a document")
+  .action(docEditCommand);
+
+doc
+  .command("delete")
+  .description("Delete a document from a project")
+  .action(docDeleteCommand);
 
 program.parse();
 

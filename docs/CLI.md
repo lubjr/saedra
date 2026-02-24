@@ -149,6 +149,86 @@ $ saedra project delete
 Project deleted successfully.
 ```
 
+### `saedra doc create`
+
+Create a new document inside a project. Prompts for the project ID, document name and an optional local file path to use as content (leave empty to create a blank document).
+
+```bash
+$ saedra doc create
+
+? Project ID: 798593a3-139e-4ae1-a810-db1c00284b7d
+? Document name (e.g. README.md): architecture.md
+? File path (leave empty for blank content): ./docs/architecture.md
+
+Document created successfully!
+  Name: architecture.md
+  ID:   a1b2c3d4-0000-4ae1-a810-db1c00284b7d
+```
+
+### `saedra doc list`
+
+List all documents belonging to a project.
+
+```bash
+$ saedra doc list
+
+? Project ID: 798593a3-139e-4ae1-a810-db1c00284b7d
+
+  Documents:
+
+  - README.md
+      ID:      a1b2c3d4-0000-4ae1-a810-db1c00284b7d
+      Created: 2/10/2026
+      Updated: 2/10/2026
+  - architecture.md
+      ID:      e5f6a7b8-0000-4ae1-a810-db1c00284b7d
+      Created: 2/23/2026
+      Updated: 2/23/2026
+```
+
+### `saedra doc read`
+
+Print the content of a document to the terminal.
+
+```bash
+$ saedra doc read
+
+? Project ID: 798593a3-139e-4ae1-a810-db1c00284b7d
+? Document ID: a1b2c3d4-0000-4ae1-a810-db1c00284b7d
+
+  README.md
+
+# My Project
+...
+```
+
+### `saedra doc edit`
+
+Replace the content of an existing document with the contents of a local file.
+
+```bash
+$ saedra doc edit
+
+? Project ID: 798593a3-139e-4ae1-a810-db1c00284b7d
+? Document ID: a1b2c3d4-0000-4ae1-a810-db1c00284b7d
+? File path with new content: ./docs/README.md
+
+Document updated successfully.
+```
+
+### `saedra doc delete`
+
+Delete a document by ID. Use `saedra doc list` to find the ID.
+
+```bash
+$ saedra doc delete
+
+? Project ID: 798593a3-139e-4ae1-a810-db1c00284b7d
+? Document ID to delete: a1b2c3d4-0000-4ae1-a810-db1c00284b7d
+
+Document deleted successfully.
+```
+
 ### `saedra --version`
 
 Show the CLI version.
@@ -187,7 +267,8 @@ packages/cli/
     ├── index.ts            # Entry point - registers all commands
     └── commands/
         ├── login.ts        # Login, config management (getConfig, clearConfig)
-        └── projects.ts     # project create / list / delete
+        ├── projects.ts     # project create / list / delete
+        └── documents.ts    # doc create / list / read / edit / delete
 ```
 
 ## Where credentials are stored
