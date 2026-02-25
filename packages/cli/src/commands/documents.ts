@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { input } from "@inquirer/prompts";
 import { getConfig } from "./login.js";
+import { selectProject, selectDocument } from "./helpers.js";
 
 function requireAuth() {
   const config = getConfig();
@@ -32,11 +33,7 @@ async function parseError(res: Response): Promise<string> {
 export async function docCreateCommand() {
   const config = requireAuth();
 
-  const projectId = await input({ message: "Project ID:" });
-  if (!projectId.trim()) {
-    console.error("Project ID cannot be empty.");
-    process.exit(1);
-  }
+  const project = await selectProject(config);
 
   const name = await input({ message: "Document name (e.g. README.md):" });
   if (!name.trim()) {
@@ -49,11 +46,11 @@ export async function docCreateCommand() {
   const content = filePath.trim() ? readFileContent(filePath.trim()) : "";
 
   try {
-    const res = await fetch(`${config.apiUrl}/projects/${projectId}/documents`, {
+    const res = await fetch(`${config.apiUrl}/projects/${project.id}/documents`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${config.token}`,
+        Authorization: `Bearer ${config.token}`,
       },
       body: JSON.stringify({ name, content }),
     });
@@ -79,15 +76,11 @@ export async function docCreateCommand() {
 export async function docListCommand() {
   const config = requireAuth();
 
-  const projectId = await input({ message: "Project ID:" });
-  if (!projectId.trim()) {
-    console.error("Project ID cannot be empty.");
-    process.exit(1);
-  }
+  const project = await selectProject(config);
 
   try {
-    const res = await fetch(`${config.apiUrl}/projects/${projectId}/documents`, {
-      headers: { "Authorization": `Bearer ${config.token}` },
+    const res = await fetch(`${config.apiUrl}/projects/${project.id}/documents`, {
+      headers: { Authorization: `Bearer ${config.token}` },
     });
 
     if (!res.ok) {
@@ -108,7 +101,7 @@ export async function docListCommand() {
       return;
     }
 
-    console.log("\n  Documents:\n");
+    console.log(`\n  Documents in ${project.name}:\n`);
     for (const doc of documents) {
       const created = new Date(doc.created_at).toLocaleDateString();
       const updated = new Date(doc.updated_at).toLocaleDateString();
@@ -127,22 +120,13 @@ export async function docListCommand() {
 export async function docReadCommand() {
   const config = requireAuth();
 
-  const projectId = await input({ message: "Project ID:" });
-  if (!projectId.trim()) {
-    console.error("Project ID cannot be empty.");
-    process.exit(1);
-  }
-
-  const documentId = await input({ message: "Document ID:" });
-  if (!documentId.trim()) {
-    console.error("Document ID cannot be empty.");
-    process.exit(1);
-  }
+  const project = await selectProject(config);
+  const document = await selectDocument(config, project.id);
 
   try {
     const res = await fetch(
-      `${config.apiUrl}/projects/${projectId}/documents/${documentId}`,
-      { headers: { "Authorization": `Bearer ${config.token}` } }
+      `${config.apiUrl}/projects/${project.id}/documents/${document.id}`,
+      { headers: { Authorization: `Bearer ${config.token}` } }
     );
 
     if (!res.ok) {
@@ -151,7 +135,7 @@ export async function docReadCommand() {
       process.exit(1);
     }
 
-    const document = (await res.json()) as {
+    const result = (await res.json()) as {
       id: string;
       name: string;
       content: string;
@@ -159,7 +143,7 @@ export async function docReadCommand() {
       updated_at: string;
     };
 
-    const doc = (document as any).data ?? document;
+    const doc = (result as any).data ?? result;
 
     console.log(`\n  ${doc.name}\n`);
     console.log(doc.content);
@@ -173,17 +157,8 @@ export async function docReadCommand() {
 export async function docEditCommand() {
   const config = requireAuth();
 
-  const projectId = await input({ message: "Project ID:" });
-  if (!projectId.trim()) {
-    console.error("Project ID cannot be empty.");
-    process.exit(1);
-  }
-
-  const documentId = await input({ message: "Document ID:" });
-  if (!documentId.trim()) {
-    console.error("Document ID cannot be empty.");
-    process.exit(1);
-  }
+  const project = await selectProject(config);
+  const document = await selectDocument(config, project.id);
 
   const filePath = await input({ message: "File path with new content:" });
   if (!filePath.trim()) {
@@ -195,12 +170,12 @@ export async function docEditCommand() {
 
   try {
     const res = await fetch(
-      `${config.apiUrl}/projects/${projectId}/documents/${documentId}`,
+      `${config.apiUrl}/projects/${project.id}/documents/${document.id}`,
       {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${config.token}`,
+          Authorization: `Bearer ${config.token}`,
         },
         body: JSON.stringify({ content }),
       }
@@ -222,24 +197,15 @@ export async function docEditCommand() {
 export async function docDeleteCommand() {
   const config = requireAuth();
 
-  const projectId = await input({ message: "Project ID:" });
-  if (!projectId.trim()) {
-    console.error("Project ID cannot be empty.");
-    process.exit(1);
-  }
-
-  const documentId = await input({ message: "Document ID to delete:" });
-  if (!documentId.trim()) {
-    console.error("Document ID cannot be empty.");
-    process.exit(1);
-  }
+  const project = await selectProject(config);
+  const document = await selectDocument(config, project.id);
 
   try {
     const res = await fetch(
-      `${config.apiUrl}/projects/${projectId}/documents/${documentId}`,
+      `${config.apiUrl}/projects/${project.id}/documents/${document.id}`,
       {
         method: "DELETE",
-        headers: { "Authorization": `Bearer ${config.token}` },
+        headers: { Authorization: `Bearer ${config.token}` },
       }
     );
 

@@ -1,5 +1,6 @@
-import { input } from "@inquirer/prompts";
 import { getConfig } from "./login.js";
+import { selectProject } from "./helpers.js";
+import { input } from "@inquirer/prompts";
 
 function requireAuth() {
   const config = getConfig();
@@ -86,15 +87,10 @@ export async function projectListCommand() {
 export async function projectDeleteCommand() {
   const config = requireAuth();
 
-  const projectId = await input({ message: "Project ID to delete:" });
-
-  if (!projectId.trim()) {
-    console.error("Project ID cannot be empty.");
-    process.exit(1);
-  }
+  const project = await selectProject(config);
 
   try {
-    const res = await fetch(`${config.apiUrl}/projects/${projectId}`, {
+    const res = await fetch(`${config.apiUrl}/projects/${project.id}`, {
       method: "DELETE",
       headers: { "Authorization": `Bearer ${config.token}` },
     });

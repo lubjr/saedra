@@ -6,7 +6,7 @@ import { input, password } from "@inquirer/prompts";
 const CONFIG_DIR = join(homedir(), ".saedra");
 const CONFIG_FILE = join(CONFIG_DIR, "config.json");
 
-interface SaedraConfig {
+export interface SaedraConfig {
   email: string;
   userId: string;
   token: string;
