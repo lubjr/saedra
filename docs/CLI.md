@@ -139,24 +139,26 @@ $ saedra project list
 
 ### `saedra project delete`
 
-Delete a project by ID. Prompts for the project ID (use `saedra project list` to find it).
+Delete a project. Shows an interactive list of your projects to select from.
 
 ```bash
 $ saedra project delete
 
-? Project ID to delete: 798593a3-139e-4ae1-a810-db1c00284b7d
+? Select a project: > my-infra
+                      saedra-test
 
 Project deleted successfully.
 ```
 
 ### `saedra doc create`
 
-Create a new document inside a project. Prompts for the project ID, document name and an optional local file path to use as content (leave empty to create a blank document).
+Create a new document inside a project. Shows an interactive project selector, then prompts for the document name and an optional local file path to use as content (leave empty to create a blank document).
 
 ```bash
 $ saedra doc create
 
-? Project ID: 798593a3-139e-4ae1-a810-db1c00284b7d
+? Select a project: > my-infra
+                      saedra-test
 ? Document name (e.g. README.md): architecture.md
 ? File path (leave empty for blank content): ./docs/architecture.md
 
@@ -167,14 +169,15 @@ Document created successfully!
 
 ### `saedra doc list`
 
-List all documents belonging to a project.
+List all documents belonging to a project. Shows an interactive project selector.
 
 ```bash
 $ saedra doc list
 
-? Project ID: 798593a3-139e-4ae1-a810-db1c00284b7d
+? Select a project: > my-infra
+                      saedra-test
 
-  Documents:
+  Documents in my-infra:
 
   - README.md
       ID:      a1b2c3d4-0000-4ae1-a810-db1c00284b7d
@@ -188,13 +191,15 @@ $ saedra doc list
 
 ### `saedra doc read`
 
-Print the content of a document to the terminal.
+Print the content of a document to the terminal. Shows interactive selectors for project and document.
 
 ```bash
 $ saedra doc read
 
-? Project ID: 798593a3-139e-4ae1-a810-db1c00284b7d
-? Document ID: a1b2c3d4-0000-4ae1-a810-db1c00284b7d
+? Select a project:  > my-infra
+                       saedra-test
+? Select a document: > README.md
+                       architecture.md
 
   README.md
 
@@ -204,13 +209,15 @@ $ saedra doc read
 
 ### `saedra doc edit`
 
-Replace the content of an existing document with the contents of a local file.
+Replace the content of an existing document with the contents of a local file. Shows interactive selectors for project and document.
 
 ```bash
 $ saedra doc edit
 
-? Project ID: 798593a3-139e-4ae1-a810-db1c00284b7d
-? Document ID: a1b2c3d4-0000-4ae1-a810-db1c00284b7d
+? Select a project:  > my-infra
+                       saedra-test
+? Select a document: > README.md
+                       architecture.md
 ? File path with new content: ./docs/README.md
 
 Document updated successfully.
@@ -218,13 +225,15 @@ Document updated successfully.
 
 ### `saedra doc delete`
 
-Delete a document by ID. Use `saedra doc list` to find the ID.
+Delete a document. Shows interactive selectors for project and document.
 
 ```bash
 $ saedra doc delete
 
-? Project ID: 798593a3-139e-4ae1-a810-db1c00284b7d
-? Document ID to delete: a1b2c3d4-0000-4ae1-a810-db1c00284b7d
+? Select a project:  > my-infra
+                       saedra-test
+? Select a document: > README.md
+                       architecture.md
 
 Document deleted successfully.
 ```
@@ -266,7 +275,8 @@ packages/cli/
 └── src/
     ├── index.ts            # Entry point - registers all commands
     └── commands/
-        ├── login.ts        # Login, config management (getConfig, clearConfig)
+        ├── login.ts        # Login, config management (getConfig, clearConfig, SaedraConfig)
+        ├── helpers.ts      # Shared interactive selectors (selectProject, selectDocument)
         ├── projects.ts     # project create / list / delete
         └── documents.ts    # doc create / list / read / edit / delete
 ```
