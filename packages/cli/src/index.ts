@@ -2,7 +2,7 @@
 import { Command } from "commander";
 import { loginCommand } from "./commands/login.js";
 import { projectCreateCommand, projectDeleteCommand, projectListCommand } from "./commands/projects.js";
-import { docCreateCommand, docListCommand, docReadCommand, docEditCommand, docDeleteCommand } from "./commands/documents.js";
+import { docCreateCommand, docListCommand, docReadCommand, docEditCommand, docDeleteCommand, docPushCommand } from "./commands/documents.js";
 
 const program = new Command();
 
@@ -110,6 +110,11 @@ doc
   .command("edit")
   .description("Update the content of a document")
   .action(docEditCommand);
+
+doc
+  .command("push [file]")
+  .description("Push a local .md file to a project (create or update)")
+  .action(docPushCommand);
 
 doc
   .command("delete")
