@@ -223,6 +223,47 @@ $ saedra doc edit
 Document updated successfully.
 ```
 
+### `saedra doc push [file]`
+
+Push a local `.md` file to a project in a single step. Uses the filename as the document name and automatically creates or updates the document depending on whether it already exists.
+
+```bash
+$ saedra doc push ./docs/architecture.md
+
+? Select a project:  > my-infra
+                       saedra-test
+
+Document created successfully!
+  Name: architecture.md
+  ID:   a1b2c3d4-0000-4ae1-a810-db1c00284b7d
+```
+
+When called without arguments, lists the `.md` files found in the current directory for interactive selection:
+
+```bash
+$ saedra doc push
+
+? Select a file to push: > architecture.md
+                           README.md
+? Select a project:      > my-infra
+                           saedra-test
+
+Document created successfully!
+  Name: architecture.md
+  ID:   a1b2c3d4-0000-4ae1-a810-db1c00284b7d
+```
+
+If the document already exists in the project, it asks for confirmation before updating:
+
+```bash
+$ saedra doc push ./docs/architecture.md
+
+? Select a project: > my-infra
+? Document "architecture.md" already exists in my-infra. Update it? (Y/n)
+
+Document "architecture.md" updated successfully.
+```
+
 ### `saedra doc delete`
 
 Delete a document. Shows interactive selectors for project and document.
@@ -278,7 +319,7 @@ packages/cli/
         ├── login.ts        # Login, config management (getConfig, clearConfig, SaedraConfig)
         ├── helpers.ts      # Shared interactive selectors (selectProject, selectDocument)
         ├── projects.ts     # project create / list / delete
-        └── documents.ts    # doc create / list / read / edit / delete
+        └── documents.ts    # doc create / list / read / edit / push / delete
 ```
 
 ## Where credentials are stored
