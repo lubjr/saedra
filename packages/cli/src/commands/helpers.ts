@@ -1,7 +1,14 @@
 import { select } from "@inquirer/prompts";
 import type { SaedraConfig } from "./login.js";
+import { findSaedraContext } from "./context.js";
 
 export async function selectProject(config: SaedraConfig): Promise<{ id: string; name: string }> {
+  const context = findSaedraContext();
+  if (context) {
+    console.log(`Using project: ${context.projectName} (from .saedra)`);
+    return { id: context.projectId, name: context.projectName };
+  }
+
   const res = await fetch(`${config.apiUrl}/projects/user/${config.userId}`, {
     headers: { Authorization: `Bearer ${config.token}` },
   });

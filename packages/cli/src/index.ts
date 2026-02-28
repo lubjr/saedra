@@ -3,6 +3,7 @@ import { Command } from "commander";
 import { loginCommand } from "./commands/login.js";
 import { projectCreateCommand, projectDeleteCommand, projectListCommand } from "./commands/projects.js";
 import { docCreateCommand, docListCommand, docReadCommand, docEditCommand, docDeleteCommand, docPushCommand } from "./commands/documents.js";
+import { initCommand } from "./commands/context.js";
 
 const program = new Command();
 
@@ -15,6 +16,11 @@ program
   .command("login")
   .description("Log in to your Saedra account")
   .action(loginCommand);
+
+program
+  .command("init")
+  .description("Link the current folder to a Saedra project")
+  .action(initCommand);
 
 program
   .command("whoami")

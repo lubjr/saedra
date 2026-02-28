@@ -106,6 +106,29 @@ $ saedra logout
 Logged out successfully.
 ```
 
+### `saedra init`
+
+Link the current folder to a Saedra project. Creates a `.saedra` file so that all commands in this directory (and subdirectories) automatically use the linked project without prompting.
+
+```bash
+$ saedra init
+
+? Select a project: > my-infra
+                      saedra-test
+
+Linked to project my-infra. Created .saedra
+```
+
+Once initialized, commands skip the project selector:
+
+```bash
+$ saedra doc push ./docs/architecture.md
+Using project: my-infra (from .saedra)
+Uploading architecture.md... ✓
+```
+
+The `.saedra` file can be committed (shared config) or added to `.gitignore` (personal config), depending on your preference.
+
 ### `saedra project create`
 
 Create a new project linked to the logged-in account. Prompts for a project name.
@@ -318,6 +341,7 @@ packages/cli/
     └── commands/
         ├── login.ts        # Login, config management (getConfig, clearConfig, SaedraConfig)
         ├── helpers.ts      # Shared interactive selectors (selectProject, selectDocument)
+        ├── context.ts      # .saedra context file management (init, findSaedraContext)
         ├── projects.ts     # project create / list / delete
         └── documents.ts    # doc create / list / read / edit / push / delete
 ```
