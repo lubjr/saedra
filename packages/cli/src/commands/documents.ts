@@ -118,11 +118,37 @@ export async function docListCommand() {
   }
 }
 
-export async function docReadCommand() {
+export async function docReadCommand(docName?: string) {
   const config = requireAuth();
 
   const project = await selectProject(config);
-  const document = await selectDocument(config, project.id);
+
+  let document: { id: string; name: string };
+
+  if (docName) {
+    const res = await fetch(`${config.apiUrl}/projects/${project.id}/documents`, {
+      headers: { Authorization: `Bearer ${config.token}` },
+    });
+
+    if (!res.ok) {
+      console.error("\nFailed to fetch documents.");
+      process.exit(1);
+    }
+
+    const documents = (await res.json()) as Array<{ id: string; name: string }>;
+    const found = documents.find(
+      (d) => d.name.toLowerCase() === docName.toLowerCase()
+    );
+
+    if (!found) {
+      console.error(`\nDocument "${docName}" not found in project "${project.name}".`);
+      process.exit(1);
+    }
+
+    document = found;
+  } else {
+    document = await selectDocument(config, project.id);
+  }
 
   try {
     const res = await fetch(
