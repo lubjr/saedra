@@ -212,11 +212,21 @@ $ saedra doc list
       Updated: 2/23/2026
 ```
 
-### `saedra doc read`
+### `saedra doc read [document]`
 
-Print the content of a document to the terminal. Shows interactive selectors for project and document.
+Print the content of a document to the terminal. When called with a document name, fetches it directly without interactive prompts. Without arguments, shows interactive selectors for project and document.
 
 ```bash
+# Direct access by name (non-interactive)
+$ saedra doc read ANALYSIS.md
+Using project: my-infra (from .saedra)
+
+  ANALYSIS.md
+
+# My Project
+...
+
+# Interactive mode
 $ saedra doc read
 
 ? Select a project:  > my-infra
@@ -229,6 +239,8 @@ $ saedra doc read
 # My Project
 ...
 ```
+
+The document name match is case-insensitive.
 
 ### `saedra doc edit`
 

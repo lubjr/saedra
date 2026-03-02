@@ -108,7 +108,7 @@ doc
   .action(docListCommand);
 
 doc
-  .command("read")
+  .command("read [document]")
   .description("Read the content of a document")
   .action(docReadCommand);
 
