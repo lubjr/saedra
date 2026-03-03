@@ -38,11 +38,14 @@ export type CreateDiagramResponse = {
       error: string;
 };
 
+export type DocumentType = 'doc' | 'architecture' | 'decision' | 'change' | 'rule';
+
 export type DocumentResponse = {
   id: string;
   project_id: string;
   name: string;
   content: string;
+  type: DocumentType;
   created_at: string;
   updated_at: string;
 } | {

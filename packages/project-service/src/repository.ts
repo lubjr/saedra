@@ -1,4 +1,4 @@
-import { type CreateProjectResponse, type CreateCredentialsResponse, type CreateDiagramResponse, type DocumentResponse } from "./types.js";
+import { type CreateProjectResponse, type CreateCredentialsResponse, type CreateDiagramResponse, type DocumentResponse, type DocumentType } from "./types.js";
 import { collectResources, type AwsCredentials } from "@repo/aws-connector/aws";
 import { generateDiagramFromResources } from "@repo/diagram-service/diagram";
 import { ProjectDB, AwsCredentialsDB, DiagramDB, LoginDB, ProfileDB, DocumentDB } from "@repo/db-queries/queries";
@@ -195,8 +195,8 @@ export const deleteProjectById = async (projectId: string): Promise<boolean> => 
   return true;
 }
 
-export const createDocument = async (projectId: string, name: string, content: string): Promise<DocumentResponse> => {
-  const { data, error } = await DocumentDB.insertDocument(projectId, name, content);
+export const createDocument = async (projectId: string, name: string, content: string, type?: DocumentType): Promise<DocumentResponse> => {
+  const { data, error } = await DocumentDB.insertDocument(projectId, name, content, type);
 
   if (error) {
     return { error: error.message };
@@ -205,8 +205,8 @@ export const createDocument = async (projectId: string, name: string, content: s
   return data;
 }
 
-export const listDocumentsByProject = async (projectId: string): Promise<any[] | { error: string }> => {
-  const { data, error } = await DocumentDB.getDocumentsByProject(projectId);
+export const listDocumentsByProject = async (projectId: string, type?: DocumentType): Promise<any[] | { error: string }> => {
+  const { data, error } = await DocumentDB.getDocumentsByProject(projectId, type);
 
   if (error) {
     return { error: error.message };
