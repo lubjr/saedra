@@ -178,13 +178,13 @@ routes.get('/user/:userId', authenticate, async (req, res) => {
 
 routes.post('/:projectId/documents', authenticate, async (req, res) => {
   const { projectId } = req.params;
-  const { name, content } = req.body;
+  const { name, content, type } = req.body;
 
   if (!name || !projectId) {
     return res.status(400).json({ error: 'name and projectId required' });
   }
 
-  const document = await repo.createDocument(projectId, name, content ?? '');
+  const document = await repo.createDocument(projectId, name, content ?? '', type);
 
   if ('error' in document) {
     return res.status(400).json({ error: document.error });
@@ -195,12 +195,13 @@ routes.post('/:projectId/documents', authenticate, async (req, res) => {
 
 routes.get('/:projectId/documents', authenticate, async (req, res) => {
   const { projectId } = req.params;
+  const { type } = req.query as { type?: string };
 
   if (!projectId) {
     return res.status(400).json({ error: 'projectId required' });
   }
 
-  const documents = await repo.listDocumentsByProject(projectId);
+  const documents = await repo.listDocumentsByProject(projectId, type as any);
 
   if ('error' in documents) {
     return res.status(400).json({ error: documents.error });

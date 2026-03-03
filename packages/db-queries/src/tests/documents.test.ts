@@ -82,6 +82,7 @@ describe('DocumentDB', () => {
         project_id: input.projectId,
         name: input.name,
         content: input.content,
+        type: 'doc',
       })
       expect(result).toEqual(expected)
     })

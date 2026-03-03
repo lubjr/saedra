@@ -1,20 +1,21 @@
 import { serviceClient } from "@repo/db-connector/db";
 
 type DocumentDBType = {
-  insertDocument(projectId: string, name: string, content: string): Promise<any>;
-  getDocumentsByProject(projectId: string): Promise<any>;
+  insertDocument(projectId: string, name: string, content: string, type?: string): Promise<any>;
+  getDocumentsByProject(projectId: string, type?: string): Promise<any>;
   getDocumentById(documentId: string): Promise<any>;
   updateDocumentById(documentId: string, content: string): Promise<any>;
   deleteDocumentById(documentId: string): Promise<any>;
 }
 
 export const DocumentDB: DocumentDBType = {
-  async insertDocument(projectId: string, name: string, content: string) {
-    return serviceClient.from('documents').insert({ project_id: projectId, name, content }).select().single();
+  async insertDocument(projectId: string, name: string, content: string, type = 'doc') {
+    return serviceClient.from('documents').insert({ project_id: projectId, name, content, type }).select().single();
   },
 
-  async getDocumentsByProject(projectId: string) {
-    return serviceClient.from('documents').select('*').eq('project_id', projectId);
+  async getDocumentsByProject(projectId: string, type?: string) {
+    const query = serviceClient.from('documents').select('*').eq('project_id', projectId);
+    return type ? query.eq('type', type) : query;
   },
 
   async getDocumentById(documentId: string) {
