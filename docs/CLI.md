@@ -314,6 +314,110 @@ $ saedra doc delete
 Document deleted successfully.
 ```
 
+### `saedra memory state view`
+
+Display the current architecture state of the linked project.
+
+```bash
+$ saedra memory state view
+Using project: my-infra (from .saedra)
+
+  Architecture State — my-infra
+  Version: 2026-03-04
+
+  Summary:
+    Monorepo with three packages: cli, db-queries, project-service.
+
+  Core Principles:
+    - Single source of truth in Supabase
+    - CLI is stateless except for ~/.saedra/config.json
+
+  Critical Paths:
+    - auth token → all API calls
+
+  Constraints:
+    - No direct DB access from CLI
+
+  Active Decisions:
+    - DEC-2026-03-04-document-type
+```
+
+If no state exists yet, it prompts to create one with `saedra memory state update`.
+
+### `saedra memory state update`
+
+Interactively fill in or overwrite the architecture state. Creates the record if none exists, or updates it in place.
+
+```bash
+$ saedra memory state update
+Using project: my-infra (from .saedra)
+
+  Architecture State — Update
+
+? Summary (describe the current architecture): Monorepo with three packages...
+  Core principles: (enter each item, empty line to finish)
+  [1] Single source of truth in Supabase
+  [2]
+  Critical paths: (enter each item, empty line to finish)
+  [1] auth token → all API calls
+  [2]
+  Constraints: (enter each item, empty line to finish)
+  [1] No direct DB access from CLI
+  [2]
+  Active decision IDs (e.g. DEC-2026-03-04-auth): (enter each item, empty line to finish)
+  [1] DEC-2026-03-04-document-type
+  [2]
+? Save this architecture state? (Y/n)
+
+Architecture state updated successfully.
+```
+
+### `saedra memory decision add`
+
+Record a new architectural decision. Generates an ID in the format `DEC-YYYY-MM-DD-slug` and stores it as a structured document of `type=decision`.
+
+```bash
+$ saedra memory decision add
+Using project: my-infra (from .saedra)
+
+  New Decision
+
+? Title: Use document type field for memory
+? Context (why was this decision needed?): Need to differentiate free docs from memory records.
+? Decision (what was decided?): Add a type column to documents table.
+? Risk level: low
+  Impact: (enter each item, empty line to finish)
+  [1] All document queries must filter by type
+  [2]
+  Affected modules/domains: (enter each item, empty line to finish)
+  [1] db-queries
+  [2] project-service
+  [3]
+  Constraints introduced: (enter each item, empty line to finish)
+  [1]
+? Supersedes (decision ID, leave empty if none):
+? Save decision "DEC-2026-03-04-use-document-type-fie"? (Y/n)
+
+Decision "DEC-2026-03-04-use-document-type-fie" saved successfully.
+```
+
+### `saedra memory decision list`
+
+List all architectural decisions recorded for the project.
+
+```bash
+$ saedra memory decision list
+Using project: my-infra (from .saedra)
+
+  Decisions — my-infra
+
+  DEC-2026-03-04-use-document-type-fie
+    Title:    Use document type field for memory
+    Status:   active  Risk: [LOW]
+    Decision: Add a type column to documents table.
+    Affects:  db-queries, project-service
+```
+
 ### `saedra --version`
 
 Show the CLI version.
@@ -350,12 +454,15 @@ packages/cli/
 ├── tsconfig.json
 └── src/
     ├── index.ts            # Entry point - registers all commands
-    └── commands/
-        ├── login.ts        # Login, config management (getConfig, clearConfig, SaedraConfig)
-        ├── helpers.ts      # Shared interactive selectors (selectProject, selectDocument)
-        ├── context.ts      # .saedra context file management (init, findSaedraContext)
-        ├── projects.ts     # project create / list / delete
-        └── documents.ts    # doc create / list / read / edit / push / delete
+    ├── commands/
+    │   ├── login.ts        # Login, config management (getConfig, clearConfig, SaedraConfig)
+    │   ├── helpers.ts      # Shared interactive selectors (selectProject, selectDocument)
+    │   ├── context.ts      # .saedra context file management (init, findSaedraContext)
+    │   ├── projects.ts     # project create / list / delete
+    │   ├── documents.ts    # doc create / list / read / edit / push / delete
+    │   └── memory.ts       # memory state view/update, memory decision add/list
+    └── memory/
+        └── schemas.ts      # ArchitectureState, Decision, ChangeEvent, DocumentType
 ```
 
 ## Where credentials are stored

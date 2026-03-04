@@ -4,6 +4,12 @@ import { loginCommand } from "./commands/login.js";
 import { projectCreateCommand, projectDeleteCommand, projectListCommand } from "./commands/projects.js";
 import { docCreateCommand, docListCommand, docReadCommand, docEditCommand, docDeleteCommand, docPushCommand } from "./commands/documents.js";
 import { initCommand } from "./commands/context.js";
+import {
+  memoryStateCommand,
+  memoryStateUpdateCommand,
+  memoryDecisionAddCommand,
+  memoryDecisionListCommand,
+} from "./commands/memory.js";
 
 const program = new Command();
 
@@ -126,6 +132,18 @@ doc
   .command("delete")
   .description("Delete a document from a project")
   .action(docDeleteCommand);
+
+const memory = program
+  .command("memory")
+  .description("Manage architectural memory for this project");
+
+const state = memory.command("state").description("Manage architecture state");
+state.command("view").description("View current architecture state").action(memoryStateCommand);
+state.command("update").description("Update architecture state interactively").action(memoryStateUpdateCommand);
+
+const decision = memory.command("decision").description("Manage architectural decisions");
+decision.command("add").description("Record a new architectural decision").action(memoryDecisionAddCommand);
+decision.command("list").description("List all decisions").action(memoryDecisionListCommand);
 
 program.parse();
 
