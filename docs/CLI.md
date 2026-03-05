@@ -418,6 +418,75 @@ Using project: my-infra (from .saedra)
     Affects:  db-queries, project-service
 ```
 
+### `saedra memory change log`
+
+Log a change event interactively. Generates an ID in the format `CHG-YYYY-MM-DD-slug` and stores it as a structured document of `type=change`.
+
+```bash
+$ saedra memory change log
+Using project: my-infra (from .saedra)
+
+  New Change Event
+
+? Summary: Add memory change commands to CLI
+  Files changed: (enter each item, empty line to finish)
+  [1] packages/cli/src/commands/memory.ts
+  [2] packages/cli/src/index.ts
+  [3]
+? Architectural impact: Extends memory subcommand with change tracking
+? Risk assessment: low — additive only
+  Related decision IDs (e.g. DEC-2026-03-04-auth): (enter each item, empty line to finish)
+  [1] DEC-2026-03-04-use-document-type-fie
+  [2]
+? Save change "CHG-2026-03-05-add-memory-change-comm"? (Y/n)
+
+Change event "CHG-2026-03-05-add-memory-change-comm" saved successfully.
+```
+
+### `saedra memory change log --from-git`
+
+Same as `change log` but pre-fills `summary` from the last git commit message and `files_changed` from `git diff --name-only HEAD~1 HEAD`. Prompts for confirmation before using the pre-filled values.
+
+```bash
+$ saedra memory change log --from-git
+Using project: my-infra (from .saedra)
+
+  New Change Event
+
+? Summary: [pre-filled: Add memory change commands to CLI]
+  Files changed (pre-filled from git):
+    packages/cli/src/commands/memory.ts
+    packages/cli/src/index.ts
+? Use these files? (Y/n)
+? Architectural impact: Extends memory subcommand with change tracking
+? Risk assessment: low — additive only
+  Related decision IDs ...: (enter each item, empty line to finish)
+  [1]
+? Save change "CHG-2026-03-05-add-memory-change-comm"? (Y/n)
+
+Change event "CHG-2026-03-05-add-memory-change-comm" saved successfully.
+```
+
+Must be run inside a git repository with at least one commit.
+
+### `saedra memory change list`
+
+List all change events for the project in chronological order.
+
+```bash
+$ saedra memory change list
+Using project: my-infra (from .saedra)
+
+  Change Timeline — my-infra
+
+  CHG-2026-03-05-add-memory-change-comm
+    Summary: Add memory change commands to CLI
+    Impact:  Extends memory subcommand with change tracking
+    Risk:    low — additive only
+    Files:   packages/cli/src/commands/memory.ts, packages/cli/src/index.ts
+    Decisions: DEC-2026-03-04-use-document-type-fie
+```
+
 ### `saedra --version`
 
 Show the CLI version.
@@ -460,7 +529,7 @@ packages/cli/
     │   ├── context.ts      # .saedra context file management (init, findSaedraContext)
     │   ├── projects.ts     # project create / list / delete
     │   ├── documents.ts    # doc create / list / read / edit / push / delete
-    │   └── memory.ts       # memory state view/update, memory decision add/list
+    │   └── memory.ts       # memory state view/update, memory decision add/list, memory change log/list
     └── memory/
         └── schemas.ts      # ArchitectureState, Decision, ChangeEvent, DocumentType
 ```

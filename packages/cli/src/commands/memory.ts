@@ -1,7 +1,8 @@
+import { execSync } from "node:child_process";
 import { input, select, confirm } from "@inquirer/prompts";
 import { getConfig } from "./login.js";
 import { selectProject } from "./helpers.js";
-import type { ArchitectureState, Decision } from "../memory/schemas.js";
+import type { ArchitectureState, Decision, ChangeEvent } from "../memory/schemas.js";
 
 function requireAuth() {
   const config = getConfig();
@@ -299,6 +300,161 @@ export async function memoryDecisionAddCommand() {
     }
 
     console.log(`\nDecision "${id}" saved successfully.\n`);
+  } catch (err) {
+    console.error("\nFailed to connect to server:", (err as Error).message);
+    process.exit(1);
+  }
+}
+
+export async function memoryChangeLogCommand(fromGit = false) {
+  const config = requireAuth();
+  const project = await selectProject(config);
+
+  console.log("\n  New Change Event\n");
+
+  let summary = "";
+  let prefillFiles: string[] = [];
+
+  if (fromGit) {
+    try {
+      summary = execSync("git log -1 --pretty=%s").toString().trim();
+      const diff = execSync("git diff --name-only HEAD~1 HEAD").toString().trim();
+      prefillFiles = diff.split("\n").filter(Boolean);
+    } catch {
+      console.error(
+        "\nFailed to read git context. Make sure you are inside a git repository with at least one commit.\n"
+      );
+      process.exit(1);
+    }
+  }
+
+  const summaryInput = await input({
+    message: "Summary:",
+    default: summary || undefined,
+  });
+  if (!summaryInput.trim()) {
+    console.error("Summary cannot be empty.");
+    process.exit(1);
+  }
+
+  let files_changed: string[];
+  if (fromGit && prefillFiles.length) {
+    console.log(`\n  Files changed (pre-filled from git):`);
+    for (const f of prefillFiles) console.log(`    ${f}`);
+    const keep = await confirm({
+      message: "Use these files?",
+      default: true,
+    });
+    files_changed = keep ? prefillFiles : await promptList("Files changed:");
+  } else {
+    files_changed = await promptList("Files changed:");
+  }
+
+  const architectural_impact = await input({ message: "Architectural impact:" });
+  const risk_assessment = await input({ message: "Risk assessment:" });
+  const related_decisions = await promptList(
+    "Related decision IDs (e.g. DEC-2026-03-04-auth):"
+  );
+
+  const id = `CHG-${today()}-${slugify(summaryInput)}`;
+
+  const change: ChangeEvent = {
+    id,
+    summary: summaryInput.trim(),
+    related_decisions,
+    files_changed,
+    architectural_impact: architectural_impact.trim(),
+    risk_assessment: risk_assessment.trim(),
+    created_at: new Date().toISOString(),
+  };
+
+  const confirmed = await confirm({
+    message: `Save change "${id}"?`,
+    default: true,
+  });
+
+  if (!confirmed) {
+    console.log("\nAborted.\n");
+    return;
+  }
+
+  try {
+    const res = await fetch(`${config.apiUrl}/projects/${project.id}/documents`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${config.token}`,
+      },
+      body: JSON.stringify({
+        name: `${id}.json`,
+        content: JSON.stringify(change, null, 2),
+        type: "change",
+      }),
+    });
+
+    if (!res.ok) {
+      const error = await parseError(res);
+      console.error(`\nFailed to save change event: ${error}`);
+      process.exit(1);
+    }
+
+    console.log(`\nChange event "${id}" saved successfully.\n`);
+  } catch (err) {
+    console.error("\nFailed to connect to server:", (err as Error).message);
+    process.exit(1);
+  }
+}
+
+export async function memoryChangeListCommand() {
+  const config = requireAuth();
+  const project = await selectProject(config);
+
+  try {
+    const res = await fetch(
+      `${config.apiUrl}/projects/${project.id}/documents?type=change`,
+      { headers: { Authorization: `Bearer ${config.token}` } }
+    );
+
+    if (!res.ok) {
+      const error = await parseError(res);
+      console.error(`\nFailed to list changes: ${error}`);
+      process.exit(1);
+    }
+
+    const docs = (await res.json()) as Array<{
+      id: string;
+      name: string;
+      content: string;
+      created_at: string;
+    }>;
+
+    if (!docs.length) {
+      console.log(
+        "\nNo change events found. Log one with: saedra memory change log\n"
+      );
+      return;
+    }
+
+    console.log(`\n  Change Timeline — ${project.name}\n`);
+
+    for (const doc of docs) {
+      try {
+        const chg = JSON.parse(doc.content) as ChangeEvent;
+        console.log(`  ${chg.id}`);
+        console.log(`    Summary: ${chg.summary}`);
+        if (chg.architectural_impact)
+          console.log(`    Impact:  ${chg.architectural_impact}`);
+        if (chg.risk_assessment)
+          console.log(`    Risk:    ${chg.risk_assessment}`);
+        if (chg.files_changed?.length)
+          console.log(`    Files:   ${chg.files_changed.join(", ")}`);
+        if (chg.related_decisions?.length)
+          console.log(`    Decisions: ${chg.related_decisions.join(", ")}`);
+        console.log();
+      } catch {
+        console.log(`  ${doc.name} (malformed)\n`);
+      }
+    }
   } catch (err) {
     console.error("\nFailed to connect to server:", (err as Error).message);
     process.exit(1);

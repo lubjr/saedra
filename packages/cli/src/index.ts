@@ -9,6 +9,8 @@ import {
   memoryStateUpdateCommand,
   memoryDecisionAddCommand,
   memoryDecisionListCommand,
+  memoryChangeLogCommand,
+  memoryChangeListCommand,
 } from "./commands/memory.js";
 
 const program = new Command();
@@ -144,6 +146,14 @@ state.command("update").description("Update architecture state interactively").a
 const decision = memory.command("decision").description("Manage architectural decisions");
 decision.command("add").description("Record a new architectural decision").action(memoryDecisionAddCommand);
 decision.command("list").description("List all decisions").action(memoryDecisionListCommand);
+
+const change = memory.command("change").description("Manage change events");
+change
+  .command("log")
+  .description("Log a change event (manual or from git)")
+  .option("--from-git", "Pre-fill from last git commit")
+  .action((opts: { fromGit?: boolean }) => memoryChangeLogCommand(opts.fromGit));
+change.command("list").description("List recent change events").action(memoryChangeListCommand);
 
 program.parse();
 
