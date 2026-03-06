@@ -306,9 +306,71 @@ export async function memoryDecisionAddCommand() {
   }
 }
 
-export async function memoryChangeLogCommand(fromGit = false) {
+export async function memoryChangeLogCommand(fromGit = false, noPrompt = false) {
   const config = requireAuth();
   const project = await selectProject(config);
+
+  if (noPrompt) {
+    if (!fromGit) {
+      console.error("--no-prompt requires --from-git.");
+      process.exit(1);
+    }
+
+    let summary = "";
+    let files_changed: string[] = [];
+
+    try {
+      summary = execSync("git log -1 --pretty=%s").toString().trim();
+      const diff = execSync("git diff --name-only HEAD~1 HEAD").toString().trim();
+      files_changed = diff.split("\n").filter(Boolean);
+    } catch {
+      console.error("\nFailed to read git context. Skipping change event.\n");
+      process.exit(1);
+    }
+
+    if (!summary) {
+      console.log("Empty commit message, skipping change event.\n");
+      return;
+    }
+
+    const id = `CHG-${today()}-${slugify(summary)}`;
+    const change: ChangeEvent = {
+      id,
+      summary,
+      related_decisions: [],
+      files_changed,
+      architectural_impact: "",
+      risk_assessment: "",
+      created_at: new Date().toISOString(),
+    };
+
+    try {
+      const res = await fetch(`${config.apiUrl}/projects/${project.id}/documents`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${config.token}`,
+        },
+        body: JSON.stringify({
+          name: `${id}.json`,
+          content: JSON.stringify(change, null, 2),
+          type: "change",
+        }),
+      });
+
+      if (!res.ok) {
+        const error = await parseError(res);
+        console.error(`\nFailed to save change event: ${error}`);
+        process.exit(1);
+      }
+
+      console.log(`Change event "${id}" saved.`);
+    } catch (err) {
+      console.error("Failed to connect to server:", (err as Error).message);
+      process.exit(1);
+    }
+    return;
+  }
 
   console.log("\n  New Change Event\n");
 

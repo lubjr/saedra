@@ -129,6 +129,33 @@ Uploading architecture.md... ✓
 
 The `.saedra` file can be committed (shared config) or added to `.gitignore` (personal config), depending on your preference.
 
+#### `saedra init --with-hooks`
+
+Links the project and also installs a git post-commit hook that automatically logs a change event after every commit.
+
+```bash
+$ saedra init --with-hooks
+
+? Select a project: > my-infra
+                      saedra-test
+
+Linked to project my-infra. Created .saedra
+  Created: .saedra-hooks/post-commit
+  Installed: .git/hooks/post-commit
+  Every commit will now log a change event automatically.
+  Tip: commit .saedra-hooks/ so teammates can install with: cp .saedra-hooks/post-commit .git/hooks/post-commit
+```
+
+The hook runs `saedra memory change log --from-git --no-prompt` on every commit, pre-filling the summary from the commit message and the file list from `git diff`. No manual interaction required.
+
+If `.git/hooks/post-commit` already exists, the hook is **not** overwritten. A message is shown with the manual copy command instead.
+
+Teammates can activate the hook from the committed `.saedra-hooks/` directory:
+
+```bash
+cp .saedra-hooks/post-commit .git/hooks/post-commit
+```
+
 ### `saedra project create`
 
 Create a new project linked to the logged-in account. Prompts for a project name.
@@ -468,6 +495,16 @@ Change event "CHG-2026-03-05-add-memory-change-comm" saved successfully.
 ```
 
 Must be run inside a git repository with at least one commit.
+
+#### `saedra memory change log --from-git --no-prompt`
+
+Fully automatic mode. Uses the commit message as summary and `git diff` as file list, skips all interactive prompts, and saves the change event directly. This is the mode used by the git hook installed via `saedra init --with-hooks`.
+
+```bash
+$ saedra memory change log --from-git --no-prompt
+Using project: my-infra (from .saedra)
+Change event "CHG-2026-03-06-add-git-hook-support" saved.
+```
 
 ### `saedra memory change list`
 
