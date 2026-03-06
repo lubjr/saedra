@@ -28,7 +28,8 @@ program
 program
   .command("init")
   .description("Link the current folder to a Saedra project")
-  .action(initCommand);
+  .option("--with-hooks", "Install git hooks for automatic change event tracking")
+  .action((opts: { withHooks?: boolean }) => initCommand(opts));
 
 program
   .command("whoami")
@@ -152,7 +153,9 @@ change
   .command("log")
   .description("Log a change event (manual or from git)")
   .option("--from-git", "Pre-fill from last git commit")
-  .action((opts: { fromGit?: boolean }) => memoryChangeLogCommand(opts.fromGit));
+  .option("--no-prompt", "Skip interactive prompts and save automatically (requires --from-git)")
+  .action((opts: { fromGit?: boolean; prompt: boolean }) =>
+    memoryChangeLogCommand(opts.fromGit, !opts.prompt));
 change.command("list").description("List recent change events").action(memoryChangeListCommand);
 
 program.parse();
