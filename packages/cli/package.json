@@ -14,8 +14,9 @@
     "dev": "tsup src/index.ts --format esm --watch"
   },
   "dependencies": {
-    "commander": "^13.1.0",
-    "@inquirer/prompts": "^7.5.0"
+    "@anthropic-ai/sdk": "^0.78.0",
+    "@inquirer/prompts": "^7.5.0",
+    "commander": "^13.1.0"
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",

@@ -4,9 +4,11 @@ import { loginCommand } from "./commands/login.js";
 import { projectCreateCommand, projectDeleteCommand, projectListCommand } from "./commands/projects.js";
 import { docCreateCommand, docListCommand, docReadCommand, docEditCommand, docDeleteCommand, docPushCommand } from "./commands/documents.js";
 import { initCommand } from "./commands/context.js";
+import { aiSetupCommand, aiStatusCommand, aiRemoveCommand } from "./commands/ai.js";
 import {
   memoryStateCommand,
   memoryStateUpdateCommand,
+  memoryStateUpdateAiCommand,
   memoryDecisionAddCommand,
   memoryDecisionListCommand,
   memoryChangeLogCommand,
@@ -136,13 +138,27 @@ doc
   .description("Delete a document from a project")
   .action(docDeleteCommand);
 
+const ai = program
+  .command("ai")
+  .description("Configure AI provider for AI-powered commands");
+
+ai.command("setup").description("Set up AI provider and API key").action(aiSetupCommand);
+ai.command("status").description("Show current AI configuration").action(aiStatusCommand);
+ai.command("remove").description("Remove AI configuration").action(aiRemoveCommand);
+
 const memory = program
   .command("memory")
   .description("Manage architectural memory for this project");
 
 const state = memory.command("state").description("Manage architecture state");
 state.command("view").description("View current architecture state").action(memoryStateCommand);
-state.command("update").description("Update architecture state interactively").action(memoryStateUpdateCommand);
+state
+  .command("update")
+  .description("Update architecture state (interactive or AI-powered)")
+  .option("--ai", "Generate state automatically using AI")
+  .action((opts: { ai?: boolean }) =>
+    opts.ai ? memoryStateUpdateAiCommand() : memoryStateUpdateCommand()
+  );
 
 const decision = memory.command("decision").description("Manage architectural decisions");
 decision.command("add").description("Record a new architectural decision").action(memoryDecisionAddCommand);

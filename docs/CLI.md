@@ -399,6 +399,51 @@ Using project: my-infra (from .saedra)
 Architecture state updated successfully.
 ```
 
+### `saedra memory state update --ai`
+
+Generates the architecture state automatically using AI. Fetches all active decisions and the last 10 change events, sends them to Claude, and proposes a compressed `ArchitectureState` for review before saving.
+
+Requires AI to be configured first via `saedra ai setup`.
+
+```bash
+$ saedra memory state update --ai
+Using project: my-infra (from .saedra)
+
+  AI Architecture Compression
+
+  Fetching project memory...
+  Found 2 active decision(s) and 5 change event(s).
+  Sending to Claude for compression...
+
+  Thinking...............................................
+
+  Proposed Architecture State:
+
+  Summary:
+    Monorepo (Turborepo + pnpm) combining auth, project management, AI via AWS Bedrock...
+
+  Core Principles:
+    - TypeScript strict across all packages
+    - ...
+
+  Critical Paths:
+    - apps/api → project-service → db-queries → db-connector → Supabase
+    - ...
+
+  Constraints:
+    - Node.js >= 18 required
+    - ...
+
+  Active Decisions:
+    - DEC-2026-03-09-use-supabase-as-primary-databa
+
+? Save this as the new architecture state? (Y/n)
+
+Architecture state updated successfully.
+```
+
+The AI reads the current state as context and evolves it — preserving what is still accurate and incorporating what changed.
+
 ### `saedra memory decision add`
 
 Record a new architectural decision. Generates an ID in the format `DEC-YYYY-MM-DD-slug` and stores it as a structured document of `type=decision`.
@@ -524,6 +569,52 @@ Using project: my-infra (from .saedra)
     Decisions: DEC-2026-03-04-use-document-type-fie
 ```
 
+### `saedra ai setup`
+
+Configure the AI provider and API key used by AI-powered commands (e.g. `saedra memory state update --ai`). The configuration is saved to `~/.saedra/ai.json` with restricted permissions (`0600`).
+
+```bash
+$ saedra ai setup
+
+  AI Setup
+
+? AI provider: > Claude (Anthropic)
+                 OpenAI
+? Anthropic API key (sk-ant-...): **********************
+
+  AI configured: claude
+
+  Config saved to: /home/user/.saedra/ai.json
+```
+
+If AI is already configured, prompts for confirmation before overwriting.
+
+### `saedra ai status`
+
+Show the currently configured AI provider and a masked version of the API key.
+
+```bash
+$ saedra ai status
+
+  AI Configuration
+
+  Provider: claude
+  API Key:  sk-ant-a...3f2d
+  Config:   /home/user/.saedra/ai.json
+```
+
+### `saedra ai remove`
+
+Remove the AI configuration.
+
+```bash
+$ saedra ai remove
+
+? Remove AI configuration (claude)? (y/N)
+
+  AI configuration removed.
+```
+
 ### `saedra --version`
 
 Show the CLI version.
@@ -566,7 +657,8 @@ packages/cli/
     │   ├── context.ts      # .saedra context file management (init, findSaedraContext)
     │   ├── projects.ts     # project create / list / delete
     │   ├── documents.ts    # doc create / list / read / edit / push / delete
-    │   └── memory.ts       # memory state view/update, memory decision add/list, memory change log/list
+    │   ├── memory.ts       # memory state view/update/update --ai, decision add/list, change log/list
+    │   └── ai.ts           # ai setup / status / remove (getAiConfig, AiConfig, AiProvider)
     └── memory/
         └── schemas.ts      # ArchitectureState, Decision, ChangeEvent, DocumentType
 ```
@@ -575,5 +667,6 @@ packages/cli/
 
 ```
 ~/.saedra/
-└── config.json    # { email, userId, apiUrl }
+├── config.json    # { email, userId, token, apiUrl }
+└── ai.json        # { provider, apiKey } — permissions 0600
 ```
