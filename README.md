@@ -15,7 +15,7 @@ Project management platform with AWS Bedrock integration.
 
 | Service | Provider | URL |
 |---------|----------|-----|
-| Frontend | Vercel | https://saedra-web.vercel.app |
+| Frontend | Vercel | [https://saedra-web.vercel.app](https://www.saedra.pro/) |
 | API | Render (Docker) | https://saedra-api.onrender.com |
 | Database | Supabase | (configured) |
 
