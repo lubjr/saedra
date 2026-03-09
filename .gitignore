@@ -40,3 +40,4 @@ yarn-error.log*
 # Project specific
 saedra
 .saedra
+.saedra-hooks

@@ -1,6 +1,7 @@
 import { execSync } from "node:child_process";
 import { input, select, confirm } from "@inquirer/prompts";
 import { getConfig } from "./login.js";
+import { getAiConfig } from "./ai.js";
 import { selectProject } from "./helpers.js";
 import type { ArchitectureState, Decision, ChangeEvent } from "../memory/schemas.js";
 
@@ -521,6 +522,193 @@ export async function memoryChangeListCommand() {
     console.error("\nFailed to connect to server:", (err as Error).message);
     process.exit(1);
   }
+}
+
+export async function memoryStateUpdateAiCommand() {
+  const config = requireAuth();
+  const project = await selectProject(config);
+
+  const aiConfig = getAiConfig();
+  if (!aiConfig) {
+    console.error("\n  AI not configured. Run: saedra ai setup\n");
+    process.exit(1);
+  }
+
+  console.log("\n  AI Architecture Compression\n");
+  console.log("  Fetching project memory...");
+
+  try {
+    const [decisionsRes, changesRes, stateRes] = await Promise.all([
+      fetch(`${config.apiUrl}/projects/${project.id}/documents?type=decision`, {
+        headers: { Authorization: `Bearer ${config.token}` },
+      }),
+      fetch(`${config.apiUrl}/projects/${project.id}/documents?type=change`, {
+        headers: { Authorization: `Bearer ${config.token}` },
+      }),
+      fetch(`${config.apiUrl}/projects/${project.id}/documents?type=architecture`, {
+        headers: { Authorization: `Bearer ${config.token}` },
+      }),
+    ]);
+
+    const decisionDocs = decisionsRes.ok
+      ? ((await decisionsRes.json()) as Array<{ content: string }>)
+      : [];
+    const decisions = decisionDocs
+      .map((d) => { try { return JSON.parse(d.content) as Decision; } catch { return null; } })
+      .filter((d): d is Decision => d !== null && d.status === "active");
+
+    const changeDocs = changesRes.ok
+      ? ((await changesRes.json()) as Array<{ content: string }>)
+      : [];
+    const changes = changeDocs
+      .slice(0, 10)
+      .map((d) => { try { return JSON.parse(d.content) as ChangeEvent; } catch { return null; } })
+      .filter((c): c is ChangeEvent => c !== null);
+
+    let currentState: ArchitectureState | null = null;
+    if (stateRes.ok) {
+      const stateDocs = (await stateRes.json()) as Array<{ content: string }>;
+      if (stateDocs.length) {
+        try { currentState = JSON.parse(stateDocs[0]!.content) as ArchitectureState; } catch { /* ignore */ }
+      }
+    }
+
+    if (!decisions.length && !changes.length) {
+      console.error("\n  No decisions or changes found. Add some before using AI compression.\n");
+      process.exit(1);
+    }
+
+    console.log(`  Found ${decisions.length} active decision(s) and ${changes.length} change event(s).`);
+    console.log("  Sending to Claude for compression...\n");
+
+    const prompt = buildCompressionPrompt(project.name, decisions, changes, currentState);
+
+    const Anthropic = (await import("@anthropic-ai/sdk")).default;
+    const anthropic = new Anthropic({ apiKey: aiConfig.apiKey });
+
+    let stateJson = "";
+    process.stdout.write("  Thinking");
+
+    const stream = anthropic.messages.stream({
+      model: "claude-opus-4-6",
+      max_tokens: 4096,
+      thinking: { type: "adaptive" },
+      system:
+        "You are an expert software architect. Compress architectural context into a structured JSON object. " +
+        "Return ONLY valid JSON matching the ArchitectureState schema — no markdown, no explanation, just the JSON object.",
+      messages: [{ role: "user", content: prompt }],
+    });
+
+    stream.on("text", () => process.stdout.write("."));
+    const message = await stream.finalMessage();
+    process.stdout.write("\n\n");
+
+    const textBlock = message.content.find((b) => b.type === "text");
+    if (!textBlock || textBlock.type !== "text") {
+      console.error("  Claude returned no text response.\n");
+      process.exit(1);
+    }
+    stateJson = textBlock.text.trim();
+
+    let proposed: ArchitectureState;
+    try {
+      const cleaned = stateJson.replace(/^```json?\s*/m, "").replace(/\s*```$/m, "").trim();
+      proposed = JSON.parse(cleaned) as ArchitectureState;
+    } catch {
+      console.error("  Claude returned invalid JSON:\n\n", stateJson, "\n");
+      process.exit(1);
+    }
+
+    proposed.version = today();
+
+    console.log("  Proposed Architecture State:\n");
+    console.log(`  Summary:\n    ${proposed.summary}\n`);
+    if (proposed.core_principles?.length) {
+      console.log("  Core Principles:");
+      for (const p of proposed.core_principles) console.log(`    - ${p}`);
+    }
+    if (proposed.critical_paths?.length) {
+      console.log("\n  Critical Paths:");
+      for (const p of proposed.critical_paths) console.log(`    - ${p}`);
+    }
+    if (proposed.constraints?.length) {
+      console.log("\n  Constraints:");
+      for (const c of proposed.constraints) console.log(`    - ${c}`);
+    }
+    if (proposed.active_decisions?.length) {
+      console.log("\n  Active Decisions:");
+      for (const d of proposed.active_decisions) console.log(`    - ${d}`);
+    }
+    console.log();
+
+    const confirmed = await confirm({
+      message: "Save this as the new architecture state?",
+      default: true,
+    });
+
+    if (!confirmed) {
+      console.log("\nAborted.\n");
+      return;
+    }
+
+    await upsertArchitectureState(config, project, proposed);
+  } catch (err) {
+    console.error("\n  Failed:", (err as Error).message, "\n");
+    process.exit(1);
+  }
+}
+
+function buildCompressionPrompt(
+  projectName: string,
+  decisions: Decision[],
+  changes: ChangeEvent[],
+  current: ArchitectureState | null
+): string {
+  const parts: string[] = [];
+
+  parts.push(`Project: ${projectName}`);
+  parts.push("");
+
+  if (current) {
+    parts.push("## Current Architecture State");
+    parts.push(JSON.stringify(current, null, 2));
+    parts.push("");
+  }
+
+  if (decisions.length) {
+    parts.push("## Active Decisions");
+    for (const d of decisions) {
+      parts.push(`### ${d.id}: ${d.title}`);
+      parts.push(`Context: ${d.context}`);
+      parts.push(`Decision: ${d.decision}`);
+      parts.push(`Affects: ${d.affects.join(", ")}`);
+      parts.push(`Risk: ${d.risk_level}`);
+      parts.push("");
+    }
+  }
+
+  if (changes.length) {
+    parts.push("## Recent Changes (last 10)");
+    for (const c of changes) {
+      parts.push(`### ${c.id}: ${c.summary}`);
+      if (c.architectural_impact) parts.push(`Impact: ${c.architectural_impact}`);
+      if (c.files_changed?.length) parts.push(`Files: ${c.files_changed.join(", ")}`);
+      parts.push("");
+    }
+  }
+
+  parts.push("## Task");
+  parts.push(
+    "Based on the above, generate a compressed ArchitectureState JSON object with exactly these fields:\n" +
+    "- version: string (YYYY-MM-DD)\n" +
+    "- summary: string (1-3 sentences capturing the essence of the current architecture)\n" +
+    "- core_principles: string[] (3-6 key engineering principles in use)\n" +
+    "- critical_paths: string[] (3-5 most important data/request flows)\n" +
+    "- constraints: string[] (hard constraints: Node version, package manager, required env vars, etc.)\n" +
+    `- active_decisions: string[] (IDs of active decisions exactly as listed above)`
+  );
+
+  return parts.join("\n");
 }
 
 export async function memoryDecisionListCommand() {
