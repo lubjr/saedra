@@ -1,5 +1,6 @@
-import { existsSync, readFileSync } from "node:fs";
-import { input } from "@inquirer/prompts";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { basename } from "node:path";
+import { input, select, confirm } from "@inquirer/prompts";
 import { getConfig } from "./login.js";
 import { selectProject, selectDocument } from "./helpers.js";
 
@@ -117,11 +118,37 @@ export async function docListCommand() {
   }
 }
 
-export async function docReadCommand() {
+export async function docReadCommand(docName?: string) {
   const config = requireAuth();
 
   const project = await selectProject(config);
-  const document = await selectDocument(config, project.id);
+
+  let document: { id: string; name: string };
+
+  if (docName) {
+    const res = await fetch(`${config.apiUrl}/projects/${project.id}/documents`, {
+      headers: { Authorization: `Bearer ${config.token}` },
+    });
+
+    if (!res.ok) {
+      console.error("\nFailed to fetch documents.");
+      process.exit(1);
+    }
+
+    const documents = (await res.json()) as Array<{ id: string; name: string }>;
+    const found = documents.find(
+      (d) => d.name.toLowerCase() === docName.toLowerCase()
+    );
+
+    if (!found) {
+      console.error(`\nDocument "${docName}" not found in project "${project.name}".`);
+      process.exit(1);
+    }
+
+    document = found;
+  } else {
+    document = await selectDocument(config, project.id);
+  }
 
   try {
     const res = await fetch(
@@ -191,6 +218,112 @@ export async function docEditCommand() {
   } catch (err) {
     console.error("\nFailed to connect to server:", (err as Error).message);
     process.exit(1);
+  }
+}
+
+export async function docPushCommand(filePath?: string) {
+  const config = requireAuth();
+
+  let resolvedPath: string;
+
+  if (!filePath) {
+    const mdFiles = readdirSync(process.cwd()).filter((f) => f.endsWith(".md"));
+    if (!mdFiles.length) {
+      console.error("No .md files found in the current directory.");
+      process.exit(1);
+    }
+    resolvedPath = await select({
+      message: "Select a file to push:",
+      choices: mdFiles.map((f) => ({ name: f, value: f })),
+    });
+  } else {
+    resolvedPath = filePath;
+  }
+
+  const content = readFileContent(resolvedPath);
+  const name = basename(resolvedPath);
+
+  const project = await selectProject(config);
+
+  let existingDocId: string | null = null;
+
+  try {
+    const res = await fetch(`${config.apiUrl}/projects/${project.id}/documents`, {
+      headers: { Authorization: `Bearer ${config.token}` },
+    });
+
+    if (res.ok) {
+      const documents = (await res.json()) as Array<{ id: string; name: string }>;
+      const existing = documents.find((d) => d.name === name);
+      if (existing) existingDocId = existing.id;
+    }
+  } catch (err) {
+    console.error("\nFailed to connect to server:", (err as Error).message);
+    process.exit(1);
+  }
+
+  if (existingDocId) {
+    const confirmed = await confirm({
+      message: `Document "${name}" already exists in ${project.name}. Update it?`,
+      default: true,
+    });
+
+    if (!confirmed) {
+      console.log("\nAborted.\n");
+      return;
+    }
+
+    try {
+      const res = await fetch(
+        `${config.apiUrl}/projects/${project.id}/documents/${existingDocId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${config.token}`,
+          },
+          body: JSON.stringify({ content }),
+        }
+      );
+
+      if (!res.ok) {
+        const error = await parseError(res);
+        console.error(`\nFailed to update document: ${error}`);
+        process.exit(1);
+      }
+
+      console.log(`\nDocument "${name}" updated successfully.\n`);
+    } catch (err) {
+      console.error("\nFailed to connect to server:", (err as Error).message);
+      process.exit(1);
+    }
+  } else {
+    try {
+      const res = await fetch(`${config.apiUrl}/projects/${project.id}/documents`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${config.token}`,
+        },
+        body: JSON.stringify({ name, content }),
+      });
+
+      if (!res.ok) {
+        const error = await parseError(res);
+        console.error(`\nFailed to create document: ${error}`);
+        process.exit(1);
+      }
+
+      const document = (await res.json()) as { data?: { id: string; name: string } };
+      const data = document.data ?? (document as any);
+
+      console.log(`\nDocument created successfully!`);
+      console.log(`  Name: ${data.name}`);
+      console.log(`  ID:   ${data.id}\n`);
+    } catch (err) {
+      console.error("\nFailed to connect to server:", (err as Error).message);
+      process.exit(1);
+    }
   }
 }
 

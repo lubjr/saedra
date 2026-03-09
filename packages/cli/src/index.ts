@@ -2,7 +2,16 @@
 import { Command } from "commander";
 import { loginCommand } from "./commands/login.js";
 import { projectCreateCommand, projectDeleteCommand, projectListCommand } from "./commands/projects.js";
-import { docCreateCommand, docListCommand, docReadCommand, docEditCommand, docDeleteCommand } from "./commands/documents.js";
+import { docCreateCommand, docListCommand, docReadCommand, docEditCommand, docDeleteCommand, docPushCommand } from "./commands/documents.js";
+import { initCommand } from "./commands/context.js";
+import {
+  memoryStateCommand,
+  memoryStateUpdateCommand,
+  memoryDecisionAddCommand,
+  memoryDecisionListCommand,
+  memoryChangeLogCommand,
+  memoryChangeListCommand,
+} from "./commands/memory.js";
 
 const program = new Command();
 
@@ -15,6 +24,12 @@ program
   .command("login")
   .description("Log in to your Saedra account")
   .action(loginCommand);
+
+program
+  .command("init")
+  .description("Link the current folder to a Saedra project")
+  .option("--with-hooks", "Install git hooks for automatic change event tracking")
+  .action((opts: { withHooks?: boolean }) => initCommand(opts));
 
 program
   .command("whoami")
@@ -102,7 +117,7 @@ doc
   .action(docListCommand);
 
 doc
-  .command("read")
+  .command("read [document]")
   .description("Read the content of a document")
   .action(docReadCommand);
 
@@ -112,9 +127,36 @@ doc
   .action(docEditCommand);
 
 doc
+  .command("push [file]")
+  .description("Push a local .md file to a project (create or update)")
+  .action(docPushCommand);
+
+doc
   .command("delete")
   .description("Delete a document from a project")
   .action(docDeleteCommand);
+
+const memory = program
+  .command("memory")
+  .description("Manage architectural memory for this project");
+
+const state = memory.command("state").description("Manage architecture state");
+state.command("view").description("View current architecture state").action(memoryStateCommand);
+state.command("update").description("Update architecture state interactively").action(memoryStateUpdateCommand);
+
+const decision = memory.command("decision").description("Manage architectural decisions");
+decision.command("add").description("Record a new architectural decision").action(memoryDecisionAddCommand);
+decision.command("list").description("List all decisions").action(memoryDecisionListCommand);
+
+const change = memory.command("change").description("Manage change events");
+change
+  .command("log")
+  .description("Log a change event (manual or from git)")
+  .option("--from-git", "Pre-fill from last git commit")
+  .option("--no-prompt", "Skip interactive prompts and save automatically (requires --from-git)")
+  .action((opts: { fromGit?: boolean; prompt: boolean }) =>
+    memoryChangeLogCommand(opts.fromGit, !opts.prompt));
+change.command("list").description("List recent change events").action(memoryChangeListCommand);
 
 program.parse();
 

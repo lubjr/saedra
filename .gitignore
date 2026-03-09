@@ -38,4 +38,5 @@ yarn-error.log*
 *.pem
 
 # Project specific
-.plans
+saedra
+.saedra
