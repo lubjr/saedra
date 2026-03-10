@@ -1,0 +1,34 @@
+{
+  "name": "@saedra/docs",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "generate": "tsx scripts/generate-docs.ts",
+    "dev": "pnpm generate && next dev --turbopack --port 3002",
+    "build": "pnpm generate && next build",
+    "start": "next start",
+    "lint": "next lint --max-warnings 0",
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "fumadocs-ui": "^15",
+    "fumadocs-core": "^15",
+    "fumadocs-mdx": "^11",
+    "next": "^16.1.6",
+    "react": "^19",
+    "react-dom": "^19"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@tailwindcss/postcss": "^4",
+    "@ttoss/eslint-config": "^1.26.4",
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9.31.0",
+    "tailwindcss": "^4",
+    "tsx": "^4",
+    "typescript": "^5.8"
+  }
+}
