@@ -30,7 +30,7 @@ export const DocsSection = () => {
         Explore our guides and API reference to get the most out of Saedra
       </p>
 
-      <div className="grid gap-6 md:grid-cols-3 w-full mb-12">
+      <div className="grid gap-6 md:grid-cols-2 w-full max-w-2xl mb-12">
         {docCategories.map((category) => {
           const IconComponent = category.icon;
           return (
