@@ -9,10 +9,10 @@ import {
 
 export const Menu = () => {
   const links = [
-    { href: "https://docs.saedra.pro", label: "Docs", external: true },
-    { href: "#blog", label: "Blog", external: false },
-    { href: "#pricing", label: "Pricing", external: false },
-    { href: "#about", label: "About", external: false },
+    { href: "#docs", label: "Docs" },
+    { href: "#blog", label: "Blog" },
+    { href: "#pricing", label: "Pricing" },
+    { href: "#about", label: "About" },
   ];
 
   const handleScrollTo = (
@@ -44,20 +44,16 @@ export const Menu = () => {
     <div className="flex items-center gap-4">
       <NavigationMenu>
         <NavigationMenuList>
-          {links.map(({ href, label, external }) => {
+          {links.map(({ href, label }) => {
             return (
               <NavigationMenuItem key={href}>
                 <NavigationMenuLink asChild>
                   <a
                     href={href}
                     className={`${navigationMenuTriggerStyle()} bg-zinc-900`}
-                    {...(external
-                      ? { target: "_blank", rel: "noopener noreferrer" }
-                      : {
-                          onClick: (e) => {
-                            return handleScrollTo(e, href);
-                          },
-                        })}
+                    onClick={(e) => {
+                      return handleScrollTo(e, href);
+                    }}
                   >
                     {label}
                   </a>

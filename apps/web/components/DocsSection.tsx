@@ -1,31 +1,21 @@
 "use client";
 
 import { CardContent } from "@repo/ui/card";
-import {
-  ArrowUpRightIcon,
-  BookOpenIcon,
-  CodeIcon,
-  ZapIcon,
-} from "@repo/ui/lucide";
+import { ArrowUpRightIcon, BookOpenIcon, CodeIcon } from "@repo/ui/lucide";
 
 const docCategories = [
   {
     title: "Getting Started",
-    description: "Learn the basics and set up your first analysis.",
+    description: "Install the CLI, authenticate and set up your first project.",
     icon: BookOpenIcon,
     href: "https://docs.saedra.pro/docs/cli/getting-started",
   },
   {
-    title: "API Reference",
-    description: "Complete documentation for integrations.",
+    title: "CLI Reference",
+    description:
+      "Full reference for all commands: projects, documents, memory and AI.",
     icon: CodeIcon,
-    href: "https://docs.saedra.pro",
-  },
-  {
-    title: "Quick Guides",
-    description: "Step-by-step tutorials for common use cases.",
-    icon: ZapIcon,
-    href: "https://docs.saedra.pro",
+    href: "https://docs.saedra.pro/docs/cli/auth",
   },
 ];
 
