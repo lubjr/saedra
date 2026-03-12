@@ -14,6 +14,7 @@ import {
   memoryChangeLogCommand,
   memoryChangeListCommand,
 } from "./commands/memory.js";
+import { contextCommand, explainCommand } from "./commands/arch-context.js";
 
 const program = new Command();
 
@@ -145,6 +146,17 @@ const ai = program
 ai.command("setup").description("Set up AI provider and API key").action(aiSetupCommand);
 ai.command("status").description("Show current AI configuration").action(aiStatusCommand);
 ai.command("remove").description("Remove AI configuration").action(aiRemoveCommand);
+
+program
+  .command("context")
+  .description("Print a compressed architecture context (ideal for AI prompts)")
+  .option("--json", "Output as JSON")
+  .action((opts: { json?: boolean }) => contextCommand(opts));
+
+program
+  .command("explain")
+  .description("Print a human-readable architecture overview (ideal for onboarding)")
+  .action(explainCommand);
 
 const memory = program
   .command("memory")
