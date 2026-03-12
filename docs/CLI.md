@@ -569,6 +569,93 @@ Using project: my-infra (from .saedra)
     Decisions: DEC-2026-03-04-use-document-type-fie
 ```
 
+### `saedra context`
+
+Print a compressed architecture context designed to be injected into AI prompts. Fetches the architecture state, active decisions, and the 5 most recent change events in parallel, then formats them as a single block.
+
+```bash
+$ saedra context
+Using project: my-infra (from .saedra)
+
+  [ARCHITECTURE CONTEXT — my-infra]
+
+  Summary:
+    Monorepo (Turborepo + pnpm) with auth, project management, and AI via AWS Bedrock.
+
+  Core Principles:
+    - TypeScript strict across all packages
+    - Supabase as single source of truth
+    - CLI stateless except ~/.saedra/config.json
+
+  Critical Paths:
+    - apps/api → project-service → db-queries → db-connector → Supabase
+
+  Constraints:
+    - Node.js >= 18
+    - No direct DB access from CLI
+
+  Active Decisions (2):
+    - DEC-2026-03-04-use-document-type-fie
+    - DEC-2026-03-09-use-supabase-as-primary-databa
+
+  Recent Changes (3):
+    - CHG-2026-03-06-add-git-hook-support — Add git hook support
+    - CHG-2026-03-05-add-memory-change-comm — Add memory change commands to CLI
+    - CHG-2026-03-04-add-type-column — Add type column to documents table
+```
+
+#### `saedra context --json`
+
+Output the full context as JSON. Useful for piping into other tools or feeding into AI APIs programmatically.
+
+```bash
+$ saedra context --json
+{
+  "project": "my-infra",
+  "state": { "summary": "...", "core_principles": [...], ... },
+  "decisions": [...],
+  "changes": [...]
+}
+```
+
+---
+
+### `saedra explain`
+
+Print a human-readable architecture overview. Same data as `saedra context` but formatted for onboarding new developers or quickly understanding an unfamiliar repository.
+
+```bash
+$ saedra explain
+Using project: my-infra (from .saedra)
+
+  my-infra — Architecture Overview
+
+  What is this project?
+    Monorepo (Turborepo + pnpm) with auth, project management, and AI via AWS Bedrock.
+
+  Communication Patterns:
+    - apps/api → project-service → db-queries → db-connector → Supabase
+
+  Core Principles:
+    - TypeScript strict across all packages
+    - Supabase as single source of truth
+
+  Constraints:
+    - Node.js >= 18
+    - No direct DB access from CLI
+
+  Key Decisions:
+    - Use document type field for memory (DEC-2026-03-04-use-document-type-fie)
+    - Use Supabase as primary database (DEC-2026-03-09-use-supabase-as-primary-databa)
+
+  Recent Changes:
+    - [2026-03-06] Add git hook support
+    - [2026-03-05] Add memory change commands to CLI
+    - [2026-03-04] Add type column to documents table
+```
+
+---
+
 ### `saedra ai setup`
 
 Configure the AI provider and API key used by AI-powered commands (e.g. `saedra memory state update --ai`). The configuration is saved to `~/.saedra/ai.json` with restricted permissions (`0600`).
@@ -655,6 +742,7 @@ packages/cli/
     │   ├── login.ts        # Login, config management (getConfig, clearConfig, SaedraConfig)
     │   ├── helpers.ts      # Shared interactive selectors (selectProject, selectDocument)
     │   ├── context.ts      # .saedra context file management (init, findSaedraContext)
+    │   ├── arch-context.ts # context / explain commands (contextCommand, explainCommand)
     │   ├── projects.ts     # project create / list / delete
     │   ├── documents.ts    # doc create / list / read / edit / push / delete
     │   ├── memory.ts       # memory state view/update/update --ai, decision add/list, change log/list
