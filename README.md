@@ -15,7 +15,8 @@ Project management platform with AWS Bedrock integration.
 
 | Service | Provider | URL |
 |---------|----------|-----|
-| Frontend | Vercel | [https://saedra.pro](https://saedra.pro) |
+| Frontend | Vercel | [https://saedra.pro](https://www.saedra.pro) |
+| Docs | Vercel | [https://docs.saedra.pro](https://docs.saedra.pro) |
 | API | Render (Docker) | [https://api.saedra.pro](https://api.saedra.pro) |
 | Database | Supabase | (configured) |
 
@@ -28,6 +29,7 @@ Project management platform with AWS Bedrock integration.
 apps/
   web/          # Next.js frontend
   api/          # Express backend
+  docs/         # Documentation (Fumadocs)
 packages/
   db-connector/       # Supabase connection
   db-queries/         # Database queries
