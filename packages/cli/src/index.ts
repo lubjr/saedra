@@ -5,6 +5,7 @@ import { projectCreateCommand, projectDeleteCommand, projectListCommand } from "
 import { docCreateCommand, docListCommand, docReadCommand, docEditCommand, docDeleteCommand, docPushCommand } from "./commands/documents.js";
 import { initCommand } from "./commands/context.js";
 import { aiSetupCommand, aiStatusCommand, aiRemoveCommand } from "./commands/ai.js";
+import { aiFeatureCommand } from "./commands/feature.js";
 import {
   memoryStateCommand,
   memoryStateUpdateCommand,
@@ -146,6 +147,10 @@ const ai = program
 ai.command("setup").description("Set up AI provider and API key").action(aiSetupCommand);
 ai.command("status").description("Show current AI configuration").action(aiStatusCommand);
 ai.command("remove").description("Remove AI configuration").action(aiRemoveCommand);
+ai
+  .command("feature [description]")
+  .description("Generate architecture-aligned implementation guidance for a feature")
+  .action((description?: string) => aiFeatureCommand(description));
 
 program
   .command("context")

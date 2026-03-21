@@ -11,7 +11,7 @@ function requireAuth() {
   return config;
 }
 
-async function fetchState(
+export async function fetchState(
   apiUrl: string,
   projectId: string,
   token: string
@@ -38,7 +38,7 @@ async function fetchState(
   }
 }
 
-async function fetchDecisions(
+export async function fetchDecisions(
   apiUrl: string,
   projectId: string,
   token: string
@@ -59,7 +59,7 @@ async function fetchDecisions(
   return decisions;
 }
 
-async function fetchChanges(
+export async function fetchChanges(
   apiUrl: string,
   projectId: string,
   token: string,

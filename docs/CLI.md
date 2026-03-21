@@ -702,6 +702,47 @@ $ saedra ai remove
   AI configuration removed.
 ```
 
+### `saedra ai feature [description]`
+
+Generate architecture-aligned implementation guidance for a feature. Loads the full project context (architecture state, active decisions, recent changes) and sends it alongside your description to Claude, streaming the response directly to the terminal.
+
+Requires AI to be configured first via `saedra ai setup`. Currently supports Claude only.
+
+```bash
+$ saedra ai feature "implement team creation endpoint"
+Using project: my-infra (from .saedra)
+
+  AI Feature — Context Injection
+
+  Loading architecture state...   ✓
+  Active decisions loaded:        2
+  Recent changes loaded:          5
+  Sending to Claude...
+
+  ──────────────────────────────────────────────────
+  Suggestion for: implement team creation endpoint
+
+  ## Analysis
+  This feature fits naturally within the existing architecture...
+
+  ## Implementation Plan
+  1. Create teams table in Supabase (aligns with DEC-2026-03-09)
+  2. Add queries in packages/db-queries/src/teams.ts
+  ...
+
+  ## Constraints Applied
+  - No direct DB access — all queries go through db-queries
+  - TypeScript strict required
+  ──────────────────────────────────────────────────
+```
+
+When called without a description argument, prompts interactively:
+
+```bash
+$ saedra ai feature
+? Describe the feature you want to implement: implement team creation endpoint
+```
+
 ### `saedra --version`
 
 Show the CLI version.
@@ -742,11 +783,12 @@ packages/cli/
     │   ├── login.ts        # Login, config management (getConfig, clearConfig, SaedraConfig)
     │   ├── helpers.ts      # Shared interactive selectors (selectProject, selectDocument)
     │   ├── context.ts      # .saedra context file management (init, findSaedraContext)
-    │   ├── arch-context.ts # context / explain commands (contextCommand, explainCommand)
+    │   ├── arch-context.ts # context / explain commands (contextCommand, explainCommand, fetchState, fetchDecisions, fetchChanges)
     │   ├── projects.ts     # project create / list / delete
     │   ├── documents.ts    # doc create / list / read / edit / push / delete
     │   ├── memory.ts       # memory state view/update/update --ai, decision add/list, change log/list
-    │   └── ai.ts           # ai setup / status / remove (getAiConfig, AiConfig, AiProvider)
+    │   ├── ai.ts           # ai setup / status / remove (getAiConfig, AiConfig, AiProvider)
+    │   └── feature.ts      # ai feature (aiFeatureCommand)
     └── memory/
         └── schemas.ts      # ArchitectureState, Decision, ChangeEvent, DocumentType
 ```
