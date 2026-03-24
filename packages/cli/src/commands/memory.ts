@@ -3,7 +3,7 @@ import { input, select, confirm } from "@inquirer/prompts";
 import { getConfig } from "./login.js";
 import { getAiConfig } from "./ai.js";
 import { selectProject } from "./helpers.js";
-import type { ArchitectureState, Decision, ChangeEvent } from "../memory/schemas.js";
+import type { ArchitectureState, Decision, ChangeEvent, ViolationRule } from "../memory/schemas.js";
 
 function requireAuth() {
   const config = getConfig();
@@ -513,6 +513,126 @@ export async function memoryChangeListCommand() {
           console.log(`    Files:   ${chg.files_changed.join(", ")}`);
         if (chg.related_decisions?.length)
           console.log(`    Decisions: ${chg.related_decisions.join(", ")}`);
+        console.log();
+      } catch {
+        console.log(`  ${doc.name} (malformed)\n`);
+      }
+    }
+  } catch (err) {
+    console.error("\nFailed to connect to server:", (err as Error).message);
+    process.exit(1);
+  }
+}
+
+export async function memoryRuleAddCommand() {
+  const config = requireAuth();
+  const project = await selectProject(config);
+
+  console.log("\n  New Violation Rule\n");
+
+  const description = await input({ message: "Description (what must not happen?):" });
+  if (!description.trim()) {
+    console.error("Description cannot be empty.");
+    process.exit(1);
+  }
+
+  const severity = await select({
+    message: "Severity:",
+    choices: [
+      { name: "high", value: "high" },
+      { name: "medium", value: "medium" },
+      { name: "low", value: "low" },
+    ],
+  });
+
+  const related_decision = await input({
+    message: "Related decision (ID, leave empty if none):",
+  });
+
+  const id = `RULE-${today()}-${slugify(description)}`;
+
+  const rule: ViolationRule = {
+    id,
+    description: description.trim(),
+    severity: severity as ViolationRule["severity"],
+    related_decision: related_decision.trim() || null,
+    created_at: new Date().toISOString(),
+  };
+
+  const confirmed = await confirm({
+    message: `Save rule "${id}"?`,
+    default: true,
+  });
+
+  if (!confirmed) {
+    console.log("\nAborted.\n");
+    return;
+  }
+
+  try {
+    const res = await fetch(`${config.apiUrl}/projects/${project.id}/documents`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${config.token}`,
+      },
+      body: JSON.stringify({
+        name: `${id}.json`,
+        content: JSON.stringify(rule, null, 2),
+        type: "rule",
+      }),
+    });
+
+    if (!res.ok) {
+      const error = await parseError(res);
+      console.error(`\nFailed to save rule: ${error}`);
+      process.exit(1);
+    }
+
+    console.log(`\nRule "${id}" saved successfully.\n`);
+  } catch (err) {
+    console.error("\nFailed to connect to server:", (err as Error).message);
+    process.exit(1);
+  }
+}
+
+export async function memoryRuleListCommand() {
+  const config = requireAuth();
+  const project = await selectProject(config);
+
+  try {
+    const res = await fetch(
+      `${config.apiUrl}/projects/${project.id}/documents?type=rule`,
+      { headers: { Authorization: `Bearer ${config.token}` } }
+    );
+
+    if (!res.ok) {
+      const error = await parseError(res);
+      console.error(`\nFailed to list rules: ${error}`);
+      process.exit(1);
+    }
+
+    const docs = (await res.json()) as Array<{
+      id: string;
+      name: string;
+      content: string;
+      created_at: string;
+    }>;
+
+    if (!docs.length) {
+      console.log("\nNo rules found. Add one with: saedra memory rule add\n");
+      return;
+    }
+
+    console.log(`\n  Violation Rules — ${project.name}\n`);
+
+    for (const doc of docs) {
+      try {
+        const rule = JSON.parse(doc.content) as ViolationRule;
+        const badge = rule.severity === "high" ? "[HIGH]" : rule.severity === "medium" ? "[MED]" : "[LOW]";
+        console.log(`  ${rule.id}  ${badge}`);
+        console.log(`    Constraint: ${rule.description}`);
+        if (rule.related_decision) console.log(`    Decision:   ${rule.related_decision}`);
         console.log();
       } catch {
         console.log(`  ${doc.name} (malformed)\n`);

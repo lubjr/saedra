@@ -1,6 +1,6 @@
 import { getConfig } from "./login.js";
 import { selectProject } from "./helpers.js";
-import type { ArchitectureState, Decision, ChangeEvent } from "../memory/schemas.js";
+import type { ArchitectureState, Decision, ChangeEvent, ViolationRule } from "../memory/schemas.js";
 
 function requireAuth() {
   const config = getConfig();
@@ -80,19 +80,40 @@ export async function fetchChanges(
   return changes.slice(0, limit);
 }
 
+export async function fetchRules(
+  apiUrl: string,
+  projectId: string,
+  token: string
+): Promise<ViolationRule[]> {
+  const res = await fetch(`${apiUrl}/projects/${projectId}/documents?type=rule`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) return [];
+
+  const docs = (await res.json()) as Array<{ id: string; content: string }>;
+  const rules: ViolationRule[] = [];
+  for (const doc of docs) {
+    try {
+      rules.push(JSON.parse(doc.content) as ViolationRule);
+    } catch { /* skip malformed */ }
+  }
+  return rules;
+}
+
 export async function contextCommand(opts: { json?: boolean } = {}) {
   const config = requireAuth();
   const project = await selectProject(config);
 
   try {
-    const [state, decisions, changes] = await Promise.all([
+    const [state, decisions, changes, rules] = await Promise.all([
       fetchState(config.apiUrl, project.id, config.token),
       fetchDecisions(config.apiUrl, project.id, config.token),
       fetchChanges(config.apiUrl, project.id, config.token),
+      fetchRules(config.apiUrl, project.id, config.token),
     ]);
 
     if (opts.json) {
-      console.log(JSON.stringify({ project: project.name, state, decisions, changes }, null, 2));
+      console.log(JSON.stringify({ project: project.name, state, decisions, changes, rules }, null, 2));
       return;
     }
 
@@ -131,6 +152,15 @@ export async function contextCommand(opts: { json?: boolean } = {}) {
     if (changes.length) {
       console.log(`  Recent Changes (${changes.length}):`);
       for (const c of changes) console.log(`    - ${c.id} — ${c.summary}`);
+      console.log();
+    }
+
+    if (rules.length) {
+      console.log(`  Violation Rules (${rules.length}):`);
+      for (const r of rules) {
+        const badge = r.severity === "high" ? "[HIGH]" : r.severity === "medium" ? "[MED]" : "[LOW]";
+        console.log(`    - ${r.id} ${badge} — ${r.description}`);
+      }
       console.log();
     }
   } catch (err) {
