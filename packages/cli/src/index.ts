@@ -14,6 +14,8 @@ import {
   memoryDecisionListCommand,
   memoryChangeLogCommand,
   memoryChangeListCommand,
+  memoryRuleAddCommand,
+  memoryRuleListCommand,
 } from "./commands/memory.js";
 import { contextCommand, explainCommand } from "./commands/arch-context.js";
 
@@ -190,6 +192,10 @@ change
   .action((opts: { fromGit?: boolean; prompt: boolean }) =>
     memoryChangeLogCommand(opts.fromGit, !opts.prompt));
 change.command("list").description("List recent change events").action(memoryChangeListCommand);
+
+const rule = memory.command("rule").description("Manage architectural violation rules");
+rule.command("add").description("Add a new violation rule").action(memoryRuleAddCommand);
+rule.command("list").description("List all violation rules").action(memoryRuleListCommand);
 
 program.parse();
 

@@ -569,9 +569,47 @@ Using project: my-infra (from .saedra)
     Decisions: DEC-2026-03-04-use-document-type-fie
 ```
 
+### `saedra memory rule add`
+
+Add a new architectural violation rule. Generates an ID in the format `RULE-YYYY-MM-DD-slug` and stores it as a structured document of `type=rule`. Rules define constraints that must not be broken — they are the ground truth used by `saedra review`.
+
+```bash
+$ saedra memory rule add
+Using project: my-infra (from .saedra)
+
+  New Violation Rule
+
+? Description (what must not happen?): Controllers cannot import db-connector directly
+? Severity: > high
+              medium
+              low
+? Related decision (ID, leave empty if none): DEC-2026-03-04-use-document-type-fie
+
+? Save rule "RULE-2026-03-23-controllers-cannot-impor"? (Y/n)
+
+Rule "RULE-2026-03-23-controllers-cannot-impor" saved successfully.
+```
+
+### `saedra memory rule list`
+
+List all violation rules recorded for the project.
+
+```bash
+$ saedra memory rule list
+Using project: my-infra (from .saedra)
+
+  Violation Rules — my-infra
+
+  RULE-2026-03-23-controllers-cannot-impor  [HIGH]
+    Constraint: Controllers cannot import db-connector directly
+    Decision:   DEC-2026-03-04-use-document-type-fie
+```
+
+---
+
 ### `saedra context`
 
-Print a compressed architecture context designed to be injected into AI prompts. Fetches the architecture state, active decisions, and the 5 most recent change events in parallel, then formats them as a single block.
+Print a compressed architecture context designed to be injected into AI prompts. Fetches the architecture state, active decisions, the 5 most recent change events, and all violation rules in parallel, then formats them as a single block.
 
 ```bash
 $ saedra context
@@ -602,6 +640,9 @@ Using project: my-infra (from .saedra)
     - CHG-2026-03-06-add-git-hook-support — Add git hook support
     - CHG-2026-03-05-add-memory-change-comm — Add memory change commands to CLI
     - CHG-2026-03-04-add-type-column — Add type column to documents table
+
+  Violation Rules (1):
+    - RULE-2026-03-23-controllers-cannot-impor [HIGH] — Controllers cannot import db-connector directly
 ```
 
 #### `saedra context --json`
@@ -614,7 +655,8 @@ $ saedra context --json
   "project": "my-infra",
   "state": { "summary": "...", "core_principles": [...], ... },
   "decisions": [...],
-  "changes": [...]
+  "changes": [...],
+  "rules": [...]
 }
 ```
 
@@ -783,14 +825,14 @@ packages/cli/
     │   ├── login.ts        # Login, config management (getConfig, clearConfig, SaedraConfig)
     │   ├── helpers.ts      # Shared interactive selectors (selectProject, selectDocument)
     │   ├── context.ts      # .saedra context file management (init, findSaedraContext)
-    │   ├── arch-context.ts # context / explain commands (contextCommand, explainCommand, fetchState, fetchDecisions, fetchChanges)
+    │   ├── arch-context.ts # context / explain commands (contextCommand, explainCommand, fetchState, fetchDecisions, fetchChanges, fetchRules)
     │   ├── projects.ts     # project create / list / delete
     │   ├── documents.ts    # doc create / list / read / edit / push / delete
-    │   ├── memory.ts       # memory state view/update/update --ai, decision add/list, change log/list
+    │   ├── memory.ts       # memory state view/update/update --ai, decision add/list, change log/list, rule add/list
     │   ├── ai.ts           # ai setup / status / remove (getAiConfig, AiConfig, AiProvider)
     │   └── feature.ts      # ai feature (aiFeatureCommand)
     └── memory/
-        └── schemas.ts      # ArchitectureState, Decision, ChangeEvent, DocumentType
+        └── schemas.ts      # ArchitectureState, Decision, ChangeEvent, ViolationRule, DocumentType
 ```
 
 ## Where credentials are stored
