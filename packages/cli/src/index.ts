@@ -18,6 +18,7 @@ import {
   memoryRuleListCommand,
 } from "./commands/memory.js";
 import { contextCommand, explainCommand } from "./commands/arch-context.js";
+import { reviewCommand } from "./commands/review.js";
 
 const program = new Command();
 
@@ -164,6 +165,13 @@ program
   .command("explain")
   .description("Print a human-readable architecture overview (ideal for onboarding)")
   .action(explainCommand);
+
+program
+  .command("review")
+  .description("Validate current diff against violation rules and architectural decisions")
+  .option("--staged", "Analyze only staged files")
+  .option("--json", "Output results as JSON (exits with code 1 if violations found)")
+  .action((opts: { staged?: boolean; json?: boolean }) => reviewCommand(opts));
 
 const memory = program
   .command("memory")
