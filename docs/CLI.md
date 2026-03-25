@@ -785,6 +785,94 @@ $ saedra ai feature
 ? Describe the feature you want to implement: implement team creation endpoint
 ```
 
+### `saedra review`
+
+Validate the current diff against all violation rules and active architectural decisions. Loads changed files via `git diff HEAD`, fetches rules and decisions from the project, sends everything to Claude, and reports per-file results.
+
+Requires AI to be configured first via `saedra ai setup`. Currently supports Claude only.
+
+```bash
+$ saedra review
+Using project: my-infra (from .saedra)
+
+  Architectural Review
+
+  Analyzing 4 changed files...   ✓
+  Loaded 1 violation rule and 2 active decisions.
+  Sending to Claude...
+
+  ──────────────────────────────────────────────────
+
+  ⚠  VIOLATION  packages/cli/src/commands/projects.ts
+     Controller importing db-connector bypasses the query abstraction layer.
+     Violates: RULE-2026-03-23-controllers-cannot-impor — Controllers cannot import db-connector directly
+     Detail:   Import of @repo/db-connector found on line 3
+     Decision: DEC-2026-03-04-use-document-type-fie
+
+  ✓  OK  packages/db-queries/src/teams.ts
+     New module follows the existing db-queries pattern.
+
+  ✓  OK  apps/api/src/routes/teams.ts
+     Route follows the existing controller structure.
+
+  ✓  OK  packages/project-service/src/index.ts
+     No architectural concerns.
+
+  ──────────────────────────────────────────────────
+
+  Result: 1 violation — review before opening PR
+```
+
+#### `saedra review --staged`
+
+Analyze only files in the staging area (`git diff --staged`) instead of all changes since HEAD.
+
+```bash
+$ saedra review --staged
+```
+
+#### `saedra review --json`
+
+Output results as JSON. Exits with code `1` if any violations are found — intended for CI pipelines.
+
+```bash
+$ saedra review --json
+{
+  "project": "my-infra",
+  "total_violations": 1,
+  "files": [
+    {
+      "file": "packages/cli/src/commands/projects.ts",
+      "status": "violation",
+      "violations": [
+        {
+          "rule_id": "RULE-2026-03-23-controllers-cannot-impor",
+          "detail": "Import of @repo/db-connector found on line 3"
+        }
+      ],
+      "note": "Controller importing db-connector bypasses the query abstraction layer."
+    },
+    {
+      "file": "packages/db-queries/src/teams.ts",
+      "status": "ok",
+      "violations": [],
+      "note": "New module follows the existing db-queries pattern."
+    }
+  ]
+}
+```
+
+Use in GitHub Actions:
+
+```yaml
+- name: Saedra Architecture Review
+  run: saedra review --json
+  env:
+    SAEDRA_API_URL: ${{ secrets.SAEDRA_API_URL }}
+```
+
+---
+
 ### `saedra --version`
 
 Show the CLI version.
