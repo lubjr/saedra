@@ -159,7 +159,8 @@ program
   .command("context")
   .description("Print a compressed architecture context (ideal for AI prompts)")
   .option("--json", "Output as JSON")
-  .action((opts: { json?: boolean }) => contextCommand(opts));
+  .option("--copy", "Copy output to clipboard instead of printing")
+  .action((opts: { json?: boolean; copy?: boolean }) => contextCommand(opts));
 
 program
   .command("explain")

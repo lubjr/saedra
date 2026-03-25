@@ -660,6 +660,19 @@ $ saedra context --json
 }
 ```
 
+#### `saedra context --copy`
+
+Copy the context output directly to the clipboard instead of printing it. Useful for pasting into AI chat interfaces without piping or selecting text.
+
+```bash
+$ saedra context --copy
+Using project: my-infra (from .saedra)
+
+  Context copied to clipboard. (my-infra)
+```
+
+On Linux requires `xclip`, `xsel`, or `wl-clipboard` to be installed.
+
 ---
 
 ### `saedra explain`

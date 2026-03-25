@@ -100,7 +100,7 @@ export async function fetchRules(
   return rules;
 }
 
-export async function contextCommand(opts: { json?: boolean } = {}) {
+export async function contextCommand(opts: { json?: boolean; copy?: boolean } = {}) {
   const config = requireAuth();
   const project = await selectProject(config);
 
@@ -117,51 +117,63 @@ export async function contextCommand(opts: { json?: boolean } = {}) {
       return;
     }
 
-    console.log(`\n  [ARCHITECTURE CONTEXT — ${project.name}]\n`);
+    const lines: string[] = [];
+
+    lines.push(`\n  [ARCHITECTURE CONTEXT — ${project.name}]\n`);
 
     if (state) {
-      console.log(`  Summary:\n    ${state.summary}\n`);
+      lines.push(`  Summary:\n    ${state.summary}\n`);
 
       if (state.core_principles?.length) {
-        console.log("  Core Principles:");
-        for (const p of state.core_principles) console.log(`    - ${p}`);
-        console.log();
+        lines.push("  Core Principles:");
+        for (const p of state.core_principles) lines.push(`    - ${p}`);
+        lines.push("");
       }
 
       if (state.critical_paths?.length) {
-        console.log("  Critical Paths:");
-        for (const p of state.critical_paths) console.log(`    - ${p}`);
-        console.log();
+        lines.push("  Critical Paths:");
+        for (const p of state.critical_paths) lines.push(`    - ${p}`);
+        lines.push("");
       }
 
       if (state.constraints?.length) {
-        console.log("  Constraints:");
-        for (const c of state.constraints) console.log(`    - ${c}`);
-        console.log();
+        lines.push("  Constraints:");
+        for (const c of state.constraints) lines.push(`    - ${c}`);
+        lines.push("");
       }
     } else {
-      console.log("  No architecture state found. Run: saedra memory state update\n");
+      lines.push("  No architecture state found. Run: saedra memory state update\n");
     }
 
     if (decisions.length) {
-      console.log(`  Active Decisions (${decisions.length}):`);
-      for (const d of decisions) console.log(`    - ${d.id}`);
-      console.log();
+      lines.push(`  Active Decisions (${decisions.length}):`);
+      for (const d of decisions) lines.push(`    - ${d.id}`);
+      lines.push("");
     }
 
     if (changes.length) {
-      console.log(`  Recent Changes (${changes.length}):`);
-      for (const c of changes) console.log(`    - ${c.id} — ${c.summary}`);
-      console.log();
+      lines.push(`  Recent Changes (${changes.length}):`);
+      for (const c of changes) lines.push(`    - ${c.id} — ${c.summary}`);
+      lines.push("");
     }
 
     if (rules.length) {
-      console.log(`  Violation Rules (${rules.length}):`);
+      lines.push(`  Violation Rules (${rules.length}):`);
       for (const r of rules) {
         const badge = r.severity === "high" ? "[HIGH]" : r.severity === "medium" ? "[MED]" : "[LOW]";
-        console.log(`    - ${r.id} ${badge} — ${r.description}`);
+        lines.push(`    - ${r.id} ${badge} — ${r.description}`);
       }
-      console.log();
+      lines.push("");
+    }
+
+    const output = lines.join("\n");
+
+    if (opts.copy) {
+      const { default: clipboardy } = await import("clipboardy");
+      await clipboardy.write(output);
+      console.log(`\n  Context copied to clipboard. (${project.name})\n`);
+    } else {
+      console.log(output);
     }
   } catch (err) {
     console.error("\nFailed to connect to server:", (err as Error).message);
