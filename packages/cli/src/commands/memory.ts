@@ -831,6 +831,92 @@ function buildCompressionPrompt(
   return parts.join("\n");
 }
 
+export async function timelineCommand() {
+  const config = requireAuth();
+  const project = await selectProject(config);
+
+  try {
+    const [decisionsRes, changesRes] = await Promise.all([
+      fetch(`${config.apiUrl}/projects/${project.id}/documents?type=decision`, {
+        headers: { Authorization: `Bearer ${config.token}` },
+      }),
+      fetch(`${config.apiUrl}/projects/${project.id}/documents?type=change`, {
+        headers: { Authorization: `Bearer ${config.token}` },
+      }),
+    ]);
+
+    const decisionDocs = decisionsRes.ok
+      ? ((await decisionsRes.json()) as Array<{ content: string }>)
+      : [];
+    const changeDocs = changesRes.ok
+      ? ((await changesRes.json()) as Array<{ content: string }>)
+      : [];
+
+    interface TimelineEntry {
+      yearMonth: string;
+      date: string;
+      type: "DEC" | "CHG";
+      label: string;
+    }
+
+    const entries: TimelineEntry[] = [];
+
+    for (const doc of decisionDocs) {
+      try {
+        const dec = JSON.parse(doc.content) as Decision;
+        const date = extractDateFromId(dec.id, dec.created_at);
+        entries.push({ yearMonth: date.slice(0, 7), date, type: "DEC", label: dec.title });
+      } catch { /* skip malformed */ }
+    }
+
+    for (const doc of changeDocs) {
+      try {
+        const chg = JSON.parse(doc.content) as ChangeEvent;
+        const date = extractDateFromId(chg.id, chg.created_at);
+        entries.push({ yearMonth: date.slice(0, 7), date, type: "CHG", label: chg.summary });
+      } catch { /* skip malformed */ }
+    }
+
+    if (!entries.length) {
+      console.log(
+        "\n  No decisions or changes found. Start with:\n" +
+        "    saedra memory decision add\n" +
+        "    saedra memory change log\n"
+      );
+      return;
+    }
+
+    entries.sort((a, b) => a.date.localeCompare(b.date));
+
+    const groups = new Map<string, TimelineEntry[]>();
+    for (const entry of entries) {
+      const group = groups.get(entry.yearMonth) ?? [];
+      group.push(entry);
+      groups.set(entry.yearMonth, group);
+    }
+
+    console.log(`\n  Architecture Timeline — ${project.name}\n`);
+
+    for (const [yearMonth, groupEntries] of groups) {
+      console.log(`  ${yearMonth}`);
+      for (const entry of groupEntries) {
+        console.log(`    [${entry.type}] ${entry.label}`);
+      }
+      console.log();
+    }
+  } catch (err) {
+    console.error("\nFailed to connect to server:", (err as Error).message);
+    process.exit(1);
+  }
+}
+
+function extractDateFromId(id: string, createdAt?: string): string {
+  const match = id.match(/\d{4}-\d{2}-\d{2}/);
+  if (match) return match[0]!;
+  if (createdAt) return createdAt.slice(0, 10);
+  return "0000-00-00";
+}
+
 export async function memoryDecisionListCommand() {
   const config = requireAuth();
   const project = await selectProject(config);

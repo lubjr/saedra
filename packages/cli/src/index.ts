@@ -16,6 +16,7 @@ import {
   memoryChangeListCommand,
   memoryRuleAddCommand,
   memoryRuleListCommand,
+  timelineCommand,
 } from "./commands/memory.js";
 import { contextCommand, explainCommand } from "./commands/arch-context.js";
 import { reviewCommand } from "./commands/review.js";
@@ -166,6 +167,11 @@ program
   .command("explain")
   .description("Print a human-readable architecture overview (ideal for onboarding)")
   .action(explainCommand);
+
+program
+  .command("timeline")
+  .description("Show a chronological timeline of architectural decisions and changes")
+  .action(timelineCommand);
 
 program
   .command("review")

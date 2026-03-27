@@ -711,6 +711,29 @@ Using project: my-infra (from .saedra)
 
 ---
 
+### `saedra timeline`
+
+Show a chronological timeline of all architectural decisions and change events, grouped by month.
+
+```bash
+$ saedra timeline
+Using project: my-infra (from .saedra)
+
+  Architecture Timeline — my-infra
+
+  2026-03
+    [DEC] Use document type field for memory
+    [CHG] Add type column to documents table
+    [CHG] Add memory change commands to CLI
+    [DEC] Use Supabase as primary database
+    [CHG] Add git hook support
+
+```
+
+Entries are sorted chronologically within each month. `[DEC]` entries come from `saedra memory decision add` and `[CHG]` entries from `saedra memory change log`.
+
+---
+
 ### `saedra ai setup`
 
 Configure the AI provider and API key used by AI-powered commands (e.g. `saedra memory state update --ai`). The configuration is saved to `~/.saedra/ai.json` with restricted permissions (`0600`).
@@ -929,7 +952,7 @@ packages/cli/
     │   ├── arch-context.ts # context / explain commands (contextCommand, explainCommand, fetchState, fetchDecisions, fetchChanges, fetchRules)
     │   ├── projects.ts     # project create / list / delete
     │   ├── documents.ts    # doc create / list / read / edit / push / delete
-    │   ├── memory.ts       # memory state view/update/update --ai, decision add/list, change log/list, rule add/list
+    │   ├── memory.ts       # memory state view/update/update --ai, decision add/list, change log/list, rule add/list, timeline
     │   ├── ai.ts           # ai setup / status / remove (getAiConfig, AiConfig, AiProvider)
     │   └── feature.ts      # ai feature (aiFeatureCommand)
     └── memory/
