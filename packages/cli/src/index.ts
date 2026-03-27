@@ -5,6 +5,7 @@ import { projectCreateCommand, projectDeleteCommand, projectListCommand } from "
 import { docCreateCommand, docListCommand, docReadCommand, docEditCommand, docDeleteCommand, docPushCommand } from "./commands/documents.js";
 import { initCommand } from "./commands/context.js";
 import { aiSetupCommand, aiStatusCommand, aiRemoveCommand } from "./commands/ai.js";
+import { aiFeatureCommand } from "./commands/feature.js";
 import {
   memoryStateCommand,
   memoryStateUpdateCommand,
@@ -13,7 +14,11 @@ import {
   memoryDecisionListCommand,
   memoryChangeLogCommand,
   memoryChangeListCommand,
+  memoryRuleAddCommand,
+  memoryRuleListCommand,
 } from "./commands/memory.js";
+import { contextCommand, explainCommand } from "./commands/arch-context.js";
+import { reviewCommand } from "./commands/review.js";
 
 const program = new Command();
 
@@ -145,6 +150,29 @@ const ai = program
 ai.command("setup").description("Set up AI provider and API key").action(aiSetupCommand);
 ai.command("status").description("Show current AI configuration").action(aiStatusCommand);
 ai.command("remove").description("Remove AI configuration").action(aiRemoveCommand);
+ai
+  .command("feature [description]")
+  .description("Generate architecture-aligned implementation guidance for a feature")
+  .action((description?: string) => aiFeatureCommand(description));
+
+program
+  .command("context")
+  .description("Print a compressed architecture context (ideal for AI prompts)")
+  .option("--json", "Output as JSON")
+  .option("--copy", "Copy output to clipboard instead of printing")
+  .action((opts: { json?: boolean; copy?: boolean }) => contextCommand(opts));
+
+program
+  .command("explain")
+  .description("Print a human-readable architecture overview (ideal for onboarding)")
+  .action(explainCommand);
+
+program
+  .command("review")
+  .description("Validate current diff against violation rules and architectural decisions")
+  .option("--staged", "Analyze only staged files")
+  .option("--json", "Output results as JSON (exits with code 1 if violations found)")
+  .action((opts: { staged?: boolean; json?: boolean }) => reviewCommand(opts));
 
 const memory = program
   .command("memory")
@@ -173,6 +201,10 @@ change
   .action((opts: { fromGit?: boolean; prompt: boolean }) =>
     memoryChangeLogCommand(opts.fromGit, !opts.prompt));
 change.command("list").description("List recent change events").action(memoryChangeListCommand);
+
+const rule = memory.command("rule").description("Manage architectural violation rules");
+rule.command("add").description("Add a new violation rule").action(memoryRuleAddCommand);
+rule.command("list").description("List all violation rules").action(memoryRuleListCommand);
 
 program.parse();
 

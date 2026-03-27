@@ -31,4 +31,12 @@ export interface ChangeEvent {
   created_at: string;
 }
 
+export interface ViolationRule {
+  id: string;
+  description: string;
+  severity: "low" | "medium" | "high";
+  related_decision: string | null;
+  created_at: string;
+}
+
 export type DocumentType = "doc" | "architecture" | "decision" | "change" | "rule";

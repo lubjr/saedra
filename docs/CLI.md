@@ -569,6 +569,148 @@ Using project: my-infra (from .saedra)
     Decisions: DEC-2026-03-04-use-document-type-fie
 ```
 
+### `saedra memory rule add`
+
+Add a new architectural violation rule. Generates an ID in the format `RULE-YYYY-MM-DD-slug` and stores it as a structured document of `type=rule`. Rules define constraints that must not be broken — they are the ground truth used by `saedra review`.
+
+```bash
+$ saedra memory rule add
+Using project: my-infra (from .saedra)
+
+  New Violation Rule
+
+? Description (what must not happen?): Controllers cannot import db-connector directly
+? Severity: > high
+              medium
+              low
+? Related decision (ID, leave empty if none): DEC-2026-03-04-use-document-type-fie
+
+? Save rule "RULE-2026-03-23-controllers-cannot-impor"? (Y/n)
+
+Rule "RULE-2026-03-23-controllers-cannot-impor" saved successfully.
+```
+
+### `saedra memory rule list`
+
+List all violation rules recorded for the project.
+
+```bash
+$ saedra memory rule list
+Using project: my-infra (from .saedra)
+
+  Violation Rules — my-infra
+
+  RULE-2026-03-23-controllers-cannot-impor  [HIGH]
+    Constraint: Controllers cannot import db-connector directly
+    Decision:   DEC-2026-03-04-use-document-type-fie
+```
+
+---
+
+### `saedra context`
+
+Print a compressed architecture context designed to be injected into AI prompts. Fetches the architecture state, active decisions, the 5 most recent change events, and all violation rules in parallel, then formats them as a single block.
+
+```bash
+$ saedra context
+Using project: my-infra (from .saedra)
+
+  [ARCHITECTURE CONTEXT — my-infra]
+
+  Summary:
+    Monorepo (Turborepo + pnpm) with auth, project management, and AI via AWS Bedrock.
+
+  Core Principles:
+    - TypeScript strict across all packages
+    - Supabase as single source of truth
+    - CLI stateless except ~/.saedra/config.json
+
+  Critical Paths:
+    - apps/api → project-service → db-queries → db-connector → Supabase
+
+  Constraints:
+    - Node.js >= 18
+    - No direct DB access from CLI
+
+  Active Decisions (2):
+    - DEC-2026-03-04-use-document-type-fie
+    - DEC-2026-03-09-use-supabase-as-primary-databa
+
+  Recent Changes (3):
+    - CHG-2026-03-06-add-git-hook-support — Add git hook support
+    - CHG-2026-03-05-add-memory-change-comm — Add memory change commands to CLI
+    - CHG-2026-03-04-add-type-column — Add type column to documents table
+
+  Violation Rules (1):
+    - RULE-2026-03-23-controllers-cannot-impor [HIGH] — Controllers cannot import db-connector directly
+```
+
+#### `saedra context --json`
+
+Output the full context as JSON. Useful for piping into other tools or feeding into AI APIs programmatically.
+
+```bash
+$ saedra context --json
+{
+  "project": "my-infra",
+  "state": { "summary": "...", "core_principles": [...], ... },
+  "decisions": [...],
+  "changes": [...],
+  "rules": [...]
+}
+```
+
+#### `saedra context --copy`
+
+Copy the context output directly to the clipboard instead of printing it. Useful for pasting into AI chat interfaces without piping or selecting text.
+
+```bash
+$ saedra context --copy
+Using project: my-infra (from .saedra)
+
+  Context copied to clipboard. (my-infra)
+```
+
+On Linux requires `xclip`, `xsel`, or `wl-clipboard` to be installed.
+
+---
+
+### `saedra explain`
+
+Print a human-readable architecture overview. Same data as `saedra context` but formatted for onboarding new developers or quickly understanding an unfamiliar repository.
+
+```bash
+$ saedra explain
+Using project: my-infra (from .saedra)
+
+  my-infra — Architecture Overview
+
+  What is this project?
+    Monorepo (Turborepo + pnpm) with auth, project management, and AI via AWS Bedrock.
+
+  Communication Patterns:
+    - apps/api → project-service → db-queries → db-connector → Supabase
+
+  Core Principles:
+    - TypeScript strict across all packages
+    - Supabase as single source of truth
+
+  Constraints:
+    - Node.js >= 18
+    - No direct DB access from CLI
+
+  Key Decisions:
+    - Use document type field for memory (DEC-2026-03-04-use-document-type-fie)
+    - Use Supabase as primary database (DEC-2026-03-09-use-supabase-as-primary-databa)
+
+  Recent Changes:
+    - [2026-03-06] Add git hook support
+    - [2026-03-05] Add memory change commands to CLI
+    - [2026-03-04] Add type column to documents table
+```
+
+---
+
 ### `saedra ai setup`
 
 Configure the AI provider and API key used by AI-powered commands (e.g. `saedra memory state update --ai`). The configuration is saved to `~/.saedra/ai.json` with restricted permissions (`0600`).
@@ -615,6 +757,135 @@ $ saedra ai remove
   AI configuration removed.
 ```
 
+### `saedra ai feature [description]`
+
+Generate architecture-aligned implementation guidance for a feature. Loads the full project context (architecture state, active decisions, recent changes) and sends it alongside your description to Claude, streaming the response directly to the terminal.
+
+Requires AI to be configured first via `saedra ai setup`. Currently supports Claude only.
+
+```bash
+$ saedra ai feature "implement team creation endpoint"
+Using project: my-infra (from .saedra)
+
+  AI Feature — Context Injection
+
+  Loading architecture state...   ✓
+  Active decisions loaded:        2
+  Recent changes loaded:          5
+  Sending to Claude...
+
+  ──────────────────────────────────────────────────
+  Suggestion for: implement team creation endpoint
+
+  ## Analysis
+  This feature fits naturally within the existing architecture...
+
+  ## Implementation Plan
+  1. Create teams table in Supabase (aligns with DEC-2026-03-09)
+  2. Add queries in packages/db-queries/src/teams.ts
+  ...
+
+  ## Constraints Applied
+  - No direct DB access — all queries go through db-queries
+  - TypeScript strict required
+  ──────────────────────────────────────────────────
+```
+
+When called without a description argument, prompts interactively:
+
+```bash
+$ saedra ai feature
+? Describe the feature you want to implement: implement team creation endpoint
+```
+
+### `saedra review`
+
+Validate the current diff against all violation rules and active architectural decisions. Loads changed files via `git diff HEAD`, fetches rules and decisions from the project, sends everything to Claude, and reports per-file results.
+
+Requires AI to be configured first via `saedra ai setup`. Currently supports Claude only.
+
+```bash
+$ saedra review
+Using project: my-infra (from .saedra)
+
+  Architectural Review
+
+  Analyzing 4 changed files...   ✓
+  Loaded 1 violation rule and 2 active decisions.
+  Sending to Claude...
+
+  ──────────────────────────────────────────────────
+
+  ⚠  VIOLATION  packages/cli/src/commands/projects.ts
+     Controller importing db-connector bypasses the query abstraction layer.
+     Violates: RULE-2026-03-23-controllers-cannot-impor — Controllers cannot import db-connector directly
+     Detail:   Import of @repo/db-connector found on line 3
+     Decision: DEC-2026-03-04-use-document-type-fie
+
+  ✓  OK  packages/db-queries/src/teams.ts
+     New module follows the existing db-queries pattern.
+
+  ✓  OK  apps/api/src/routes/teams.ts
+     Route follows the existing controller structure.
+
+  ✓  OK  packages/project-service/src/index.ts
+     No architectural concerns.
+
+  ──────────────────────────────────────────────────
+
+  Result: 1 violation — review before opening PR
+```
+
+#### `saedra review --staged`
+
+Analyze only files in the staging area (`git diff --staged`) instead of all changes since HEAD.
+
+```bash
+$ saedra review --staged
+```
+
+#### `saedra review --json`
+
+Output results as JSON. Exits with code `1` if any violations are found — intended for CI pipelines.
+
+```bash
+$ saedra review --json
+{
+  "project": "my-infra",
+  "total_violations": 1,
+  "files": [
+    {
+      "file": "packages/cli/src/commands/projects.ts",
+      "status": "violation",
+      "violations": [
+        {
+          "rule_id": "RULE-2026-03-23-controllers-cannot-impor",
+          "detail": "Import of @repo/db-connector found on line 3"
+        }
+      ],
+      "note": "Controller importing db-connector bypasses the query abstraction layer."
+    },
+    {
+      "file": "packages/db-queries/src/teams.ts",
+      "status": "ok",
+      "violations": [],
+      "note": "New module follows the existing db-queries pattern."
+    }
+  ]
+}
+```
+
+Use in GitHub Actions:
+
+```yaml
+- name: Saedra Architecture Review
+  run: saedra review --json
+  env:
+    SAEDRA_API_URL: ${{ secrets.SAEDRA_API_URL }}
+```
+
+---
+
 ### `saedra --version`
 
 Show the CLI version.
@@ -655,12 +926,14 @@ packages/cli/
     │   ├── login.ts        # Login, config management (getConfig, clearConfig, SaedraConfig)
     │   ├── helpers.ts      # Shared interactive selectors (selectProject, selectDocument)
     │   ├── context.ts      # .saedra context file management (init, findSaedraContext)
+    │   ├── arch-context.ts # context / explain commands (contextCommand, explainCommand, fetchState, fetchDecisions, fetchChanges, fetchRules)
     │   ├── projects.ts     # project create / list / delete
     │   ├── documents.ts    # doc create / list / read / edit / push / delete
-    │   ├── memory.ts       # memory state view/update/update --ai, decision add/list, change log/list
-    │   └── ai.ts           # ai setup / status / remove (getAiConfig, AiConfig, AiProvider)
+    │   ├── memory.ts       # memory state view/update/update --ai, decision add/list, change log/list, rule add/list
+    │   ├── ai.ts           # ai setup / status / remove (getAiConfig, AiConfig, AiProvider)
+    │   └── feature.ts      # ai feature (aiFeatureCommand)
     └── memory/
-        └── schemas.ts      # ArchitectureState, Decision, ChangeEvent, DocumentType
+        └── schemas.ts      # ArchitectureState, Decision, ChangeEvent, ViolationRule, DocumentType
 ```
 
 ## Where credentials are stored
