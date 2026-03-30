@@ -569,6 +569,63 @@ Using project: my-infra (from .saedra)
     Decisions: DEC-2026-03-04-use-document-type-fie
 ```
 
+### `saedra memory change analyze [id]`
+
+Analyze the architectural impact of a change event using AI. By default, analyzes the most recent change event. Optionally accepts a change ID to analyze a specific event.
+
+Loads the full project context (architecture state, active decisions, violation rules) alongside the change event and sends everything to Claude, streaming a structured impact analysis.
+
+Requires AI to be configured first via `saedra ai setup`. Currently supports Claude only.
+
+```bash
+$ saedra memory change analyze
+Using project: my-infra (from .saedra)
+
+  AI Impact Analysis
+
+  Analyzing: CHG-2026-03-06-add-git-hook-support
+  Summary:   Add git hook support
+  Files:     packages/cli/src/commands/context.ts, packages/cli/src/index.ts
+
+  ──────────────────────────────────────────────────
+  ## Impact Summary
+  This change introduces automatic change event tracking via a post-commit git hook,
+  extending the memory system's capture surface without modifying existing schemas or flows.
+  It is a purely additive feature with no breaking changes.
+
+  ## Affected Decisions
+  - **DEC-2026-03-04-use-document-type-fie** — reinforced: change events continue to be
+    stored as `type=change` documents, consistent with the document-type strategy.
+
+  ## Rule Compliance
+  No violation rules are touched by this change. The hook only calls an existing CLI
+  command (`saedra memory change log --from-git --no-prompt`) — no new imports or
+  structural patterns introduced.
+
+  ## Risk Assessment
+  **Low.** The change is additive and isolated to the CLI init flow. No shared packages
+  or API routes are modified.
+
+  ## Overlooked Concerns
+  The recorded impact was empty. Worth noting: if `.git/hooks/post-commit` already exists
+  on a teammate's machine, the hook is silently skipped — this should be documented.
+  ──────────────────────────────────────────────────
+```
+
+To analyze a specific change event by ID:
+
+```bash
+$ saedra memory change analyze CHG-2026-03-04-add-type-column
+Using project: my-infra (from .saedra)
+
+  AI Impact Analysis
+
+  Analyzing: CHG-2026-03-04-add-type-column
+  ...
+```
+
+---
+
 ### `saedra memory rule add`
 
 Add a new architectural violation rule. Generates an ID in the format `RULE-YYYY-MM-DD-slug` and stores it as a structured document of `type=rule`. Rules define constraints that must not be broken — they are the ground truth used by `saedra review`.
@@ -952,7 +1009,7 @@ packages/cli/
     │   ├── arch-context.ts # context / explain commands (contextCommand, explainCommand, fetchState, fetchDecisions, fetchChanges, fetchRules)
     │   ├── projects.ts     # project create / list / delete
     │   ├── documents.ts    # doc create / list / read / edit / push / delete
-    │   ├── memory.ts       # memory state view/update/update --ai, decision add/list, change log/list, rule add/list, timeline
+    │   ├── memory.ts       # memory state view/update/update --ai, decision add/list, change log/list/analyze, rule add/list, timeline
     │   ├── ai.ts           # ai setup / status / remove (getAiConfig, AiConfig, AiProvider)
     │   └── feature.ts      # ai feature (aiFeatureCommand)
     └── memory/
