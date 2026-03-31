@@ -1,6 +1,7 @@
 import { execSync } from "child_process";
 import { getConfig } from "./login.js";
 import { getAiConfig } from "./ai.js";
+import { callAI } from "./ai-client.js";
 import { selectProject } from "./helpers.js";
 import { fetchDecisions, fetchRules } from "./arch-context.js";
 import type { Decision, ViolationRule } from "../memory/schemas.js";
@@ -121,11 +122,6 @@ export async function reviewCommand(opts: { staged?: boolean; json?: boolean } =
     process.exit(1);
   }
 
-  if (aiConfig.provider !== "claude") {
-    console.error("\n  Only Claude is supported for this command. Run: saedra ai setup\n");
-    process.exit(1);
-  }
-
   const allChangedFiles = getChangedFiles(opts.staged ?? false);
 
   if (!allChangedFiles.length) {
@@ -146,6 +142,7 @@ export async function reviewCommand(opts: { staged?: boolean; json?: boolean } =
     process.stdout.write(`  Analyzing ${changedFiles.length} changed file${changedFiles.length > 1 ? "s" : ""}${truncated ? ` (of ${allChangedFiles.length} — limit ${MAX_FILES})` : ""}...   `);
   }
 
+
   const [rules, decisions] = await Promise.all([
     fetchRules(config.apiUrl, project.id, config.token),
     fetchDecisions(config.apiUrl, project.id, config.token),
@@ -157,7 +154,7 @@ export async function reviewCommand(opts: { staged?: boolean; json?: boolean } =
   if (!opts.json) {
     console.log("✓");
     console.log(`  Loaded ${rules.length} violation rule${rules.length !== 1 ? "s" : ""} and ${decisions.length} active decision${decisions.length !== 1 ? "s" : ""}.`);
-    process.stdout.write("  Sending to Claude...            \n\n");
+    process.stdout.write("  Sending to AI...                \n\n");
   }
 
   const filesWithDiffs = changedFiles.map((file) => ({
@@ -166,24 +163,14 @@ export async function reviewCommand(opts: { staged?: boolean; json?: boolean } =
   }));
 
   try {
-    const Anthropic = (await import("@anthropic-ai/sdk")).default;
-    const anthropic = new Anthropic({ apiKey: aiConfig.apiKey });
-
     const prompt = buildReviewPrompt(project.name, filesWithDiffs, rules, decisions);
 
-    const message = await anthropic.messages.create({
-      model: "claude-sonnet-4-6",
-      max_tokens: 4096,
-      system:
-        "You are an architectural review tool. Analyze code diffs strictly against the provided violation rules and architectural decisions. " +
+    const rawText = await callAI(
+      "You are an architectural review tool. Analyze code diffs strictly against the provided violation rules and architectural decisions. " +
         "Respond only with valid JSON as instructed. Never add markdown or text outside the JSON object.",
-      messages: [{ role: "user", content: prompt }],
-    });
-
-    const rawText = message.content
-      .filter((b) => b.type === "text")
-      .map((b) => (b as { type: "text"; text: string }).text)
-      .join("");
+      prompt,
+      aiConfig
+    );
 
     let result: ReviewResult;
     try {

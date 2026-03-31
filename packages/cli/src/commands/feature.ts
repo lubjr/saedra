@@ -1,6 +1,7 @@
 import { input } from "@inquirer/prompts";
 import { getConfig } from "./login.js";
 import { getAiConfig } from "./ai.js";
+import { streamAI } from "./ai-client.js";
 import { selectProject } from "./helpers.js";
 import { fetchState, fetchDecisions, fetchChanges } from "./arch-context.js";
 import type { ArchitectureState, Decision, ChangeEvent } from "../memory/schemas.js";
@@ -92,11 +93,6 @@ export async function aiFeatureCommand(descriptionArg?: string) {
     process.exit(1);
   }
 
-  if (aiConfig.provider !== "claude") {
-    console.error("\n  Only Claude is supported for this command. Run: saedra ai setup\n");
-    process.exit(1);
-  }
-
   let description = descriptionArg?.trim() ?? "";
   if (!description) {
     description = await input({ message: "Describe the feature you want to implement:" });
@@ -122,36 +118,23 @@ export async function aiFeatureCommand(descriptionArg?: string) {
   console.log("✓");
   console.log(`  Active decisions loaded:        ${decisions.length}`);
   console.log(`  Recent changes loaded:          ${changes.length}`);
-  process.stdout.write("  Sending to Claude...            \n\n");
+  process.stdout.write("  Sending to AI...                \n\n");
 
   const separator = "  " + "─".repeat(50);
   console.log(separator);
   console.log(`  Suggestion for: ${description}\n`);
 
   try {
-    const Anthropic = (await import("@anthropic-ai/sdk")).default;
-    const anthropic = new Anthropic({ apiKey: aiConfig.apiKey });
-
     const prompt = buildFeaturePrompt(project.name, description, state, decisions, changes);
 
-    const stream = anthropic.messages.stream({
-      model: "claude-sonnet-4-6",
-      max_tokens: 4096,
-      system:
-        "You are an expert software architect advising on feature implementation. " +
+    await streamAI(
+      "You are an expert software architect advising on feature implementation. " +
         "Your suggestions must align strictly with the project's existing architecture, decisions, and constraints. " +
         "Be concrete, actionable, and reference actual modules and patterns from the provided context.",
-      messages: [{ role: "user", content: prompt }],
-    });
-
-    for await (const event of stream) {
-      if (
-        event.type === "content_block_delta" &&
-        event.delta.type === "text_delta"
-      ) {
-        process.stdout.write(event.delta.text);
-      }
-    }
+      prompt,
+      aiConfig,
+      (text) => process.stdout.write(text)
+    );
 
     process.stdout.write("\n");
     console.log(separator);
