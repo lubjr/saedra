@@ -2,6 +2,7 @@ import { execSync } from "node:child_process";
 import { input, select, confirm } from "@inquirer/prompts";
 import { getConfig } from "./login.js";
 import { getAiConfig } from "./ai.js";
+import { streamAI } from "./ai-client.js";
 import { selectProject } from "./helpers.js";
 import type { ArchitectureState, Decision, ChangeEvent, ViolationRule } from "../memory/schemas.js";
 
@@ -699,36 +700,29 @@ export async function memoryStateUpdateAiCommand() {
     }
 
     console.log(`  Found ${decisions.length} active decision(s) and ${changes.length} change event(s).`);
-    console.log("  Sending to Claude for compression...\n");
+    console.log("  Sending to AI for compression...\n");
 
     const prompt = buildCompressionPrompt(project.name, decisions, changes, currentState);
 
-    const Anthropic = (await import("@anthropic-ai/sdk")).default;
-    const anthropic = new Anthropic({ apiKey: aiConfig.apiKey });
-
-    let stateJson = "";
+    const chunks: string[] = [];
     process.stdout.write("  Thinking");
 
-    const stream = anthropic.messages.stream({
-      model: "claude-opus-4-6",
-      max_tokens: 4096,
-      thinking: { type: "adaptive" },
-      system:
-        "You are an expert software architect. Compress architectural context into a structured JSON object. " +
+    await streamAI(
+      "You are an expert software architect. Compress architectural context into a structured JSON object. " +
         "Return ONLY valid JSON matching the ArchitectureState schema — no markdown, no explanation, just the JSON object.",
-      messages: [{ role: "user", content: prompt }],
-    });
+      prompt,
+      aiConfig,
+      (text) => { chunks.push(text); process.stdout.write("."); },
+      { smart: true }
+    );
 
-    stream.on("text", () => process.stdout.write("."));
-    const message = await stream.finalMessage();
     process.stdout.write("\n\n");
 
-    const textBlock = message.content.find((b) => b.type === "text");
-    if (!textBlock || textBlock.type !== "text") {
-      console.error("  Claude returned no text response.\n");
+    const stateJson = chunks.join("").trim();
+    if (!stateJson) {
+      console.error("  AI returned no response.\n");
       process.exit(1);
     }
-    stateJson = textBlock.text.trim();
 
     let proposed: ArchitectureState;
     try {
@@ -841,11 +835,6 @@ export async function memoryChangeAnalyzeCommand(changeIdArg?: string) {
     process.exit(1);
   }
 
-  if (aiConfig.provider !== "claude") {
-    console.error("\n  Only Claude is supported for this command. Run: saedra ai setup\n");
-    process.exit(1);
-  }
-
   try {
     const [decisionsRes, changesRes, stateRes, rulesRes] = await Promise.all([
       fetch(`${config.apiUrl}/projects/${project.id}/documents?type=decision`, {
@@ -931,30 +920,17 @@ export async function memoryChangeAnalyzeCommand(changeIdArg?: string) {
 
     const prompt = buildChangeAnalysisPrompt(project.name, target, state, decisions, rules);
 
-    const Anthropic = (await import("@anthropic-ai/sdk")).default;
-    const anthropic = new Anthropic({ apiKey: aiConfig.apiKey });
-
     const separator = "  " + "─".repeat(50);
     console.log(separator);
 
-    const stream = anthropic.messages.stream({
-      model: "claude-sonnet-4-6",
-      max_tokens: 2048,
-      system:
-        "You are an expert software architect analyzing the architectural impact of a change event. " +
+    await streamAI(
+      "You are an expert software architect analyzing the architectural impact of a change event. " +
         "Be concrete and direct. Reference specific decisions, rules, and modules from the provided context. " +
         "Keep the analysis focused and actionable.",
-      messages: [{ role: "user", content: prompt }],
-    });
-
-    for await (const event of stream) {
-      if (
-        event.type === "content_block_delta" &&
-        event.delta.type === "text_delta"
-      ) {
-        process.stdout.write(event.delta.text);
-      }
-    }
+      prompt,
+      aiConfig,
+      (text) => process.stdout.write(text)
+    );
 
     process.stdout.write("\n");
     console.log(separator);

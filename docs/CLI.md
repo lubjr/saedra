@@ -413,7 +413,7 @@ Using project: my-infra (from .saedra)
 
   Fetching project memory...
   Found 2 active decision(s) and 5 change event(s).
-  Sending to Claude for compression...
+  Sending to AI for compression...
 
   Thinking...............................................
 
@@ -573,9 +573,9 @@ Using project: my-infra (from .saedra)
 
 Analyze the architectural impact of a change event using AI. By default, analyzes the most recent change event. Optionally accepts a change ID to analyze a specific event.
 
-Loads the full project context (architecture state, active decisions, violation rules) alongside the change event and sends everything to Claude, streaming a structured impact analysis.
+Loads the full project context (architecture state, active decisions, violation rules) alongside the change event and sends everything to the configured AI, streaming a structured impact analysis.
 
-Requires AI to be configured first via `saedra ai setup`. Currently supports Claude only.
+Requires AI to be configured first via `saedra ai setup`.
 
 ```bash
 $ saedra memory change analyze
@@ -839,9 +839,9 @@ $ saedra ai remove
 
 ### `saedra ai feature [description]`
 
-Generate architecture-aligned implementation guidance for a feature. Loads the full project context (architecture state, active decisions, recent changes) and sends it alongside your description to Claude, streaming the response directly to the terminal.
+Generate architecture-aligned implementation guidance for a feature. Loads the full project context (architecture state, active decisions, recent changes) and sends it alongside your description to the configured AI, streaming the response directly to the terminal.
 
-Requires AI to be configured first via `saedra ai setup`. Currently supports Claude only.
+Requires AI to be configured first via `saedra ai setup`.
 
 ```bash
 $ saedra ai feature "implement team creation endpoint"
@@ -852,7 +852,7 @@ Using project: my-infra (from .saedra)
   Loading architecture state...   ✓
   Active decisions loaded:        2
   Recent changes loaded:          5
-  Sending to Claude...
+  Sending to AI...
 
   ──────────────────────────────────────────────────
   Suggestion for: implement team creation endpoint
@@ -880,9 +880,9 @@ $ saedra ai feature
 
 ### `saedra review`
 
-Validate the current diff against all violation rules and active architectural decisions. Loads changed files via `git diff HEAD`, fetches rules and decisions from the project, sends everything to Claude, and reports per-file results.
+Validate the current diff against all violation rules and active architectural decisions. Loads changed files via `git diff HEAD`, fetches rules and decisions from the project, sends everything to the configured AI, and reports per-file results.
 
-Requires AI to be configured first via `saedra ai setup`. Currently supports Claude only.
+Requires AI to be configured first via `saedra ai setup`.
 
 ```bash
 $ saedra review
@@ -892,7 +892,7 @@ Using project: my-infra (from .saedra)
 
   Analyzing 4 changed files...   ✓
   Loaded 1 violation rule and 2 active decisions.
-  Sending to Claude...
+  Sending to AI...
 
   ──────────────────────────────────────────────────
 
@@ -1011,6 +1011,7 @@ packages/cli/
     │   ├── documents.ts    # doc create / list / read / edit / push / delete
     │   ├── memory.ts       # memory state view/update/update --ai, decision add/list, change log/list/analyze, rule add/list, timeline
     │   ├── ai.ts           # ai setup / status / remove (getAiConfig, AiConfig, AiProvider)
+    │   ├── ai-client.ts    # shared AI abstraction (callAI, streamAI) — supports Claude and OpenAI
     │   └── feature.ts      # ai feature (aiFeatureCommand)
     └── memory/
         └── schemas.ts      # ArchitectureState, Decision, ChangeEvent, ViolationRule, DocumentType
