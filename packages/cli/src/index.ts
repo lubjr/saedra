@@ -16,6 +16,8 @@ import {
   memoryChangeListCommand,
   memoryRuleAddCommand,
   memoryRuleListCommand,
+  memoryChangeAnalyzeCommand,
+  timelineCommand,
 } from "./commands/memory.js";
 import { contextCommand, explainCommand } from "./commands/arch-context.js";
 import { reviewCommand } from "./commands/review.js";
@@ -168,6 +170,11 @@ program
   .action(explainCommand);
 
 program
+  .command("timeline")
+  .description("Show a chronological timeline of architectural decisions and changes")
+  .action(timelineCommand);
+
+program
   .command("review")
   .description("Validate current diff against violation rules and architectural decisions")
   .option("--staged", "Analyze only staged files")
@@ -201,6 +208,10 @@ change
   .action((opts: { fromGit?: boolean; prompt: boolean }) =>
     memoryChangeLogCommand(opts.fromGit, !opts.prompt));
 change.command("list").description("List recent change events").action(memoryChangeListCommand);
+change
+  .command("analyze [id]")
+  .description("Analyze the architectural impact of a change event using AI")
+  .action((id?: string) => memoryChangeAnalyzeCommand(id));
 
 const rule = memory.command("rule").description("Manage architectural violation rules");
 rule.command("add").description("Add a new violation rule").action(memoryRuleAddCommand);

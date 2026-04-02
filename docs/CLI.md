@@ -413,7 +413,7 @@ Using project: my-infra (from .saedra)
 
   Fetching project memory...
   Found 2 active decision(s) and 5 change event(s).
-  Sending to Claude for compression...
+  Sending to AI for compression...
 
   Thinking...............................................
 
@@ -569,6 +569,63 @@ Using project: my-infra (from .saedra)
     Decisions: DEC-2026-03-04-use-document-type-fie
 ```
 
+### `saedra memory change analyze [id]`
+
+Analyze the architectural impact of a change event using AI. By default, analyzes the most recent change event. Optionally accepts a change ID to analyze a specific event.
+
+Loads the full project context (architecture state, active decisions, violation rules) alongside the change event and sends everything to the configured AI, streaming a structured impact analysis.
+
+Requires AI to be configured first via `saedra ai setup`.
+
+```bash
+$ saedra memory change analyze
+Using project: my-infra (from .saedra)
+
+  AI Impact Analysis
+
+  Analyzing: CHG-2026-03-06-add-git-hook-support
+  Summary:   Add git hook support
+  Files:     packages/cli/src/commands/context.ts, packages/cli/src/index.ts
+
+  ──────────────────────────────────────────────────
+  ## Impact Summary
+  This change introduces automatic change event tracking via a post-commit git hook,
+  extending the memory system's capture surface without modifying existing schemas or flows.
+  It is a purely additive feature with no breaking changes.
+
+  ## Affected Decisions
+  - **DEC-2026-03-04-use-document-type-fie** — reinforced: change events continue to be
+    stored as `type=change` documents, consistent with the document-type strategy.
+
+  ## Rule Compliance
+  No violation rules are touched by this change. The hook only calls an existing CLI
+  command (`saedra memory change log --from-git --no-prompt`) — no new imports or
+  structural patterns introduced.
+
+  ## Risk Assessment
+  **Low.** The change is additive and isolated to the CLI init flow. No shared packages
+  or API routes are modified.
+
+  ## Overlooked Concerns
+  The recorded impact was empty. Worth noting: if `.git/hooks/post-commit` already exists
+  on a teammate's machine, the hook is silently skipped — this should be documented.
+  ──────────────────────────────────────────────────
+```
+
+To analyze a specific change event by ID:
+
+```bash
+$ saedra memory change analyze CHG-2026-03-04-add-type-column
+Using project: my-infra (from .saedra)
+
+  AI Impact Analysis
+
+  Analyzing: CHG-2026-03-04-add-type-column
+  ...
+```
+
+---
+
 ### `saedra memory rule add`
 
 Add a new architectural violation rule. Generates an ID in the format `RULE-YYYY-MM-DD-slug` and stores it as a structured document of `type=rule`. Rules define constraints that must not be broken — they are the ground truth used by `saedra review`.
@@ -711,6 +768,29 @@ Using project: my-infra (from .saedra)
 
 ---
 
+### `saedra timeline`
+
+Show a chronological timeline of all architectural decisions and change events, grouped by month.
+
+```bash
+$ saedra timeline
+Using project: my-infra (from .saedra)
+
+  Architecture Timeline — my-infra
+
+  2026-03
+    [DEC] Use document type field for memory
+    [CHG] Add type column to documents table
+    [CHG] Add memory change commands to CLI
+    [DEC] Use Supabase as primary database
+    [CHG] Add git hook support
+
+```
+
+Entries are sorted chronologically within each month. `[DEC]` entries come from `saedra memory decision add` and `[CHG]` entries from `saedra memory change log`.
+
+---
+
 ### `saedra ai setup`
 
 Configure the AI provider and API key used by AI-powered commands (e.g. `saedra memory state update --ai`). The configuration is saved to `~/.saedra/ai.json` with restricted permissions (`0600`).
@@ -759,9 +839,9 @@ $ saedra ai remove
 
 ### `saedra ai feature [description]`
 
-Generate architecture-aligned implementation guidance for a feature. Loads the full project context (architecture state, active decisions, recent changes) and sends it alongside your description to Claude, streaming the response directly to the terminal.
+Generate architecture-aligned implementation guidance for a feature. Loads the full project context (architecture state, active decisions, recent changes) and sends it alongside your description to the configured AI, streaming the response directly to the terminal.
 
-Requires AI to be configured first via `saedra ai setup`. Currently supports Claude only.
+Requires AI to be configured first via `saedra ai setup`.
 
 ```bash
 $ saedra ai feature "implement team creation endpoint"
@@ -772,7 +852,7 @@ Using project: my-infra (from .saedra)
   Loading architecture state...   ✓
   Active decisions loaded:        2
   Recent changes loaded:          5
-  Sending to Claude...
+  Sending to AI...
 
   ──────────────────────────────────────────────────
   Suggestion for: implement team creation endpoint
@@ -800,9 +880,9 @@ $ saedra ai feature
 
 ### `saedra review`
 
-Validate the current diff against all violation rules and active architectural decisions. Loads changed files via `git diff HEAD`, fetches rules and decisions from the project, sends everything to Claude, and reports per-file results.
+Validate the current diff against all violation rules and active architectural decisions. Loads changed files via `git diff HEAD`, fetches rules and decisions from the project, sends everything to the configured AI, and reports per-file results.
 
-Requires AI to be configured first via `saedra ai setup`. Currently supports Claude only.
+Requires AI to be configured first via `saedra ai setup`.
 
 ```bash
 $ saedra review
@@ -812,7 +892,7 @@ Using project: my-infra (from .saedra)
 
   Analyzing 4 changed files...   ✓
   Loaded 1 violation rule and 2 active decisions.
-  Sending to Claude...
+  Sending to AI...
 
   ──────────────────────────────────────────────────
 
@@ -929,8 +1009,9 @@ packages/cli/
     │   ├── arch-context.ts # context / explain commands (contextCommand, explainCommand, fetchState, fetchDecisions, fetchChanges, fetchRules)
     │   ├── projects.ts     # project create / list / delete
     │   ├── documents.ts    # doc create / list / read / edit / push / delete
-    │   ├── memory.ts       # memory state view/update/update --ai, decision add/list, change log/list, rule add/list
+    │   ├── memory.ts       # memory state view/update/update --ai, decision add/list, change log/list/analyze, rule add/list, timeline
     │   ├── ai.ts           # ai setup / status / remove (getAiConfig, AiConfig, AiProvider)
+    │   ├── ai-client.ts    # shared AI abstraction (callAI, streamAI) — supports Claude and OpenAI
     │   └── feature.ts      # ai feature (aiFeatureCommand)
     └── memory/
         └── schemas.ts      # ArchitectureState, Decision, ChangeEvent, ViolationRule, DocumentType

@@ -2,6 +2,7 @@ import { execSync } from "node:child_process";
 import { input, select, confirm } from "@inquirer/prompts";
 import { getConfig } from "./login.js";
 import { getAiConfig } from "./ai.js";
+import { streamAI } from "./ai-client.js";
 import { selectProject } from "./helpers.js";
 import type { ArchitectureState, Decision, ChangeEvent, ViolationRule } from "../memory/schemas.js";
 
@@ -699,36 +700,29 @@ export async function memoryStateUpdateAiCommand() {
     }
 
     console.log(`  Found ${decisions.length} active decision(s) and ${changes.length} change event(s).`);
-    console.log("  Sending to Claude for compression...\n");
+    console.log("  Sending to AI for compression...\n");
 
     const prompt = buildCompressionPrompt(project.name, decisions, changes, currentState);
 
-    const Anthropic = (await import("@anthropic-ai/sdk")).default;
-    const anthropic = new Anthropic({ apiKey: aiConfig.apiKey });
-
-    let stateJson = "";
+    const chunks: string[] = [];
     process.stdout.write("  Thinking");
 
-    const stream = anthropic.messages.stream({
-      model: "claude-opus-4-6",
-      max_tokens: 4096,
-      thinking: { type: "adaptive" },
-      system:
-        "You are an expert software architect. Compress architectural context into a structured JSON object. " +
+    await streamAI(
+      "You are an expert software architect. Compress architectural context into a structured JSON object. " +
         "Return ONLY valid JSON matching the ArchitectureState schema — no markdown, no explanation, just the JSON object.",
-      messages: [{ role: "user", content: prompt }],
-    });
+      prompt,
+      aiConfig,
+      (text) => { chunks.push(text); process.stdout.write("."); },
+      { smart: true }
+    );
 
-    stream.on("text", () => process.stdout.write("."));
-    const message = await stream.finalMessage();
     process.stdout.write("\n\n");
 
-    const textBlock = message.content.find((b) => b.type === "text");
-    if (!textBlock || textBlock.type !== "text") {
-      console.error("  Claude returned no text response.\n");
+    const stateJson = chunks.join("").trim();
+    if (!stateJson) {
+      console.error("  AI returned no response.\n");
       process.exit(1);
     }
-    stateJson = textBlock.text.trim();
 
     let proposed: ArchitectureState;
     try {
@@ -829,6 +823,283 @@ function buildCompressionPrompt(
   );
 
   return parts.join("\n");
+}
+
+export async function memoryChangeAnalyzeCommand(changeIdArg?: string) {
+  const config = requireAuth();
+  const project = await selectProject(config);
+
+  const aiConfig = getAiConfig();
+  if (!aiConfig) {
+    console.error("\n  AI not configured. Run: saedra ai setup\n");
+    process.exit(1);
+  }
+
+  try {
+    const [decisionsRes, changesRes, stateRes, rulesRes] = await Promise.all([
+      fetch(`${config.apiUrl}/projects/${project.id}/documents?type=decision`, {
+        headers: { Authorization: `Bearer ${config.token}` },
+      }),
+      fetch(`${config.apiUrl}/projects/${project.id}/documents?type=change`, {
+        headers: { Authorization: `Bearer ${config.token}` },
+      }),
+      fetch(`${config.apiUrl}/projects/${project.id}/documents?type=architecture`, {
+        headers: { Authorization: `Bearer ${config.token}` },
+      }),
+      fetch(`${config.apiUrl}/projects/${project.id}/documents?type=rule`, {
+        headers: { Authorization: `Bearer ${config.token}` },
+      }),
+    ]);
+
+    const changeDocs = changesRes.ok
+      ? ((await changesRes.json()) as Array<{ content: string }>)
+      : [];
+
+    if (!changeDocs.length) {
+      console.error("\n  No change events found. Log one with: saedra memory change log\n");
+      process.exit(1);
+    }
+
+    const allChanges = changeDocs
+      .map((d) => { try { return JSON.parse(d.content) as ChangeEvent; } catch { return null; } })
+      .filter((c): c is ChangeEvent => c !== null);
+
+    let target: ChangeEvent | undefined;
+    if (changeIdArg) {
+      target = allChanges.find((c) => c.id === changeIdArg);
+      if (!target) {
+        console.error(`\n  Change "${changeIdArg}" not found.\n`);
+        process.exit(1);
+      }
+    } else {
+      target = allChanges[0];
+    }
+
+    if (!target) {
+      console.error("\n  No change events found.\n");
+      process.exit(1);
+    }
+
+    const decisionDocs = decisionsRes.ok
+      ? ((await decisionsRes.json()) as Array<{ content: string }>)
+      : [];
+    const decisions = decisionDocs
+      .map((d) => { try { return JSON.parse(d.content) as Decision; } catch { return null; } })
+      .filter((d): d is Decision => d !== null && d.status === "active");
+
+    const ruleDocs = rulesRes.ok
+      ? ((await rulesRes.json()) as Array<{ content: string }>)
+      : [];
+    const rules = ruleDocs
+      .map((d) => { try { return JSON.parse(d.content) as ViolationRule; } catch { return null; } })
+      .filter((r): r is ViolationRule => r !== null);
+
+    let state: ArchitectureState | null = null;
+    if (stateRes.ok) {
+      const stateDocs = (await stateRes.json()) as Array<{ id: string; content: string }>;
+      if (stateDocs.length) {
+        const detailRes = await fetch(
+          `${config.apiUrl}/projects/${project.id}/documents/${stateDocs[0]!.id}`,
+          { headers: { Authorization: `Bearer ${config.token}` } }
+        );
+        if (detailRes.ok) {
+          const result = (await detailRes.json()) as { data?: { content: string }; content?: string };
+          const content = (result as any).data?.content ?? (result as any).content ?? "";
+          try { state = JSON.parse(content) as ArchitectureState; } catch { /* ignore */ }
+        }
+      }
+    }
+
+    console.log("\n  AI Impact Analysis\n");
+    console.log(`  Analyzing: ${target.id}`);
+    console.log(`  Summary:   ${target.summary}`);
+    if (target.files_changed?.length) {
+      console.log(`  Files:     ${target.files_changed.join(", ")}`);
+    }
+    console.log();
+
+    const prompt = buildChangeAnalysisPrompt(project.name, target, state, decisions, rules);
+
+    const separator = "  " + "─".repeat(50);
+    console.log(separator);
+
+    await streamAI(
+      "You are an expert software architect analyzing the architectural impact of a change event. " +
+        "Be concrete and direct. Reference specific decisions, rules, and modules from the provided context. " +
+        "Keep the analysis focused and actionable.",
+      prompt,
+      aiConfig,
+      (text) => process.stdout.write(text)
+    );
+
+    process.stdout.write("\n");
+    console.log(separator);
+    console.log();
+  } catch (err) {
+    console.error("\n  Failed:", (err as Error).message, "\n");
+    process.exit(1);
+  }
+}
+
+function buildChangeAnalysisPrompt(
+  projectName: string,
+  change: ChangeEvent,
+  state: ArchitectureState | null,
+  decisions: Decision[],
+  rules: ViolationRule[]
+): string {
+  const parts: string[] = [];
+
+  parts.push(`Project: ${projectName}`);
+  parts.push("");
+  parts.push("## Change Event to Analyze");
+  parts.push(`ID: ${change.id}`);
+  parts.push(`Summary: ${change.summary}`);
+  if (change.files_changed?.length) {
+    parts.push(`Files changed: ${change.files_changed.join(", ")}`);
+  }
+  if (change.architectural_impact) {
+    parts.push(`Recorded impact: ${change.architectural_impact}`);
+  }
+  if (change.risk_assessment) {
+    parts.push(`Recorded risk: ${change.risk_assessment}`);
+  }
+  if (change.related_decisions?.length) {
+    parts.push(`Related decisions (as recorded): ${change.related_decisions.join(", ")}`);
+  }
+  parts.push("");
+
+  if (state) {
+    parts.push("## Current Architecture State");
+    parts.push(`Summary: ${state.summary}`);
+    if (state.core_principles?.length) {
+      parts.push(`Core Principles: ${state.core_principles.join("; ")}`);
+    }
+    if (state.constraints?.length) {
+      parts.push(`Constraints: ${state.constraints.join("; ")}`);
+    }
+    parts.push("");
+  }
+
+  if (decisions.length) {
+    parts.push("## Active Architectural Decisions");
+    for (const d of decisions) {
+      parts.push(`- ${d.id}: ${d.title}`);
+      parts.push(`  Decision: ${d.decision}`);
+      if (d.affects?.length) parts.push(`  Affects: ${d.affects.join(", ")}`);
+      if (d.constraints_introduced?.length) {
+        parts.push(`  Constraints: ${d.constraints_introduced.join(", ")}`);
+      }
+    }
+    parts.push("");
+  }
+
+  if (rules.length) {
+    parts.push("## Violation Rules");
+    for (const r of rules) {
+      parts.push(`- ${r.id} [${r.severity.toUpperCase()}]: ${r.description}`);
+      if (r.related_decision) parts.push(`  Related to: ${r.related_decision}`);
+    }
+    parts.push("");
+  }
+
+  parts.push("## Task");
+  parts.push(
+    "Analyze the architectural impact of this change event. Structure your response as:\n" +
+    "1. **Impact Summary** — what this change implies architecturally in 2-3 sentences\n" +
+    "2. **Affected Decisions** — which active decisions are touched or reinforced by this change\n" +
+    "3. **Rule Compliance** — whether this change respects or potentially violates any violation rules\n" +
+    "4. **Risk Assessment** — low / medium / high with brief justification\n" +
+    "5. **Overlooked Concerns** — anything the recorded impact or risk assessment missed (if applicable)"
+  );
+
+  return parts.join("\n");
+}
+
+export async function timelineCommand() {
+  const config = requireAuth();
+  const project = await selectProject(config);
+
+  try {
+    const [decisionsRes, changesRes] = await Promise.all([
+      fetch(`${config.apiUrl}/projects/${project.id}/documents?type=decision`, {
+        headers: { Authorization: `Bearer ${config.token}` },
+      }),
+      fetch(`${config.apiUrl}/projects/${project.id}/documents?type=change`, {
+        headers: { Authorization: `Bearer ${config.token}` },
+      }),
+    ]);
+
+    const decisionDocs = decisionsRes.ok
+      ? ((await decisionsRes.json()) as Array<{ content: string }>)
+      : [];
+    const changeDocs = changesRes.ok
+      ? ((await changesRes.json()) as Array<{ content: string }>)
+      : [];
+
+    interface TimelineEntry {
+      yearMonth: string;
+      date: string;
+      type: "DEC" | "CHG";
+      label: string;
+    }
+
+    const entries: TimelineEntry[] = [];
+
+    for (const doc of decisionDocs) {
+      try {
+        const dec = JSON.parse(doc.content) as Decision;
+        const date = extractDateFromId(dec.id, dec.created_at);
+        entries.push({ yearMonth: date.slice(0, 7), date, type: "DEC", label: dec.title });
+      } catch { /* skip malformed */ }
+    }
+
+    for (const doc of changeDocs) {
+      try {
+        const chg = JSON.parse(doc.content) as ChangeEvent;
+        const date = extractDateFromId(chg.id, chg.created_at);
+        entries.push({ yearMonth: date.slice(0, 7), date, type: "CHG", label: chg.summary });
+      } catch { /* skip malformed */ }
+    }
+
+    if (!entries.length) {
+      console.log(
+        "\n  No decisions or changes found. Start with:\n" +
+        "    saedra memory decision add\n" +
+        "    saedra memory change log\n"
+      );
+      return;
+    }
+
+    entries.sort((a, b) => a.date.localeCompare(b.date));
+
+    const groups = new Map<string, TimelineEntry[]>();
+    for (const entry of entries) {
+      const group = groups.get(entry.yearMonth) ?? [];
+      group.push(entry);
+      groups.set(entry.yearMonth, group);
+    }
+
+    console.log(`\n  Architecture Timeline — ${project.name}\n`);
+
+    for (const [yearMonth, groupEntries] of groups) {
+      console.log(`  ${yearMonth}`);
+      for (const entry of groupEntries) {
+        console.log(`    [${entry.type}] ${entry.label}`);
+      }
+      console.log();
+    }
+  } catch (err) {
+    console.error("\nFailed to connect to server:", (err as Error).message);
+    process.exit(1);
+  }
+}
+
+function extractDateFromId(id: string, createdAt?: string): string {
+  const match = id.match(/\d{4}-\d{2}-\d{2}/);
+  if (match) return match[0]!;
+  if (createdAt) return createdAt.slice(0, 10);
+  return "0000-00-00";
 }
 
 export async function memoryDecisionListCommand() {
