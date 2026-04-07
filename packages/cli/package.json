@@ -11,7 +11,9 @@
   ],
   "scripts": {
     "build": "tsup src/index.ts --format esm --clean",
-    "dev": "tsup src/index.ts --format esm --watch"
+    "dev": "tsup src/index.ts --format esm --watch",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",
@@ -22,8 +24,10 @@
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
+    "@repo/vitest-config": "workspace:*",
     "@types/node": "^22.0.0",
     "tsup": "^8.5.0",
-    "typescript": "5.8.3"
+    "typescript": "5.8.3",
+    "vitest": "^3.1.4"
   }
 }
