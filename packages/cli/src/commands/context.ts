@@ -58,7 +58,7 @@ export async function initCommand(opts: { withHooks?: boolean } = {}) {
 
 function installGitHooks() {
   const hooksDir = ".saedra-hooks";
-  const hookContent = "#!/bin/sh\nsaedra memory change log --from-git --no-prompt\n";
+  const hookContent = "#!/bin/sh\nsaedra memory change log --from-git --no-prompt\nsaedra memory compress\n";
 
   if (!existsSync(hooksDir)) {
     mkdirSync(hooksDir);

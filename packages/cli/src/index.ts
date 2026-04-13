@@ -19,7 +19,7 @@ import {
   memoryChangeAnalyzeCommand,
   timelineCommand,
 } from "./commands/memory.js";
-import { contextCommand, explainCommand } from "./commands/arch-context.js";
+import { contextCommand, explainCommand, memoryCompressCommand } from "./commands/arch-context.js";
 import { reviewCommand } from "./commands/review.js";
 
 const program = new Command();
@@ -216,6 +216,11 @@ change
 const rule = memory.command("rule").description("Manage architectural violation rules");
 rule.command("add").description("Add a new violation rule").action(memoryRuleAddCommand);
 rule.command("list").description("List all violation rules").action(memoryRuleListCommand);
+
+memory
+  .command("compress")
+  .description("Snapshot architecture context to .saedra-context.json for offline/CI use")
+  .action(memoryCompressCommand);
 
 program.parse();
 
