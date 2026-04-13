@@ -146,7 +146,11 @@ Linked to project my-infra. Created .saedra
   Tip: commit .saedra-hooks/ so teammates can install with: cp .saedra-hooks/post-commit .git/hooks/post-commit
 ```
 
-The hook runs `saedra memory change log --from-git --no-prompt` on every commit, pre-filling the summary from the commit message and the file list from `git diff`. No manual interaction required.
+The hook runs two commands on every commit:
+1. `saedra memory change log --from-git --no-prompt` — logs the change event automatically
+2. `saedra memory compress` — updates `.saedra-context.json` with the latest snapshot
+
+No manual interaction required.
 
 If `.git/hooks/post-commit` already exists, the hook is **not** overwritten. A message is shown with the manual copy command instead.
 
@@ -662,6 +666,44 @@ Using project: my-infra (from .saedra)
     Decision:   DEC-2026-03-04-use-document-type-fie
 ```
 
+### `saedra memory compress`
+
+Snapshot the full architecture context to a local `.saedra-context.json` file. Fetches state, active decisions, the 10 most recent change events, and all violation rules from the server and writes them to disk.
+
+Useful for offline access, CI pipelines, and fast context injection without requiring network access.
+
+```bash
+$ saedra memory compress
+Using project: my-infra (from .saedra)
+
+  Compressing architecture context — my-infra
+
+  Fetching architecture state...    ✓
+  Fetching active decisions...      ✓ (2)
+  Fetching recent changes...        ✓ (5)
+  Fetching violation rules...       ✓ (1)
+
+  Saved: .saedra-context.json
+```
+
+The generated file includes a `generated_at` timestamp so you always know when the snapshot was taken:
+
+```json
+{
+  "project": "my-infra",
+  "project_id": "798593a3-...",
+  "generated_at": "2026-04-13T00:00:00Z",
+  "state": { ... },
+  "decisions": [ ... ],
+  "changes": [ ... ],
+  "rules": [ ... ]
+}
+```
+
+`.saedra-context.json` is added to `.gitignore` automatically — it is a local snapshot, not a committed artifact.
+
+**Automatic update via git hook:** when installed with `saedra init --with-hooks`, the post-commit hook runs `saedra memory compress` after every commit, keeping the snapshot in sync with the latest change event automatically.
+
 ---
 
 ### `saedra context`
@@ -1006,7 +1048,7 @@ packages/cli/
     │   ├── login.ts        # Login, config management (getConfig, clearConfig, SaedraConfig)
     │   ├── helpers.ts      # Shared interactive selectors (selectProject, selectDocument)
     │   ├── context.ts      # .saedra context file management (init, findSaedraContext)
-    │   ├── arch-context.ts # context / explain commands (contextCommand, explainCommand, fetchState, fetchDecisions, fetchChanges, fetchRules)
+    │   ├── arch-context.ts # context / explain / memory compress (contextCommand, explainCommand, memoryCompressCommand, fetchState, fetchDecisions, fetchChanges, fetchRules)
     │   ├── projects.ts     # project create / list / delete
     │   ├── documents.ts    # doc create / list / read / edit / push / delete
     │   ├── memory.ts       # memory state view/update/update --ai, decision add/list, change log/list/analyze, rule add/list, timeline
