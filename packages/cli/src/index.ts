@@ -1,5 +1,21 @@
 #!/usr/bin/env node
 import { Command } from "commander";
+
+process.on("uncaughtException", (err: Error) => {
+  if (err.name === "ExitPromptError") {
+    console.log("\nCancelled.\n");
+    process.exit(0);
+  }
+  throw err;
+});
+
+process.on("unhandledRejection", (err: unknown) => {
+  if (err instanceof Error && err.name === "ExitPromptError") {
+    console.log("\nCancelled.\n");
+    process.exit(0);
+  }
+  throw err;
+});
 import { loginCommand } from "./commands/login.js";
 import { projectCreateCommand, projectDeleteCommand, projectListCommand } from "./commands/projects.js";
 import { docCreateCommand, docListCommand, docReadCommand, docEditCommand, docDeleteCommand, docPushCommand } from "./commands/documents.js";
