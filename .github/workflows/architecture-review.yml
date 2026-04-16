@@ -51,7 +51,7 @@ jobs:
       - name: Run Architecture Review
         id: arch_review
         run: |
-          node packages/cli/dist/index.js review --json --base ${{ github.event.pull_request.base.sha }} > /tmp/review-output.json 2>&1
+          node packages/cli/dist/index.js review --json --base ${{ github.event.pull_request.base.sha }} > /tmp/review-output.json
           echo "exit_code=$?" >> $GITHUB_OUTPUT
         env:
           SAEDRA_TOKEN: ${{ secrets.SAEDRA_TOKEN }}
