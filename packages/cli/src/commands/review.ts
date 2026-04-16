@@ -18,9 +18,16 @@ function requireAuth() {
   return config;
 }
 
-function getChangedFiles(staged: boolean): string[] {
+function getChangedFiles(staged: boolean, base?: string): string[] {
   try {
-    const cmd = staged ? "git diff --staged --name-only" : "git diff HEAD --name-only";
+    let cmd: string;
+    if (base) {
+      cmd = `git diff --name-only ${base}...HEAD`;
+    } else if (staged) {
+      cmd = "git diff --staged --name-only";
+    } else {
+      cmd = "git diff HEAD --name-only";
+    }
     const output = execSync(cmd, { encoding: "utf-8" }).trim();
     if (!output) return [];
     return output.split("\n").filter(Boolean);
@@ -29,9 +36,16 @@ function getChangedFiles(staged: boolean): string[] {
   }
 }
 
-function getFileDiff(file: string, staged: boolean): string {
+function getFileDiff(file: string, staged: boolean, base?: string): string {
   try {
-    const cmd = staged ? `git diff --staged -- "${file}"` : `git diff HEAD -- "${file}"`;
+    let cmd: string;
+    if (base) {
+      cmd = `git diff ${base}...HEAD -- "${file}"`;
+    } else if (staged) {
+      cmd = `git diff --staged -- "${file}"`;
+    } else {
+      cmd = `git diff HEAD -- "${file}"`;
+    }
     return execSync(cmd, { encoding: "utf-8" }).trim();
   } catch {
     return "";
@@ -112,7 +126,7 @@ interface ReviewResult {
   files: FileResult[];
 }
 
-export async function reviewCommand(opts: { staged?: boolean; json?: boolean } = {}) {
+export async function reviewCommand(opts: { staged?: boolean; json?: boolean; base?: string } = {}) {
   const config = requireAuth();
   const project = await selectProject(config);
 
@@ -122,7 +136,7 @@ export async function reviewCommand(opts: { staged?: boolean; json?: boolean } =
     process.exit(1);
   }
 
-  const allChangedFiles = getChangedFiles(opts.staged ?? false);
+  const allChangedFiles = getChangedFiles(opts.staged ?? false, opts.base);
 
   if (!allChangedFiles.length) {
     const scope = opts.staged ? "staging area" : "working tree";
@@ -159,7 +173,7 @@ export async function reviewCommand(opts: { staged?: boolean; json?: boolean } =
 
   const filesWithDiffs = changedFiles.map((file) => ({
     file,
-    diff: getFileDiff(file, opts.staged ?? false),
+    diff: getFileDiff(file, opts.staged ?? false, opts.base),
   }));
 
   try {

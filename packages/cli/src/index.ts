@@ -195,7 +195,8 @@ program
   .description("Validate current diff against violation rules and architectural decisions")
   .option("--staged", "Analyze only staged files")
   .option("--json", "Output results as JSON (exits with code 1 if violations found)")
-  .action((opts: { staged?: boolean; json?: boolean }) => reviewCommand(opts));
+  .option("--base <ref>", "Compare against a specific git ref (e.g. origin/main) — for CI use")
+  .action((opts: { staged?: boolean; json?: boolean; base?: string }) => reviewCommand(opts));
 
 const memory = program
   .command("memory")

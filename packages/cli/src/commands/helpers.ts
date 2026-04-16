@@ -5,7 +5,7 @@ import { findSaedraContext } from "./context.js";
 export async function selectProject(config: SaedraConfig): Promise<{ id: string; name: string }> {
   const context = findSaedraContext();
   if (context) {
-    console.log(`Using project: ${context.projectName} (from .saedra)`);
+    console.error(`Using project: ${context.projectName} (from .saedra)`);
     return { id: context.projectId, name: context.projectName };
   }
 

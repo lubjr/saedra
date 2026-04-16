@@ -25,6 +25,11 @@ function saveConfig(config: SaedraConfig) {
 }
 
 export function getConfig(): SaedraConfig | null {
+  const token = process.env.SAEDRA_TOKEN;
+  const apiUrl = process.env.SAEDRA_API_URL;
+  if (token && apiUrl) {
+    return { token, apiUrl, userId: process.env.SAEDRA_USER_ID ?? "", email: "" };
+  }
   if (!existsSync(CONFIG_FILE)) return null;
   try {
     return JSON.parse(readFileSync(CONFIG_FILE, "utf-8")) as SaedraConfig;
