@@ -13,6 +13,9 @@ export interface AiConfig {
 }
 
 export function getAiConfig(): AiConfig | null {
+  const apiKey = process.env.SAEDRA_AI_API_KEY;
+  const provider = process.env.SAEDRA_AI_PROVIDER as AiProvider | undefined;
+  if (apiKey && provider) return { provider, apiKey };
   if (!existsSync(AI_CONFIG_FILE)) return null;
   try {
     return JSON.parse(readFileSync(AI_CONFIG_FILE, "utf-8")) as AiConfig;

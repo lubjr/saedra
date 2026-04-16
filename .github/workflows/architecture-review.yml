@@ -1,0 +1,100 @@
+name: Architecture Review
+
+on:
+  pull_request:
+    branches:
+      - '**'
+
+jobs:
+  review:
+    name: Architecture Review
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build CLI
+        run: pnpm --filter @saedra/cli build
+
+      - name: Link CLI globally
+        run: npm link --prefix /usr/local packages/cli/dist 2>/dev/null || pnpm --filter @saedra/cli exec node dist/index.js --version || true
+
+      - name: Run Architecture Review
+        id: arch_review
+        run: |
+          node packages/cli/dist/index.js review --json --base ${{ github.event.pull_request.base.sha }} > /tmp/review-output.json 2>&1
+          echo "exit_code=$?" >> $GITHUB_OUTPUT
+        env:
+          SAEDRA_TOKEN: ${{ secrets.SAEDRA_TOKEN }}
+          SAEDRA_API_URL: ${{ secrets.SAEDRA_API_URL }}
+          SAEDRA_AI_API_KEY: ${{ secrets.SAEDRA_AI_API_KEY }}
+          SAEDRA_AI_PROVIDER: ${{ secrets.SAEDRA_AI_PROVIDER }}
+        continue-on-error: true
+
+      - name: Comment on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let body = '';
+
+            try {
+              const raw = fs.readFileSync('/tmp/review-output.json', 'utf8');
+              const result = JSON.parse(raw);
+              const violations = result.total_violations ?? 0;
+              const status = violations > 0 ? '⚠️ Violations found' : '✅ No violations';
+
+              const rows = (result.files ?? []).map(f => {
+                const icon = f.status === 'violation' ? '⚠️' : '✅';
+                const details = f.violations?.map(v => `\`${v.rule_id}\`: ${v.detail}`).join('<br>') || '';
+                return `| ${icon} | \`${f.file}\` | ${f.note ?? ''} | ${details} |`;
+              }).join('\n');
+
+              body = `## Saedra Architecture Review\n\n**${status}** — ${violations} violation(s) detected.\n\n` +
+                (rows
+                  ? `| | File | Note | Violations |\n|---|---|---|---|\n${rows}\n`
+                  : '') +
+                `\n<sub>Powered by [Saedra](https://github.com/lubjr/saedra)</sub>`;
+            } catch (e) {
+              body = `## Saedra Architecture Review\n\n⚠️ Could not parse review output.\n\n<sub>${e.message}</sub>`;
+            }
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body,
+            });
+
+      - name: Fail if violations found
+        if: steps.arch_review.outputs.exit_code != '0'
+        run: exit 1
