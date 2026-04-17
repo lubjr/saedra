@@ -1,3 +1,4 @@
+import { writeFileSync } from "node:fs";
 import { getConfig } from "./login.js";
 import { selectProject } from "./helpers.js";
 import type { ArchitectureState, Decision, ChangeEvent, ViolationRule } from "../memory/schemas.js";
@@ -175,6 +176,48 @@ export async function contextCommand(opts: { json?: boolean; copy?: boolean } = 
     } else {
       console.log(output);
     }
+  } catch (err) {
+    console.error("\nFailed to connect to server:", (err as Error).message);
+    process.exit(1);
+  }
+}
+
+export async function memoryCompressCommand() {
+  const config = requireAuth();
+  const project = await selectProject(config);
+
+  console.log(`\n  Compressing architecture context — ${project.name}\n`);
+
+  try {
+    process.stdout.write("  Fetching architecture state...    ");
+    const state = await fetchState(config.apiUrl, project.id, config.token);
+    console.log("✓");
+
+    process.stdout.write("  Fetching active decisions...      ");
+    const decisions = await fetchDecisions(config.apiUrl, project.id, config.token);
+    console.log(`✓ (${decisions.length})`);
+
+    process.stdout.write("  Fetching recent changes...        ");
+    const changes = await fetchChanges(config.apiUrl, project.id, config.token, 10);
+    console.log(`✓ (${changes.length})`);
+
+    process.stdout.write("  Fetching violation rules...       ");
+    const rules = await fetchRules(config.apiUrl, project.id, config.token);
+    console.log(`✓ (${rules.length})`);
+
+    const snapshot = {
+      project: project.name,
+      project_id: project.id,
+      generated_at: new Date().toISOString(),
+      state,
+      decisions,
+      changes,
+      rules,
+    };
+
+    writeFileSync(".saedra-context.json", JSON.stringify(snapshot, null, 2) + "\n");
+
+    console.log("\n  Saved: .saedra-context.json\n");
   } catch (err) {
     console.error("\nFailed to connect to server:", (err as Error).message);
     process.exit(1);

@@ -1,5 +1,21 @@
 #!/usr/bin/env node
 import { Command } from "commander";
+
+process.on("uncaughtException", (err: Error) => {
+  if (err.name === "ExitPromptError") {
+    console.log("\nCancelled.\n");
+    process.exit(0);
+  }
+  throw err;
+});
+
+process.on("unhandledRejection", (err: unknown) => {
+  if (err instanceof Error && err.name === "ExitPromptError") {
+    console.log("\nCancelled.\n");
+    process.exit(0);
+  }
+  throw err;
+});
 import { loginCommand } from "./commands/login.js";
 import { projectCreateCommand, projectDeleteCommand, projectListCommand } from "./commands/projects.js";
 import { docCreateCommand, docListCommand, docReadCommand, docEditCommand, docDeleteCommand, docPushCommand } from "./commands/documents.js";
@@ -19,7 +35,7 @@ import {
   memoryChangeAnalyzeCommand,
   timelineCommand,
 } from "./commands/memory.js";
-import { contextCommand, explainCommand } from "./commands/arch-context.js";
+import { contextCommand, explainCommand, memoryCompressCommand } from "./commands/arch-context.js";
 import { reviewCommand } from "./commands/review.js";
 
 const program = new Command();
@@ -179,7 +195,8 @@ program
   .description("Validate current diff against violation rules and architectural decisions")
   .option("--staged", "Analyze only staged files")
   .option("--json", "Output results as JSON (exits with code 1 if violations found)")
-  .action((opts: { staged?: boolean; json?: boolean }) => reviewCommand(opts));
+  .option("--base <ref>", "Compare against a specific git ref (e.g. origin/main) — for CI use")
+  .action((opts: { staged?: boolean; json?: boolean; base?: string }) => reviewCommand(opts));
 
 const memory = program
   .command("memory")
@@ -216,6 +233,11 @@ change
 const rule = memory.command("rule").description("Manage architectural violation rules");
 rule.command("add").description("Add a new violation rule").action(memoryRuleAddCommand);
 rule.command("list").description("List all violation rules").action(memoryRuleListCommand);
+
+memory
+  .command("compress")
+  .description("Snapshot architecture context to .saedra-context.json for offline/CI use")
+  .action(memoryCompressCommand);
 
 program.parse();
 
