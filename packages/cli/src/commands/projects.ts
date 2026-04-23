@@ -1,15 +1,5 @@
-import { getConfig } from "./login.js";
-import { selectProject } from "./helpers.js";
+import { selectProject, requireAuth } from "./helpers.js";
 import { input } from "@inquirer/prompts";
-
-function requireAuth() {
-  const config = getConfig();
-  if (!config) {
-    console.error("You are not logged in. Run: saedra login");
-    process.exit(1);
-  }
-  return config;
-}
 
 export async function projectCreateCommand() {
   const config = requireAuth();

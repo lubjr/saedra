@@ -1,11 +1,37 @@
 import { select } from "@inquirer/prompts";
+import { getConfig } from "./login.js";
 import type { SaedraConfig } from "./login.js";
 import { findSaedraContext } from "./context.js";
+
+export function requireAuth(): SaedraConfig {
+  const config = getConfig();
+  if (!config) {
+    console.error("You are not logged in. Run: saedra login");
+    process.exit(1);
+  }
+  return config;
+}
+
+export async function parseError(res: Response): Promise<string> {
+  const text = await res.text();
+  try {
+    const body = JSON.parse(text) as { error?: string };
+    return body.error ?? `HTTP ${res.status}`;
+  } catch {
+    return `HTTP ${res.status}`;
+  }
+}
+
+export function handleFetchError(err: unknown): never {
+  const message = err instanceof Error ? err.message : String(err);
+  console.error(`\nFailed to connect to server: ${message}`);
+  process.exit(1);
+}
 
 export async function selectProject(config: SaedraConfig): Promise<{ id: string; name: string }> {
   const context = findSaedraContext();
   if (context) {
-    console.error(`Using project: ${context.projectName} (from .saedra)`);
+    console.log(`Using project: ${context.projectName} (from .saedra)`);
     return { id: context.projectId, name: context.projectName };
   }
 

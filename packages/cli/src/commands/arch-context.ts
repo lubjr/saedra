@@ -1,16 +1,6 @@
 import { writeFileSync } from "node:fs";
-import { getConfig } from "./login.js";
-import { selectProject } from "./helpers.js";
+import { selectProject, requireAuth } from "./helpers.js";
 import type { ArchitectureState, Decision, ChangeEvent, ViolationRule } from "../memory/schemas.js";
-
-function requireAuth() {
-  const config = getConfig();
-  if (!config) {
-    console.error("You are not logged in. Run: saedra login");
-    process.exit(1);
-  }
-  return config;
-}
 
 export async function fetchState(
   apiUrl: string,

@@ -1,29 +1,10 @@
 import { execSync } from "node:child_process";
 import { input, select, confirm } from "@inquirer/prompts";
-import { getConfig } from "./login.js";
 import { getAiConfig } from "./ai.js";
 import { streamAI } from "./ai-client.js";
-import { selectProject } from "./helpers.js";
+import { selectProject, requireAuth, parseError } from "./helpers.js";
+import type { SaedraConfig } from "./login.js";
 import type { ArchitectureState, Decision, ChangeEvent, ViolationRule } from "../memory/schemas.js";
-
-function requireAuth() {
-  const config = getConfig();
-  if (!config) {
-    console.error("You are not logged in. Run: saedra login");
-    process.exit(1);
-  }
-  return config;
-}
-
-async function parseError(res: Response): Promise<string> {
-  const text = await res.text();
-  try {
-    const body = JSON.parse(text) as { error?: string };
-    return body.error ?? `HTTP ${res.status}`;
-  } catch {
-    return `HTTP ${res.status}`;
-  }
-}
 
 function slugify(text: string): string {
   return text
@@ -165,7 +146,7 @@ export async function memoryStateUpdateCommand() {
 }
 
 async function upsertArchitectureState(
-  config: Awaited<ReturnType<typeof getConfig>> & object,
+  config: SaedraConfig,
   project: { id: string; name: string },
   state: ArchitectureState
 ) {

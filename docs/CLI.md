@@ -1046,7 +1046,7 @@ packages/cli/
     ├── index.ts            # Entry point - registers all commands
     ├── commands/
     │   ├── login.ts        # Login, config management (getConfig, clearConfig, SaedraConfig)
-    │   ├── helpers.ts      # Shared interactive selectors (selectProject, selectDocument)
+    │   ├── helpers.ts      # Shared utilities: requireAuth, parseError, handleFetchError, selectProject, selectDocument
     │   ├── context.ts      # .saedra context file management (init, findSaedraContext)
     │   ├── arch-context.ts # context / explain / memory compress (contextCommand, explainCommand, memoryCompressCommand, fetchState, fetchDecisions, fetchChanges, fetchRules)
     │   ├── projects.ts     # project create / list / delete

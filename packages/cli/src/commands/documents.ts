@@ -1,17 +1,7 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { basename } from "node:path";
 import { input, select, confirm } from "@inquirer/prompts";
-import { getConfig } from "./login.js";
-import { selectProject, selectDocument } from "./helpers.js";
-
-function requireAuth() {
-  const config = getConfig();
-  if (!config) {
-    console.error("You are not logged in. Run: saedra login");
-    process.exit(1);
-  }
-  return config;
-}
+import { selectProject, selectDocument, requireAuth, parseError } from "./helpers.js";
 
 function readFileContent(filePath: string): string {
   if (!existsSync(filePath)) {
@@ -19,16 +9,6 @@ function readFileContent(filePath: string): string {
     process.exit(1);
   }
   return readFileSync(filePath, "utf-8");
-}
-
-async function parseError(res: Response): Promise<string> {
-  const text = await res.text();
-  try {
-    const body = JSON.parse(text) as { error?: string };
-    return body.error ?? `HTTP ${res.status}`;
-  } catch {
-    return `HTTP ${res.status}`;
-  }
 }
 
 export async function docCreateCommand() {

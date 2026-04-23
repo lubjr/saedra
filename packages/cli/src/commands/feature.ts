@@ -1,19 +1,9 @@
 import { input } from "@inquirer/prompts";
-import { getConfig } from "./login.js";
 import { getAiConfig } from "./ai.js";
 import { streamAI } from "./ai-client.js";
-import { selectProject } from "./helpers.js";
+import { selectProject, requireAuth } from "./helpers.js";
 import { fetchState, fetchDecisions, fetchChanges } from "./arch-context.js";
 import type { ArchitectureState, Decision, ChangeEvent } from "../memory/schemas.js";
-
-function requireAuth() {
-  const config = getConfig();
-  if (!config) {
-    console.error("You are not logged in. Run: saedra login");
-    process.exit(1);
-  }
-  return config;
-}
 
 function buildFeaturePrompt(
   projectName: string,
