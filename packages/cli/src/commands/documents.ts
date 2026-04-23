@@ -1,17 +1,7 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { basename } from "node:path";
 import { input, select, confirm } from "@inquirer/prompts";
-import { getConfig } from "./login.js";
-import { selectProject, selectDocument } from "./helpers.js";
-
-function requireAuth() {
-  const config = getConfig();
-  if (!config) {
-    console.error("You are not logged in. Run: saedra login");
-    process.exit(1);
-  }
-  return config;
-}
+import { selectProject, selectDocument, requireAuth, parseError, handleFetchError } from "./helpers.js";
 
 function readFileContent(filePath: string): string {
   if (!existsSync(filePath)) {
@@ -19,16 +9,6 @@ function readFileContent(filePath: string): string {
     process.exit(1);
   }
   return readFileSync(filePath, "utf-8");
-}
-
-async function parseError(res: Response): Promise<string> {
-  const text = await res.text();
-  try {
-    const body = JSON.parse(text) as { error?: string };
-    return body.error ?? `HTTP ${res.status}`;
-  } catch {
-    return `HTTP ${res.status}`;
-  }
 }
 
 export async function docCreateCommand() {
@@ -69,8 +49,7 @@ export async function docCreateCommand() {
     console.log(`  Name: ${data.name}`);
     console.log(`  ID:   ${data.id}\n`);
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }
 
@@ -113,8 +92,7 @@ export async function docListCommand() {
     }
     console.log();
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }
 
@@ -176,8 +154,7 @@ export async function docReadCommand(docName?: string) {
     console.log(doc.content);
     console.log();
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }
 
@@ -216,8 +193,7 @@ export async function docEditCommand() {
 
     console.log(`\nDocument updated successfully.\n`);
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }
 
@@ -258,8 +234,7 @@ export async function docPushCommand(filePath?: string) {
       if (existing) existingDocId = existing.id;
     }
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 
   if (existingDocId) {
@@ -294,8 +269,7 @@ export async function docPushCommand(filePath?: string) {
 
       console.log(`\nDocument "${name}" updated successfully.\n`);
     } catch (err) {
-      console.error("\nFailed to connect to server:", (err as Error).message);
-      process.exit(1);
+      handleFetchError(err);
     }
   } else {
     try {
@@ -321,8 +295,7 @@ export async function docPushCommand(filePath?: string) {
       console.log(`  Name: ${data.name}`);
       console.log(`  ID:   ${data.id}\n`);
     } catch (err) {
-      console.error("\nFailed to connect to server:", (err as Error).message);
-      process.exit(1);
+      handleFetchError(err);
     }
   }
 }
@@ -350,7 +323,6 @@ export async function docDeleteCommand() {
 
     console.log(`\nDocument deleted successfully.\n`);
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }

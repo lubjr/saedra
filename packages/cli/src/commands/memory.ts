@@ -1,29 +1,10 @@
 import { execSync } from "node:child_process";
 import { input, select, confirm } from "@inquirer/prompts";
-import { getConfig } from "./login.js";
 import { getAiConfig } from "./ai.js";
 import { streamAI } from "./ai-client.js";
-import { selectProject } from "./helpers.js";
+import { selectProject, requireAuth, parseError, handleFetchError } from "./helpers.js";
+import type { SaedraConfig } from "./login.js";
 import type { ArchitectureState, Decision, ChangeEvent, ViolationRule } from "../memory/schemas.js";
-
-function requireAuth() {
-  const config = getConfig();
-  if (!config) {
-    console.error("You are not logged in. Run: saedra login");
-    process.exit(1);
-  }
-  return config;
-}
-
-async function parseError(res: Response): Promise<string> {
-  const text = await res.text();
-  try {
-    const body = JSON.parse(text) as { error?: string };
-    return body.error ?? `HTTP ${res.status}`;
-  } catch {
-    return `HTTP ${res.status}`;
-  }
-}
 
 function slugify(text: string): string {
   return text
@@ -120,8 +101,7 @@ export async function memoryStateCommand() {
     }
     console.log();
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }
 
@@ -165,7 +145,7 @@ export async function memoryStateUpdateCommand() {
 }
 
 async function upsertArchitectureState(
-  config: Awaited<ReturnType<typeof getConfig>> & object,
+  config: SaedraConfig,
   project: { id: string; name: string },
   state: ArchitectureState
 ) {
@@ -219,8 +199,7 @@ async function upsertArchitectureState(
       console.log("\nArchitecture state created successfully.\n");
     }
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }
 
@@ -303,8 +282,7 @@ export async function memoryDecisionAddCommand() {
 
     console.log(`\nDecision "${id}" saved successfully.\n`);
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }
 
@@ -464,8 +442,7 @@ export async function memoryChangeLogCommand(fromGit = false, noPrompt = false) 
 
     console.log(`\nChange event "${id}" saved successfully.\n`);
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }
 
@@ -520,8 +497,7 @@ export async function memoryChangeListCommand() {
       }
     }
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }
 
@@ -592,8 +568,7 @@ export async function memoryRuleAddCommand() {
 
     console.log(`\nRule "${id}" saved successfully.\n`);
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }
 
@@ -640,8 +615,7 @@ export async function memoryRuleListCommand() {
       }
     }
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }
 
@@ -1090,8 +1064,7 @@ export async function timelineCommand() {
       console.log();
     }
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }
 
@@ -1148,7 +1121,6 @@ export async function memoryDecisionListCommand() {
       }
     }
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }

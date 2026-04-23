@@ -1,22 +1,12 @@
 import { execSync } from "child_process";
-import { getConfig } from "./login.js";
 import { getAiConfig } from "./ai.js";
 import { callAI } from "./ai-client.js";
-import { selectProject } from "./helpers.js";
+import { selectProject, requireAuth } from "./helpers.js";
 import { fetchDecisions, fetchRules } from "./arch-context.js";
 import type { Decision, ViolationRule } from "../memory/schemas.js";
 
 const MAX_FILES = 20;
 const MAX_DIFF_CHARS = 3000;
-
-function requireAuth() {
-  const config = getConfig();
-  if (!config) {
-    console.error("You are not logged in. Run: saedra login");
-    process.exit(1);
-  }
-  return config;
-}
 
 function getChangedFiles(staged: boolean, base?: string): string[] {
   try {

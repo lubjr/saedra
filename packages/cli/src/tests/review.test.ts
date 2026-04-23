@@ -1,15 +1,11 @@
 import { describe, test, expect, vi, beforeEach } from "vitest";
-import * as loginModule from "../commands/login.js";
 import * as helpersModule from "../commands/helpers.js";
 import * as archContextModule from "../commands/arch-context.js";
 import * as aiClientModule from "../commands/ai-client.js";
 import * as childProcess from "child_process";
 
-vi.mock("../commands/login.js", () => ({
-  getConfig: vi.fn(),
-}));
-
 vi.mock("../commands/helpers.js", () => ({
+  requireAuth: vi.fn(),
   selectProject: vi.fn(),
 }));
 
@@ -30,7 +26,7 @@ vi.mock("../commands/ai.js", () => ({
   getAiConfig: vi.fn(),
 }));
 
-const mockGetConfig = vi.mocked(loginModule.getConfig);
+const mockRequireAuth = vi.mocked(helpersModule.requireAuth);
 const mockSelectProject = vi.mocked(helpersModule.selectProject);
 const mockFetchDecisions = vi.mocked(archContextModule.fetchDecisions);
 const mockFetchRules = vi.mocked(archContextModule.fetchRules);
@@ -108,7 +104,7 @@ describe("review", () => {
 
   describe("reviewCommand", () => {
     test("exits with 1 when not authenticated", async () => {
-      mockGetConfig.mockReturnValue(null);
+      mockRequireAuth.mockImplementation(() => { process.exit(1 as never); });
 
       await expect(reviewCommand()).rejects.toThrow();
 
@@ -116,7 +112,7 @@ describe("review", () => {
     });
 
     test("exits with 1 when AI is not configured", async () => {
-      mockGetConfig.mockReturnValue(MOCK_CONFIG);
+      mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
       mockGetAiConfig.mockReturnValue(null);
 
@@ -126,7 +122,7 @@ describe("review", () => {
     });
 
     test("prints no changed files message when working tree is clean", async () => {
-      mockGetConfig.mockReturnValue(MOCK_CONFIG);
+      mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
       mockGetAiConfig.mockReturnValue(MOCK_AI_CONFIG);
       mockExecSync.mockReturnValue("" as any);
@@ -137,7 +133,7 @@ describe("review", () => {
     });
 
     test("outputs JSON when json option is true and working tree is clean", async () => {
-      mockGetConfig.mockReturnValue(MOCK_CONFIG);
+      mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
       mockGetAiConfig.mockReturnValue(MOCK_AI_CONFIG);
       mockExecSync.mockReturnValue("" as any);
@@ -148,7 +144,7 @@ describe("review", () => {
     });
 
     test("reports no violations when all files are ok", async () => {
-      mockGetConfig.mockReturnValue(MOCK_CONFIG);
+      mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
       mockGetAiConfig.mockReturnValue(MOCK_AI_CONFIG);
       mockExecSync
@@ -164,7 +160,7 @@ describe("review", () => {
     });
 
     test("exits with 1 when violations are found and json option is true", async () => {
-      mockGetConfig.mockReturnValue(MOCK_CONFIG);
+      mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
       mockGetAiConfig.mockReturnValue(MOCK_AI_CONFIG);
       mockExecSync
@@ -180,7 +176,7 @@ describe("review", () => {
     });
 
     test("reviews staged files when staged option is true", async () => {
-      mockGetConfig.mockReturnValue(MOCK_CONFIG);
+      mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
       mockGetAiConfig.mockReturnValue(MOCK_AI_CONFIG);
       mockExecSync
