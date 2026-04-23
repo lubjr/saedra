@@ -1,4 +1,4 @@
-import { selectProject, requireAuth } from "./helpers.js";
+import { selectProject, requireAuth, handleFetchError } from "./helpers.js";
 import { input } from "@inquirer/prompts";
 
 export async function projectCreateCommand() {
@@ -34,8 +34,7 @@ export async function projectCreateCommand() {
     console.log(`  Name: ${data.name}`);
     console.log(`  ID:   ${data.id}\n`);
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }
 
@@ -69,8 +68,7 @@ export async function projectListCommand() {
     }
     console.log();
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }
 
@@ -93,7 +91,6 @@ export async function projectDeleteCommand() {
 
     console.log(`\nProject deleted successfully.\n`);
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }

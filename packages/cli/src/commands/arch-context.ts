@@ -1,5 +1,5 @@
 import { writeFileSync } from "node:fs";
-import { selectProject, requireAuth } from "./helpers.js";
+import { selectProject, requireAuth, handleFetchError } from "./helpers.js";
 import type { ArchitectureState, Decision, ChangeEvent, ViolationRule } from "../memory/schemas.js";
 
 export async function fetchState(
@@ -167,8 +167,7 @@ export async function contextCommand(opts: { json?: boolean; copy?: boolean } = 
       console.log(output);
     }
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }
 
@@ -209,8 +208,7 @@ export async function memoryCompressCommand() {
 
     console.log("\n  Saved: .saedra-context.json\n");
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }
 
@@ -266,7 +264,6 @@ export async function explainCommand() {
       console.log();
     }
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }

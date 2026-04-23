@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { basename } from "node:path";
 import { input, select, confirm } from "@inquirer/prompts";
-import { selectProject, selectDocument, requireAuth, parseError } from "./helpers.js";
+import { selectProject, selectDocument, requireAuth, parseError, handleFetchError } from "./helpers.js";
 
 function readFileContent(filePath: string): string {
   if (!existsSync(filePath)) {
@@ -49,8 +49,7 @@ export async function docCreateCommand() {
     console.log(`  Name: ${data.name}`);
     console.log(`  ID:   ${data.id}\n`);
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }
 
@@ -93,8 +92,7 @@ export async function docListCommand() {
     }
     console.log();
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }
 
@@ -156,8 +154,7 @@ export async function docReadCommand(docName?: string) {
     console.log(doc.content);
     console.log();
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }
 
@@ -196,8 +193,7 @@ export async function docEditCommand() {
 
     console.log(`\nDocument updated successfully.\n`);
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }
 
@@ -238,8 +234,7 @@ export async function docPushCommand(filePath?: string) {
       if (existing) existingDocId = existing.id;
     }
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 
   if (existingDocId) {
@@ -274,8 +269,7 @@ export async function docPushCommand(filePath?: string) {
 
       console.log(`\nDocument "${name}" updated successfully.\n`);
     } catch (err) {
-      console.error("\nFailed to connect to server:", (err as Error).message);
-      process.exit(1);
+      handleFetchError(err);
     }
   } else {
     try {
@@ -301,8 +295,7 @@ export async function docPushCommand(filePath?: string) {
       console.log(`  Name: ${data.name}`);
       console.log(`  ID:   ${data.id}\n`);
     } catch (err) {
-      console.error("\nFailed to connect to server:", (err as Error).message);
-      process.exit(1);
+      handleFetchError(err);
     }
   }
 }
@@ -330,7 +323,6 @@ export async function docDeleteCommand() {
 
     console.log(`\nDocument deleted successfully.\n`);
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }

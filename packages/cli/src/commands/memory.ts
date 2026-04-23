@@ -2,7 +2,7 @@ import { execSync } from "node:child_process";
 import { input, select, confirm } from "@inquirer/prompts";
 import { getAiConfig } from "./ai.js";
 import { streamAI } from "./ai-client.js";
-import { selectProject, requireAuth, parseError } from "./helpers.js";
+import { selectProject, requireAuth, parseError, handleFetchError } from "./helpers.js";
 import type { SaedraConfig } from "./login.js";
 import type { ArchitectureState, Decision, ChangeEvent, ViolationRule } from "../memory/schemas.js";
 
@@ -101,8 +101,7 @@ export async function memoryStateCommand() {
     }
     console.log();
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }
 
@@ -200,8 +199,7 @@ async function upsertArchitectureState(
       console.log("\nArchitecture state created successfully.\n");
     }
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }
 
@@ -284,8 +282,7 @@ export async function memoryDecisionAddCommand() {
 
     console.log(`\nDecision "${id}" saved successfully.\n`);
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }
 
@@ -445,8 +442,7 @@ export async function memoryChangeLogCommand(fromGit = false, noPrompt = false) 
 
     console.log(`\nChange event "${id}" saved successfully.\n`);
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }
 
@@ -501,8 +497,7 @@ export async function memoryChangeListCommand() {
       }
     }
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }
 
@@ -573,8 +568,7 @@ export async function memoryRuleAddCommand() {
 
     console.log(`\nRule "${id}" saved successfully.\n`);
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }
 
@@ -621,8 +615,7 @@ export async function memoryRuleListCommand() {
       }
     }
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }
 
@@ -1071,8 +1064,7 @@ export async function timelineCommand() {
       console.log();
     }
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }
 
@@ -1129,7 +1121,6 @@ export async function memoryDecisionListCommand() {
       }
     }
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }
