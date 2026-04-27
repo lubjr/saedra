@@ -3,10 +3,10 @@ import { getAiConfig } from "./ai.js";
 import { callAI } from "./ai-client.js";
 import { selectProject, requireAuth } from "./helpers.js";
 import { fetchDecisions, fetchRules } from "./arch-context.js";
+import { buildReviewPrompt, REVIEW_SYSTEM_PROMPT } from "./prompts.js";
 import type { Decision, ViolationRule } from "../memory/schemas.js";
 
 const MAX_FILES = 20;
-const MAX_DIFF_CHARS = 3000;
 
 function getChangedFiles(staged: boolean, base?: string): string[] {
   try {
@@ -42,68 +42,6 @@ function getFileDiff(file: string, staged: boolean, base?: string): string {
   }
 }
 
-function buildReviewPrompt(
-  projectName: string,
-  files: Array<{ file: string; diff: string }>,
-  rules: ViolationRule[],
-  decisions: Decision[]
-): string {
-  const parts: string[] = [];
-
-  parts.push(`Project: ${projectName}`);
-  parts.push("");
-
-  if (rules.length) {
-    parts.push("## Violation Rules");
-    for (const r of rules) {
-      parts.push(`- ${r.id} [${r.severity.toUpperCase()}]: ${r.description}`);
-      if (r.related_decision) parts.push(`  Related decision: ${r.related_decision}`);
-    }
-    parts.push("");
-  }
-
-  if (decisions.length) {
-    parts.push("## Active Decisions");
-    for (const d of decisions) {
-      parts.push(`- ${d.id}: ${d.title}`);
-      if (d.constraints_introduced?.length) {
-        parts.push(`  Constraints: ${d.constraints_introduced.join("; ")}`);
-      }
-    }
-    parts.push("");
-  }
-
-  parts.push("## Changed Files");
-  for (const { file, diff } of files) {
-    parts.push(`### ${file}`);
-    if (diff) {
-      parts.push("```diff");
-      parts.push(diff.slice(0, MAX_DIFF_CHARS));
-      parts.push("```");
-    } else {
-      parts.push("(diff not available)");
-    }
-    parts.push("");
-  }
-
-  parts.push("## Task");
-  parts.push(
-    "Analyze each changed file against the violation rules and architectural decisions above.\n" +
-    "Respond ONLY with valid JSON — no markdown, no explanation outside the JSON:\n" +
-    '{\n' +
-    '  "files": [\n' +
-    '    {\n' +
-    '      "file": "path/to/file.ts",\n' +
-    '      "status": "violation" or "ok",\n' +
-    '      "violations": [{ "rule_id": "RULE-XXX", "detail": "specific reason" }],\n' +
-    '      "note": "one line explanation"\n' +
-    '    }\n' +
-    '  ]\n' +
-    '}'
-  );
-
-  return parts.join("\n");
-}
 
 interface FileResult {
   file: string;
@@ -169,12 +107,7 @@ export async function reviewCommand(opts: { staged?: boolean; json?: boolean; ba
   try {
     const prompt = buildReviewPrompt(project.name, filesWithDiffs, rules, decisions);
 
-    const rawText = await callAI(
-      "You are an architectural review tool. Analyze code diffs strictly against the provided violation rules and architectural decisions. " +
-        "Respond only with valid JSON as instructed. Never add markdown or text outside the JSON object.",
-      prompt,
-      aiConfig
-    );
+    const rawText = await callAI(REVIEW_SYSTEM_PROMPT, prompt, aiConfig);
 
     let result: ReviewResult;
     try {

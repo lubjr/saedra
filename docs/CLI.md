@@ -1047,6 +1047,7 @@ packages/cli/
     ├── commands/
     │   ├── login.ts        # Login, config management (getConfig, clearConfig, SaedraConfig)
     │   ├── helpers.ts      # Shared utilities: requireAuth, parseError, handleFetchError, selectProject, selectDocument
+    │   ├── prompts.ts      # AI prompt constants and builders: REVIEW/FEATURE/COMPRESS/ANALYZE system prompts + buildReviewPrompt, buildFeaturePrompt, buildCompressPrompt, buildAnalyzePrompt
     │   ├── context.ts      # .saedra context file management (init, findSaedraContext)
     │   ├── arch-context.ts # context / explain / memory compress (contextCommand, explainCommand, memoryCompressCommand, fetchState, fetchDecisions, fetchChanges, fetchRules)
     │   ├── projects.ts     # project create / list / delete
