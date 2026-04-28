@@ -4,7 +4,7 @@ import { getAiConfig } from "./ai.js";
 import { callAI } from "./ai-client.js";
 import { selectProject, requireAuth } from "./helpers.js";
 import { fetchDecisions, fetchRules } from "./arch-context.js";
-import { buildReviewPrompt, REVIEW_SYSTEM_PROMPT } from "./prompts.js";
+import { buildReviewPrompt, REVIEW_SYSTEM_PROMPT, MAX_DIFF_CHARS } from "./prompts.js";
 
 const MAX_FILES = 20;
 
@@ -102,6 +102,8 @@ export async function reviewCommand(opts: { staged?: boolean; json?: boolean; ba
     diff: getFileDiff(file, opts.staged ?? false, opts.base),
   }));
 
+  const truncatedCount = filesWithDiffs.filter((f) => f.diff.length > MAX_DIFF_CHARS).length;
+
   const aiSpinner = opts.json ? null : ora("Reviewing with AI...").start();
 
   try {
@@ -133,6 +135,10 @@ export async function reviewCommand(opts: { staged?: boolean; json?: boolean; ba
 
     const separator = "  " + "─".repeat(50);
     console.log(separator);
+
+    if (truncatedCount > 0) {
+      console.log(`\n  ⚠  Note: ${truncatedCount} file${truncatedCount > 1 ? "s were" : " was"} truncated (diff > 3000 chars). Results may be incomplete.`);
+    }
 
     for (const fileResult of result.files) {
       if (fileResult.status === "violation") {

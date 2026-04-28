@@ -1,6 +1,6 @@
 import type { Decision, ViolationRule, ArchitectureState, ChangeEvent } from "../memory/schemas.js";
 
-const MAX_DIFF_CHARS = 3000;
+export const MAX_DIFF_CHARS = 3000;
 
 export const REVIEW_SYSTEM_PROMPT =
   "You are an architectural review tool. Analyze code diffs strictly against the provided violation rules and architectural decisions. " +
@@ -55,8 +55,9 @@ export function buildReviewPrompt(
   for (const { file, diff } of files) {
     parts.push(`### ${file}`);
     if (diff) {
+      const wasTruncated = diff.length > MAX_DIFF_CHARS;
       parts.push("```diff");
-      parts.push(diff.slice(0, MAX_DIFF_CHARS));
+      parts.push(wasTruncated ? diff.slice(0, MAX_DIFF_CHARS) + "\n[... diff truncated at 3000 chars ...]" : diff);
       parts.push("```");
     } else {
       parts.push("(diff not available)");
