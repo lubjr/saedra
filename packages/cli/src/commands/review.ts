@@ -2,8 +2,9 @@ import { execSync } from "child_process";
 import ora from "ora";
 import { getAiConfig } from "./ai.js";
 import { callAI } from "./ai-client.js";
-import { selectProject, requireAuth } from "./helpers.js";
+import { selectProject, requireAuth, loadLocalContext, isContextFresh } from "./helpers.js";
 import { fetchDecisions, fetchRules } from "./arch-context.js";
+import type { Decision, ViolationRule } from "../memory/schemas.js";
 import { buildReviewPrompt, REVIEW_SYSTEM_PROMPT, MAX_DIFF_CHARS } from "./prompts.js";
 
 const MAX_FILES = 20;
@@ -54,7 +55,7 @@ interface ReviewResult {
   files: FileResult[];
 }
 
-export async function reviewCommand(opts: { staged?: boolean; json?: boolean; base?: string } = {}) {
+export async function reviewCommand(opts: { staged?: boolean; json?: boolean; base?: string; offline?: boolean } = {}) {
   const config = requireAuth();
   const project = await selectProject(config);
 
@@ -84,18 +85,51 @@ export async function reviewCommand(opts: { staged?: boolean; json?: boolean; ba
   }
 
   const fileLabel = `${changedFiles.length} file${changedFiles.length > 1 ? "s" : ""}${truncated ? ` (of ${allChangedFiles.length})` : ""}`;
-  const contextSpinner = opts.json ? null : ora(`Fetching context for ${fileLabel}...`).start();
+  const spinnerMsg = opts.offline
+    ? `Loading local snapshot for ${fileLabel}...`
+    : `Fetching context for ${fileLabel}...`;
+  const contextSpinner = opts.json ? null : ora(spinnerMsg).start();
 
-  const [rules, decisions] = await Promise.all([
-    fetchRules(config.apiUrl, project.id, config.token),
-    fetchDecisions(config.apiUrl, project.id, config.token),
-  ]).catch((err) => {
-    contextSpinner?.fail("Failed to connect to server");
-    console.error("\n\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
-  });
+  let rules: ViolationRule[];
+  let decisions: Decision[];
 
-  contextSpinner?.succeed(`Loaded ${rules.length} rule${rules.length !== 1 ? "s" : ""} and ${decisions.length} decision${decisions.length !== 1 ? "s" : ""}`);
+  if (opts.offline) {
+    const localCtx = loadLocalContext();
+    if (!localCtx) {
+      contextSpinner?.fail("No local snapshot found");
+      console.error("\n  No .saedra-context.json found. Run: saedra memory compress\n");
+      process.exit(1);
+    }
+    rules = localCtx.rules;
+    decisions = localCtx.decisions;
+    contextSpinner?.succeed("Loaded from local snapshot");
+    console.error(`\n  ⚠  Using local snapshot (generated_at: ${localCtx.generated_at})`);
+    if (!isContextFresh(localCtx)) {
+      console.error(`     ⚠  Snapshot is older than 60 minutes. Results may be outdated.`);
+    }
+  } else {
+    try {
+      [rules, decisions] = await Promise.all([
+        fetchRules(config.apiUrl, project.id, config.token),
+        fetchDecisions(config.apiUrl, project.id, config.token),
+      ]);
+      contextSpinner?.succeed(`Loaded ${rules.length} rule${rules.length !== 1 ? "s" : ""} and ${decisions.length} decision${decisions.length !== 1 ? "s" : ""}`);
+    } catch (err) {
+      const localCtx = loadLocalContext();
+      if (!localCtx) {
+        contextSpinner?.fail("Failed to connect to server");
+        console.error(`\n\nFailed to connect to server: ${(err as Error).message}`);
+        process.exit(1);
+      }
+      contextSpinner?.warn("Server unreachable — using local snapshot");
+      console.error(`\n  ⚠  Server unreachable — using local snapshot (generated_at: ${localCtx.generated_at})`);
+      if (!isContextFresh(localCtx)) {
+        console.error(`     ⚠  Snapshot is older than 60 minutes. Results may be outdated.`);
+      }
+      rules = localCtx.rules;
+      decisions = localCtx.decisions;
+    }
+  }
 
   const filesWithDiffs = changedFiles.map((file) => ({
     file,
