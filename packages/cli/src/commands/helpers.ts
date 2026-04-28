@@ -1,7 +1,44 @@
+import { existsSync, readFileSync } from "node:fs";
+import { join, resolve } from "node:path";
 import { select } from "@inquirer/prompts";
 import { getConfig } from "./login.js";
 import type { SaedraConfig } from "./login.js";
 import { findSaedraContext } from "./context.js";
+import type { ArchitectureState, Decision, ChangeEvent, ViolationRule } from "../memory/schemas.js";
+
+const LOCAL_CONTEXT_FILE = ".saedra-context.json";
+
+export interface LocalContext {
+  generated_at: string;
+  state: ArchitectureState | null;
+  decisions: Decision[];
+  changes: ChangeEvent[];
+  rules: ViolationRule[];
+}
+
+export function loadLocalContext(startDir: string = process.cwd()): LocalContext | null {
+  let dir = startDir;
+  while (true) {
+    const filePath = join(dir, LOCAL_CONTEXT_FILE);
+    if (existsSync(filePath)) {
+      try {
+        return JSON.parse(readFileSync(filePath, "utf-8")) as LocalContext;
+      } catch {
+        return null;
+      }
+    }
+    const parent = resolve(dir, "..");
+    if (parent === dir) break;
+    dir = parent;
+  }
+  return null;
+}
+
+export function isContextFresh(context: LocalContext, maxAgeMinutes = 60): boolean {
+  const generated = new Date(context.generated_at).getTime();
+  if (isNaN(generated)) return false;
+  return Date.now() - generated < maxAgeMinutes * 60 * 1000;
+}
 
 export function requireAuth(): SaedraConfig {
   const config = getConfig();
