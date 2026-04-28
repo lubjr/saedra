@@ -178,7 +178,8 @@ program
   .description("Print a compressed architecture context (ideal for AI prompts)")
   .option("--json", "Output as JSON")
   .option("--copy", "Copy output to clipboard instead of printing")
-  .action((opts: { json?: boolean; copy?: boolean }) => contextCommand(opts));
+  .option("--offline", "Use local snapshot (.saedra-context.json) without connecting to the server")
+  .action((opts: { json?: boolean; copy?: boolean; offline?: boolean }) => contextCommand(opts));
 
 program
   .command("explain")
