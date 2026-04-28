@@ -1,10 +1,10 @@
 import { execSync } from "child_process";
+import ora from "ora";
 import { getAiConfig } from "./ai.js";
 import { callAI } from "./ai-client.js";
 import { selectProject, requireAuth } from "./helpers.js";
 import { fetchDecisions, fetchRules } from "./arch-context.js";
 import { buildReviewPrompt, REVIEW_SYSTEM_PROMPT } from "./prompts.js";
-import type { Decision, ViolationRule } from "../memory/schemas.js";
 
 const MAX_FILES = 20;
 
@@ -81,28 +81,28 @@ export async function reviewCommand(opts: { staged?: boolean; json?: boolean; ba
 
   if (!opts.json) {
     console.log("\n  Architectural Review\n");
-    process.stdout.write(`  Analyzing ${changedFiles.length} changed file${changedFiles.length > 1 ? "s" : ""}${truncated ? ` (of ${allChangedFiles.length} — limit ${MAX_FILES})` : ""}...   `);
   }
 
+  const fileLabel = `${changedFiles.length} file${changedFiles.length > 1 ? "s" : ""}${truncated ? ` (of ${allChangedFiles.length})` : ""}`;
+  const contextSpinner = opts.json ? null : ora(`Fetching context for ${fileLabel}...`).start();
 
   const [rules, decisions] = await Promise.all([
     fetchRules(config.apiUrl, project.id, config.token),
     fetchDecisions(config.apiUrl, project.id, config.token),
   ]).catch((err) => {
+    contextSpinner?.fail("Failed to connect to server");
     console.error("\n\nFailed to connect to server:", (err as Error).message);
     process.exit(1);
   });
 
-  if (!opts.json) {
-    console.log("✓");
-    console.log(`  Loaded ${rules.length} violation rule${rules.length !== 1 ? "s" : ""} and ${decisions.length} active decision${decisions.length !== 1 ? "s" : ""}.`);
-    process.stdout.write("  Sending to AI...                \n\n");
-  }
+  contextSpinner?.succeed(`Loaded ${rules.length} rule${rules.length !== 1 ? "s" : ""} and ${decisions.length} decision${decisions.length !== 1 ? "s" : ""}`);
 
   const filesWithDiffs = changedFiles.map((file) => ({
     file,
     diff: getFileDiff(file, opts.staged ?? false, opts.base),
   }));
+
+  const aiSpinner = opts.json ? null : ora("Reviewing with AI...").start();
 
   try {
     const prompt = buildReviewPrompt(project.name, filesWithDiffs, rules, decisions);
@@ -114,9 +114,11 @@ export async function reviewCommand(opts: { staged?: boolean; json?: boolean; ba
       const cleaned = rawText.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "").trim();
       result = JSON.parse(cleaned) as ReviewResult;
     } catch {
-      console.error("\n  Failed to parse AI response. Try again.\n");
+      aiSpinner?.fail("Failed to parse AI response. Try again.");
       process.exit(1);
     }
+
+    aiSpinner?.succeed("Review complete");
 
     const totalViolations = result.files.filter((f) => f.status === "violation").length;
 
@@ -158,7 +160,7 @@ export async function reviewCommand(opts: { staged?: boolean; json?: boolean; ba
       console.log("\n  Result: no violations found\n");
     }
   } catch (err) {
-    console.error("\n  Failed:", (err as Error).message, "\n");
+    aiSpinner?.fail((err as Error).message);
     process.exit(1);
   }
 }
