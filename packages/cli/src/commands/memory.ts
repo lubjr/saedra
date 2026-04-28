@@ -1,5 +1,6 @@
 import { execSync } from "node:child_process";
 import { input, select, confirm } from "@inquirer/prompts";
+import ora from "ora";
 import { getAiConfig } from "./ai.js";
 import { streamAI } from "./ai-client.js";
 import { selectProject, requireAuth, parseError, handleFetchError } from "./helpers.js";
@@ -675,22 +676,22 @@ export async function memoryStateUpdateAiCommand() {
     }
 
     console.log(`  Found ${decisions.length} active decision(s) and ${changes.length} change event(s).`);
-    console.log("  Sending to AI for compression...\n");
 
     const prompt = buildCompressPrompt(project.name, decisions, changes, currentState);
 
     const chunks: string[] = [];
-    process.stdout.write("  Thinking");
+    const compressSpinner = ora("Compressing with AI...").start();
 
     await streamAI(
       COMPRESS_SYSTEM_PROMPT,
       prompt,
       aiConfig,
-      (text) => { chunks.push(text); process.stdout.write("."); },
+      (text) => { chunks.push(text); },
       { smart: true }
     );
 
-    process.stdout.write("\n\n");
+    compressSpinner.succeed("Compression complete");
+    console.log();
 
     const stateJson = chunks.join("").trim();
     if (!stateJson) {
@@ -843,10 +844,24 @@ export async function memoryChangeAnalyzeCommand(changeIdArg?: string) {
     const prompt = buildAnalyzePrompt(project.name, target, state, decisions, rules);
 
     const separator = "  " + "─".repeat(50);
-    console.log(separator);
+    const analyzeSpinner = ora("Analyzing with AI...").start();
+    let headerPrinted = false;
 
-    await streamAI(ANALYZE_SYSTEM_PROMPT, prompt, aiConfig, (text) => process.stdout.write(text));
+    await streamAI(
+      ANALYZE_SYSTEM_PROMPT,
+      prompt,
+      aiConfig,
+      (text) => {
+        if (!headerPrinted) {
+          analyzeSpinner.stop();
+          console.log(separator);
+          headerPrinted = true;
+        }
+        process.stdout.write(text);
+      }
+    );
 
+    if (!headerPrinted) analyzeSpinner.stop();
     process.stdout.write("\n");
     console.log(separator);
     console.log();
