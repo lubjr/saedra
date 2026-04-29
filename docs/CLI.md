@@ -683,7 +683,12 @@ Using project: my-infra (from .saedra)
   Fetching recent changes...        ✓ (5)
   Fetching violation rules...       ✓ (1)
 
-  Saved: .saedra-context.json
+  ✓  Snapshot saved to .saedra-context.json
+     State:      1 architecture state
+     Decisions:  2 active decisions
+     Changes:    5 recent changes
+     Rules:      1 violation rule
+     Generated:  2026-04-21T14:32:00Z
 ```
 
 The generated file includes a `generated_at` timestamp so you always know when the snapshot was taken:
@@ -771,6 +776,14 @@ Using project: my-infra (from .saedra)
 ```
 
 On Linux requires `xclip`, `xsel`, or `wl-clipboard` to be installed.
+
+#### `saedra context --offline`
+
+Use the local `.saedra-context.json` snapshot instead of fetching from the server. Same fallback behavior as `saedra review --offline`.
+
+```bash
+$ saedra context --offline
+```
 
 ---
 
@@ -1005,6 +1018,40 @@ Use in GitHub Actions:
   env:
     SAEDRA_API_URL: ${{ secrets.SAEDRA_API_URL }}
 ```
+
+#### `saedra review --base <ref>`
+
+Compare files changed between a git ref and HEAD instead of using the working tree. Useful in CI to review only the commits in a PR branch.
+
+```bash
+$ saedra review --base origin/main
+```
+
+#### `saedra review --offline`
+
+Skip the server entirely and use the local `.saedra-context.json` snapshot. Exits with an error if no snapshot is found.
+
+```bash
+$ saedra review --offline
+```
+
+If the server is unreachable but a snapshot exists, `saedra review` falls back to the snapshot automatically and prints a warning to stderr. `--offline` forces this path without attempting the server at all.
+
+#### CI workflow (offline)
+
+The recommended pattern for CI environments without persistent server access:
+
+```yaml
+- name: Snapshot architecture context
+  run: saedra memory compress
+  env:
+    SAEDRA_API_URL: ${{ secrets.SAEDRA_API_URL }}
+
+- name: Architectural review (offline)
+  run: saedra review --base origin/main --offline --json
+```
+
+`saedra memory compress` runs once (e.g. on a schedule or before the pipeline) and writes `.saedra-context.json` to the workspace. The review step then uses the snapshot without requiring server access during the review itself.
 
 ---
 
