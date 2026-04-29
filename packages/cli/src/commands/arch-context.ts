@@ -238,7 +238,12 @@ export async function memoryCompressCommand() {
 
     writeFileSync(".saedra-context.json", JSON.stringify(snapshot, null, 2) + "\n");
 
-    console.log("\n  Saved: .saedra-context.json\n");
+    console.log(`\n  ✓  Snapshot saved to .saedra-context.json`);
+    console.log(`     State:      ${state ? "1 architecture state" : "none"}`);
+    console.log(`     Decisions:  ${decisions.length} active decision${decisions.length !== 1 ? "s" : ""}`);
+    console.log(`     Changes:    ${changes.length} recent change${changes.length !== 1 ? "s" : ""}`);
+    console.log(`     Rules:      ${rules.length} violation rule${rules.length !== 1 ? "s" : ""}`);
+    console.log(`     Generated:  ${snapshot.generated_at}\n`);
   } catch (err) {
     handleFetchError(err);
   }
