@@ -98,12 +98,13 @@ export function buildReviewPrompt(
   parts.push("## Task");
   parts.push(
     "Analyze each changed file against the violation rules and architectural decisions above.\n" +
+    "Use status \"violation\" for clear rule breaches, \"warning\" for potential issues that lack direct evidence, and \"ok\" for compliant files.\n" +
     "Respond ONLY with valid JSON — no markdown, no explanation outside the JSON:\n" +
     '{\n' +
     '  "files": [\n' +
     '    {\n' +
     '      "file": "path/to/file.ts",\n' +
-    '      "status": "violation" or "ok",\n' +
+    '      "status": "violation" | "warning" | "ok",\n' +
     '      "violations": [{ "rule_id": "RULE-XXX", "detail": "specific reason" }],\n' +
     '      "note": "one line explanation"\n' +
     '    }\n' +
