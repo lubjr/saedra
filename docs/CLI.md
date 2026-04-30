@@ -937,17 +937,14 @@ $ saedra ai feature
 
 Validate the current diff against all violation rules and active architectural decisions. Loads changed files via `git diff HEAD`, fetches rules and decisions from the project, sends everything to the configured AI, and reports per-file results.
 
+Each file is classified as `violation` (clear rule breach), `warning` (potential issue without direct evidence), or `ok` (compliant). Output is grouped by severity: violations first, then warnings, then ok files.
+
 Requires AI to be configured first via `saedra ai setup`.
 
 ```bash
 $ saedra review
-Using project: my-infra (from .saedra)
 
   Architectural Review
-
-  Analyzing 4 changed files...   ✓
-  Loaded 1 violation rule and 2 active decisions.
-  Sending to AI...
 
   ──────────────────────────────────────────────────
 
@@ -968,7 +965,7 @@ Using project: my-infra (from .saedra)
 
   ──────────────────────────────────────────────────
 
-  Result: 1 violation — review before opening PR
+  Result: 1 violation, 3 ok — review before opening PR
 ```
 
 #### `saedra review --staged`
@@ -988,6 +985,7 @@ $ saedra review --json
 {
   "project": "my-infra",
   "total_violations": 1,
+  "summary": { "violations": 1, "warnings": 0, "ok": 1 },
   "files": [
     {
       "file": "packages/cli/src/commands/projects.ts",
