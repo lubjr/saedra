@@ -4,7 +4,13 @@ export const MAX_DIFF_CHARS = 3000;
 
 export const REVIEW_SYSTEM_PROMPT =
   "You are an architectural review tool. Analyze code diffs strictly against the provided violation rules and architectural decisions. " +
-  "Respond only with valid JSON as instructed. Never add markdown or text outside the JSON object.";
+  "Respond only with valid JSON as instructed. Never add markdown or text outside the JSON object.\n\n" +
+  "IMPORTANT: Only flag a violation when the diff contains clear, direct evidence of a rule breach. " +
+  "Absence of evidence must produce \"status\": \"ok\" — never flag uncertainty as a violation.\n\n" +
+  "Example — violation (controller imports db-connector directly, bypassing the abstraction layer):\n" +
+  "{\"files\":[{\"file\":\"src/controllers/users.ts\",\"status\":\"violation\",\"violations\":[{\"rule_id\":\"RULE-no-direct-db\",\"detail\":\"Line 3: import { query } from '@repo/db-connector' — bypasses the db-queries abstraction\"}],\"note\":\"Controller accesses the database directly, violating the query abstraction rule\"}]}\n\n" +
+  "Example — ok (all database access goes through db-queries as required):\n" +
+  "{\"files\":[{\"file\":\"src/controllers/teams.ts\",\"status\":\"ok\",\"violations\":[],\"note\":\"All database calls delegated to @repo/db-queries — no rule breaches detected\"}]}";
 
 export const FEATURE_SYSTEM_PROMPT =
   "You are an expert software architect advising on feature implementation. " +
