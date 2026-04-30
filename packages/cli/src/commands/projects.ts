@@ -1,15 +1,5 @@
-import { getConfig } from "./login.js";
-import { selectProject } from "./helpers.js";
+import { selectProject, requireAuth, handleFetchError } from "./helpers.js";
 import { input } from "@inquirer/prompts";
-
-function requireAuth() {
-  const config = getConfig();
-  if (!config) {
-    console.error("You are not logged in. Run: saedra login");
-    process.exit(1);
-  }
-  return config;
-}
 
 export async function projectCreateCommand() {
   const config = requireAuth();
@@ -44,8 +34,7 @@ export async function projectCreateCommand() {
     console.log(`  Name: ${data.name}`);
     console.log(`  ID:   ${data.id}\n`);
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }
 
@@ -79,8 +68,7 @@ export async function projectListCommand() {
     }
     console.log();
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }
 
@@ -103,7 +91,6 @@ export async function projectDeleteCommand() {
 
     console.log(`\nProject deleted successfully.\n`);
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }

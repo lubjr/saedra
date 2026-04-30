@@ -178,7 +178,8 @@ program
   .description("Print a compressed architecture context (ideal for AI prompts)")
   .option("--json", "Output as JSON")
   .option("--copy", "Copy output to clipboard instead of printing")
-  .action((opts: { json?: boolean; copy?: boolean }) => contextCommand(opts));
+  .option("--offline", "Use local snapshot (.saedra-context.json) without connecting to the server")
+  .action((opts: { json?: boolean; copy?: boolean; offline?: boolean }) => contextCommand(opts));
 
 program
   .command("explain")
@@ -196,7 +197,8 @@ program
   .option("--staged", "Analyze only staged files")
   .option("--json", "Output results as JSON (exits with code 1 if violations found)")
   .option("--base <ref>", "Compare against a specific git ref (e.g. origin/main) — for CI use")
-  .action((opts: { staged?: boolean; json?: boolean; base?: string }) => reviewCommand(opts));
+  .option("--offline", "Use local snapshot (.saedra-context.json) without connecting to the server")
+  .action((opts: { staged?: boolean; json?: boolean; base?: string; offline?: boolean }) => reviewCommand(opts));
 
 const memory = program
   .command("memory")

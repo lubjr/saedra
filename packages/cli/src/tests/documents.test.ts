@@ -1,14 +1,12 @@
 import { describe, test, expect, vi, beforeEach } from "vitest";
-import * as loginModule from "../commands/login.js";
 import * as helpersModule from "../commands/helpers.js";
 import * as fs from "node:fs";
 import * as prompts from "@inquirer/prompts";
 
-vi.mock("../commands/login.js", () => ({
-  getConfig: vi.fn(),
-}));
-
 vi.mock("../commands/helpers.js", () => ({
+  requireAuth: vi.fn(),
+  parseError: vi.fn(),
+  handleFetchError: vi.fn(),
   selectProject: vi.fn(),
   selectDocument: vi.fn(),
 }));
@@ -25,7 +23,8 @@ vi.mock("@inquirer/prompts", () => ({
   confirm: vi.fn(),
 }));
 
-const mockGetConfig = vi.mocked(loginModule.getConfig);
+const mockRequireAuth = vi.mocked(helpersModule.requireAuth);
+const mockHandleFetchError = vi.mocked(helpersModule.handleFetchError);
 const mockSelectProject = vi.mocked(helpersModule.selectProject);
 const mockSelectDocument = vi.mocked(helpersModule.selectDocument);
 const mockFs = vi.mocked(fs);
@@ -78,12 +77,13 @@ describe("documents", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockHandleFetchError.mockImplementation(() => { process.exit(1 as never); });
     globalThis.fetch = mockFetch as typeof globalThis.fetch;
   });
 
   describe("docCreateCommand", () => {
     test("exits with 1 when not authenticated", async () => {
-      mockGetConfig.mockReturnValue(null);
+      mockRequireAuth.mockImplementation(() => { process.exit(1 as never); });
 
       await expect(docCreateCommand()).rejects.toThrow();
 
@@ -91,7 +91,7 @@ describe("documents", () => {
     });
 
     test("exits with 1 when document name is empty", async () => {
-      mockGetConfig.mockReturnValue(MOCK_CONFIG);
+      mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
       mockInput.mockResolvedValueOnce("   ");
 
@@ -116,7 +116,7 @@ describe("documents", () => {
         expectsExit: true,
       },
     ])("$scenario", async ({ docName, filePath, fetchOk, expectsExit }) => {
-      mockGetConfig.mockReturnValue(MOCK_CONFIG);
+      mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
       mockInput.mockResolvedValueOnce(docName).mockResolvedValueOnce(filePath);
       mockFetch.mockResolvedValue({
@@ -136,7 +136,7 @@ describe("documents", () => {
     });
 
     test("creates document with file content when file path is provided", async () => {
-      mockGetConfig.mockReturnValue(MOCK_CONFIG);
+      mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
       mockInput.mockResolvedValueOnce("README.md").mockResolvedValueOnce("./README.md");
       mockFs.existsSync.mockReturnValue(true);
@@ -161,7 +161,7 @@ describe("documents", () => {
 
   describe("docListCommand", () => {
     test("exits with 1 when not authenticated", async () => {
-      mockGetConfig.mockReturnValue(null);
+      mockRequireAuth.mockImplementation(() => { process.exit(1 as never); });
 
       await expect(docListCommand()).rejects.toThrow();
 
@@ -188,7 +188,7 @@ describe("documents", () => {
         expectsExit: true,
       },
     ])("$scenario", async ({ fetchDocs, fetchOk, expectsExit }) => {
-      mockGetConfig.mockReturnValue(MOCK_CONFIG);
+      mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
       mockFetch.mockResolvedValue({
         ok: fetchOk,
@@ -209,7 +209,7 @@ describe("documents", () => {
 
   describe("docReadCommand", () => {
     test("exits with 1 when not authenticated", async () => {
-      mockGetConfig.mockReturnValue(null);
+      mockRequireAuth.mockImplementation(() => { process.exit(1 as never); });
 
       await expect(docReadCommand()).rejects.toThrow();
 
@@ -217,7 +217,7 @@ describe("documents", () => {
     });
 
     test("reads document by name when docName argument is provided", async () => {
-      mockGetConfig.mockReturnValue(MOCK_CONFIG);
+      mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
       mockFetch
         .mockResolvedValueOnce({
@@ -245,7 +245,7 @@ describe("documents", () => {
     });
 
     test("exits with 1 when document name is not found in project", async () => {
-      mockGetConfig.mockReturnValue(MOCK_CONFIG);
+      mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
       mockFetch.mockResolvedValue({
         ok: true,
@@ -260,7 +260,7 @@ describe("documents", () => {
     });
 
     test("uses selectDocument when no docName is provided", async () => {
-      mockGetConfig.mockReturnValue(MOCK_CONFIG);
+      mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
       mockSelectDocument.mockResolvedValue(MOCK_DOCUMENT);
       mockFetch.mockResolvedValue({
@@ -284,7 +284,7 @@ describe("documents", () => {
 
   describe("docEditCommand", () => {
     test("exits with 1 when file path is empty", async () => {
-      mockGetConfig.mockReturnValue(MOCK_CONFIG);
+      mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
       mockSelectDocument.mockResolvedValue(MOCK_DOCUMENT);
       mockInput.mockResolvedValue("   ");
@@ -306,7 +306,7 @@ describe("documents", () => {
         expectsExit: true,
       },
     ])("$scenario", async ({ fetchOk, expectsExit }) => {
-      mockGetConfig.mockReturnValue(MOCK_CONFIG);
+      mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
       mockSelectDocument.mockResolvedValue(MOCK_DOCUMENT);
       mockInput.mockResolvedValue("./README.md");
@@ -331,7 +331,7 @@ describe("documents", () => {
 
   describe("docDeleteCommand", () => {
     test("exits with 1 when not authenticated", async () => {
-      mockGetConfig.mockReturnValue(null);
+      mockRequireAuth.mockImplementation(() => { process.exit(1 as never); });
 
       await expect(docDeleteCommand()).rejects.toThrow();
 
@@ -350,7 +350,7 @@ describe("documents", () => {
         expectsExit: true,
       },
     ])("$scenario", async ({ fetchOk, expectsExit }) => {
-      mockGetConfig.mockReturnValue(MOCK_CONFIG);
+      mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
       mockSelectDocument.mockResolvedValue(MOCK_DOCUMENT);
       mockFetch.mockResolvedValue({
@@ -372,7 +372,7 @@ describe("documents", () => {
 
   describe("docPushCommand", () => {
     test("exits with 1 when not authenticated", async () => {
-      mockGetConfig.mockReturnValue(null);
+      mockRequireAuth.mockImplementation(() => { process.exit(1 as never); });
 
       await expect(docPushCommand("./README.md")).rejects.toThrow();
 
@@ -380,7 +380,7 @@ describe("documents", () => {
     });
 
     test("creates new document when it does not exist in project", async () => {
-      mockGetConfig.mockReturnValue(MOCK_CONFIG);
+      mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
       mockFs.existsSync.mockReturnValue(true);
       mockFs.readFileSync.mockReturnValue("# Hello");
@@ -399,7 +399,7 @@ describe("documents", () => {
     });
 
     test("updates existing document when name matches and user confirms", async () => {
-      mockGetConfig.mockReturnValue(MOCK_CONFIG);
+      mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
       mockFs.existsSync.mockReturnValue(true);
       mockFs.readFileSync.mockReturnValue("# Updated");
@@ -427,7 +427,7 @@ describe("documents", () => {
     });
 
     test("aborts when existing document update is not confirmed", async () => {
-      mockGetConfig.mockReturnValue(MOCK_CONFIG);
+      mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
       mockFs.existsSync.mockReturnValue(true);
       mockFs.readFileSync.mockReturnValue("# Content");

@@ -1,16 +1,12 @@
 import { describe, test, expect, vi, beforeEach } from "vitest";
-import * as loginModule from "../commands/login.js";
 import * as helpersModule from "../commands/helpers.js";
 import * as aiModule from "../commands/ai.js";
 import * as aiClientModule from "../commands/ai-client.js";
 import * as archContextModule from "../commands/arch-context.js";
 import * as prompts from "@inquirer/prompts";
 
-vi.mock("../commands/login.js", () => ({
-  getConfig: vi.fn(),
-}));
-
 vi.mock("../commands/helpers.js", () => ({
+  requireAuth: vi.fn(),
   selectProject: vi.fn(),
 }));
 
@@ -32,7 +28,7 @@ vi.mock("@inquirer/prompts", () => ({
   input: vi.fn(),
 }));
 
-const mockGetConfig = vi.mocked(loginModule.getConfig);
+const mockRequireAuth = vi.mocked(helpersModule.requireAuth);
 const mockSelectProject = vi.mocked(helpersModule.selectProject);
 const mockGetAiConfig = vi.mocked(aiModule.getAiConfig);
 const mockStreamAI = vi.mocked(aiClientModule.streamAI);
@@ -93,7 +89,7 @@ describe("feature", () => {
 
   describe("aiFeatureCommand", () => {
     test("exits with 1 when not authenticated", async () => {
-      mockGetConfig.mockReturnValue(null);
+      mockRequireAuth.mockImplementation(() => { process.exit(1 as never); });
 
       await expect(aiFeatureCommand()).rejects.toThrow();
 
@@ -101,7 +97,7 @@ describe("feature", () => {
     });
 
     test("exits with 1 when AI is not configured", async () => {
-      mockGetConfig.mockReturnValue(MOCK_CONFIG);
+      mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
       mockGetAiConfig.mockReturnValue(null);
 
@@ -111,7 +107,7 @@ describe("feature", () => {
     });
 
     test("exits with 1 when description is empty after prompt", async () => {
-      mockGetConfig.mockReturnValue(MOCK_CONFIG);
+      mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
       mockGetAiConfig.mockReturnValue(MOCK_AI_CONFIG);
       mockInput.mockResolvedValue("   ");
@@ -122,7 +118,7 @@ describe("feature", () => {
     });
 
     test("uses description argument directly when provided, skipping prompt", async () => {
-      mockGetConfig.mockReturnValue(MOCK_CONFIG);
+      mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
       mockGetAiConfig.mockReturnValue(MOCK_AI_CONFIG);
       mockFetchState.mockResolvedValue(MOCK_STATE);
@@ -137,7 +133,7 @@ describe("feature", () => {
     });
 
     test("prompts for description when no argument is provided", async () => {
-      mockGetConfig.mockReturnValue(MOCK_CONFIG);
+      mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
       mockGetAiConfig.mockReturnValue(MOCK_AI_CONFIG);
       mockInput.mockResolvedValue("Add user dashboard");
@@ -153,7 +149,7 @@ describe("feature", () => {
     });
 
     test("loads architecture context and passes it to AI", async () => {
-      mockGetConfig.mockReturnValue(MOCK_CONFIG);
+      mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
       mockGetAiConfig.mockReturnValue(MOCK_AI_CONFIG);
       mockFetchState.mockResolvedValue(MOCK_STATE);
@@ -182,7 +178,7 @@ describe("feature", () => {
     });
 
     test("passes architecture context to AI prompt", async () => {
-      mockGetConfig.mockReturnValue(MOCK_CONFIG);
+      mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
       mockGetAiConfig.mockReturnValue(MOCK_AI_CONFIG);
       mockFetchState.mockResolvedValue(MOCK_STATE);

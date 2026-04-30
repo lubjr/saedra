@@ -1,16 +1,6 @@
 import { writeFileSync } from "node:fs";
-import { getConfig } from "./login.js";
-import { selectProject } from "./helpers.js";
+import { selectProject, requireAuth, handleFetchError, loadLocalContext, isContextFresh } from "./helpers.js";
 import type { ArchitectureState, Decision, ChangeEvent, ViolationRule } from "../memory/schemas.js";
-
-function requireAuth() {
-  const config = getConfig();
-  if (!config) {
-    console.error("You are not logged in. Run: saedra login");
-    process.exit(1);
-  }
-  return config;
-}
 
 export async function fetchState(
   apiUrl: string,
@@ -101,84 +91,115 @@ export async function fetchRules(
   return rules;
 }
 
-export async function contextCommand(opts: { json?: boolean; copy?: boolean } = {}) {
+export async function contextCommand(opts: { json?: boolean; copy?: boolean; offline?: boolean } = {}) {
   const config = requireAuth();
   const project = await selectProject(config);
 
-  try {
-    const [state, decisions, changes, rules] = await Promise.all([
-      fetchState(config.apiUrl, project.id, config.token),
-      fetchDecisions(config.apiUrl, project.id, config.token),
-      fetchChanges(config.apiUrl, project.id, config.token),
-      fetchRules(config.apiUrl, project.id, config.token),
-    ]);
+  let state: ArchitectureState | null;
+  let decisions: Decision[];
+  let changes: ChangeEvent[];
+  let rules: ViolationRule[];
 
-    if (opts.json) {
-      console.log(JSON.stringify({ project: project.name, state, decisions, changes, rules }, null, 2));
-      return;
+  if (opts.offline) {
+    const localCtx = loadLocalContext();
+    if (!localCtx) {
+      console.error("\n  No .saedra-context.json found. Run: saedra memory compress\n");
+      process.exit(1);
     }
-
-    const lines: string[] = [];
-
-    lines.push(`\n  [ARCHITECTURE CONTEXT — ${project.name}]\n`);
-
-    if (state) {
-      lines.push(`  Summary:\n    ${state.summary}\n`);
-
-      if (state.core_principles?.length) {
-        lines.push("  Core Principles:");
-        for (const p of state.core_principles) lines.push(`    - ${p}`);
-        lines.push("");
-      }
-
-      if (state.critical_paths?.length) {
-        lines.push("  Critical Paths:");
-        for (const p of state.critical_paths) lines.push(`    - ${p}`);
-        lines.push("");
-      }
-
-      if (state.constraints?.length) {
-        lines.push("  Constraints:");
-        for (const c of state.constraints) lines.push(`    - ${c}`);
-        lines.push("");
-      }
-    } else {
-      lines.push("  No architecture state found. Run: saedra memory state update\n");
+    state = localCtx.state;
+    decisions = localCtx.decisions;
+    changes = localCtx.changes;
+    rules = localCtx.rules;
+    console.error(`\n  ⚠  Using local snapshot (generated_at: ${localCtx.generated_at})`);
+    if (!isContextFresh(localCtx)) {
+      console.error(`     ⚠  Snapshot is older than 60 minutes. Results may be outdated.`);
     }
+  } else {
+    try {
+      [state, decisions, changes, rules] = await Promise.all([
+        fetchState(config.apiUrl, project.id, config.token),
+        fetchDecisions(config.apiUrl, project.id, config.token),
+        fetchChanges(config.apiUrl, project.id, config.token),
+        fetchRules(config.apiUrl, project.id, config.token),
+      ]);
+    } catch (err) {
+      const localCtx = loadLocalContext();
+      if (!localCtx) {
+        handleFetchError(err);
+      }
+      console.error(`\n  ⚠  Server unreachable — using local snapshot (generated_at: ${localCtx.generated_at})`);
+      if (!isContextFresh(localCtx)) {
+        console.error(`     ⚠  Snapshot is older than 60 minutes. Results may be outdated.`);
+      }
+      state = localCtx.state;
+      decisions = localCtx.decisions;
+      changes = localCtx.changes;
+      rules = localCtx.rules;
+    }
+  }
 
-    if (decisions.length) {
-      lines.push(`  Active Decisions (${decisions.length}):`);
-      for (const d of decisions) lines.push(`    - ${d.id}`);
+  if (opts.json) {
+    console.log(JSON.stringify({ project: project.name, state, decisions, changes, rules }, null, 2));
+    return;
+  }
+
+  const lines: string[] = [];
+
+  lines.push(`\n  [ARCHITECTURE CONTEXT — ${project.name}]\n`);
+
+  if (state) {
+    lines.push(`  Summary:\n    ${state.summary}\n`);
+
+    if (state.core_principles?.length) {
+      lines.push("  Core Principles:");
+      for (const p of state.core_principles) lines.push(`    - ${p}`);
       lines.push("");
     }
 
-    if (changes.length) {
-      lines.push(`  Recent Changes (${changes.length}):`);
-      for (const c of changes) lines.push(`    - ${c.id} — ${c.summary}`);
+    if (state.critical_paths?.length) {
+      lines.push("  Critical Paths:");
+      for (const p of state.critical_paths) lines.push(`    - ${p}`);
       lines.push("");
     }
 
-    if (rules.length) {
-      lines.push(`  Violation Rules (${rules.length}):`);
-      for (const r of rules) {
-        const badge = r.severity === "high" ? "[HIGH]" : r.severity === "medium" ? "[MED]" : "[LOW]";
-        lines.push(`    - ${r.id} ${badge} — ${r.description}`);
-      }
+    if (state.constraints?.length) {
+      lines.push("  Constraints:");
+      for (const c of state.constraints) lines.push(`    - ${c}`);
       lines.push("");
     }
+  } else {
+    lines.push("  No architecture state found. Run: saedra memory state update\n");
+  }
 
-    const output = lines.join("\n");
+  if (decisions.length) {
+    lines.push(`  Active Decisions (${decisions.length}):`);
+    for (const d of decisions) lines.push(`    - ${d.id}`);
+    lines.push("");
+  }
 
-    if (opts.copy) {
-      const { default: clipboardy } = await import("clipboardy");
-      await clipboardy.write(output);
-      console.log(`\n  Context copied to clipboard. (${project.name})\n`);
-    } else {
-      console.log(output);
+  if (changes.length) {
+    lines.push(`  Recent Changes (${changes.length}):`);
+    for (const c of changes) lines.push(`    - ${c.id} — ${c.summary}`);
+    lines.push("");
+  }
+
+  if (rules.length) {
+    lines.push(`  Violation Rules (${rules.length}):`);
+    for (const r of rules) {
+      const badge = r.severity === "high" ? "[HIGH]" : r.severity === "medium" ? "[MED]" : "[LOW]";
+      lines.push(`    - ${r.id} ${badge} — ${r.description}`);
     }
-  } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    lines.push("");
+  }
+
+  const output = lines.join("\n");
+
+  if (opts.copy) {
+    const { default: clipboardy } = await import("clipboardy");
+    await clipboardy.write(output);
+    console.log(`\n  Context copied to clipboard. (${project.name})\n`);
+  } else {
+    console.log(output);
   }
 }
 
@@ -217,10 +238,14 @@ export async function memoryCompressCommand() {
 
     writeFileSync(".saedra-context.json", JSON.stringify(snapshot, null, 2) + "\n");
 
-    console.log("\n  Saved: .saedra-context.json\n");
+    console.log(`\n  ✓  Snapshot saved to .saedra-context.json`);
+    console.log(`     State:      ${state ? "1 architecture state" : "none"}`);
+    console.log(`     Decisions:  ${decisions.length} active decision${decisions.length !== 1 ? "s" : ""}`);
+    console.log(`     Changes:    ${changes.length} recent change${changes.length !== 1 ? "s" : ""}`);
+    console.log(`     Rules:      ${rules.length} violation rule${rules.length !== 1 ? "s" : ""}`);
+    console.log(`     Generated:  ${snapshot.generated_at}\n`);
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }
 
@@ -276,7 +301,6 @@ export async function explainCommand() {
       console.log();
     }
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }

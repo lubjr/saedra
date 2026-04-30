@@ -1,29 +1,12 @@
 import { execSync } from "node:child_process";
 import { input, select, confirm } from "@inquirer/prompts";
-import { getConfig } from "./login.js";
+import ora from "ora";
 import { getAiConfig } from "./ai.js";
 import { streamAI } from "./ai-client.js";
-import { selectProject } from "./helpers.js";
+import { selectProject, requireAuth, parseError, handleFetchError } from "./helpers.js";
+import { buildCompressPrompt, buildAnalyzePrompt, COMPRESS_SYSTEM_PROMPT, ANALYZE_SYSTEM_PROMPT } from "./prompts.js";
+import type { SaedraConfig } from "./login.js";
 import type { ArchitectureState, Decision, ChangeEvent, ViolationRule } from "../memory/schemas.js";
-
-function requireAuth() {
-  const config = getConfig();
-  if (!config) {
-    console.error("You are not logged in. Run: saedra login");
-    process.exit(1);
-  }
-  return config;
-}
-
-async function parseError(res: Response): Promise<string> {
-  const text = await res.text();
-  try {
-    const body = JSON.parse(text) as { error?: string };
-    return body.error ?? `HTTP ${res.status}`;
-  } catch {
-    return `HTTP ${res.status}`;
-  }
-}
 
 function slugify(text: string): string {
   return text
@@ -120,8 +103,7 @@ export async function memoryStateCommand() {
     }
     console.log();
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }
 
@@ -165,7 +147,7 @@ export async function memoryStateUpdateCommand() {
 }
 
 async function upsertArchitectureState(
-  config: Awaited<ReturnType<typeof getConfig>> & object,
+  config: SaedraConfig,
   project: { id: string; name: string },
   state: ArchitectureState
 ) {
@@ -219,8 +201,7 @@ async function upsertArchitectureState(
       console.log("\nArchitecture state created successfully.\n");
     }
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }
 
@@ -303,8 +284,7 @@ export async function memoryDecisionAddCommand() {
 
     console.log(`\nDecision "${id}" saved successfully.\n`);
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }
 
@@ -464,8 +444,7 @@ export async function memoryChangeLogCommand(fromGit = false, noPrompt = false) 
 
     console.log(`\nChange event "${id}" saved successfully.\n`);
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }
 
@@ -520,8 +499,7 @@ export async function memoryChangeListCommand() {
       }
     }
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }
 
@@ -592,8 +570,7 @@ export async function memoryRuleAddCommand() {
 
     console.log(`\nRule "${id}" saved successfully.\n`);
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }
 
@@ -640,8 +617,7 @@ export async function memoryRuleListCommand() {
       }
     }
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }
 
@@ -700,23 +676,22 @@ export async function memoryStateUpdateAiCommand() {
     }
 
     console.log(`  Found ${decisions.length} active decision(s) and ${changes.length} change event(s).`);
-    console.log("  Sending to AI for compression...\n");
 
-    const prompt = buildCompressionPrompt(project.name, decisions, changes, currentState);
+    const prompt = buildCompressPrompt(project.name, decisions, changes, currentState);
 
     const chunks: string[] = [];
-    process.stdout.write("  Thinking");
+    const compressSpinner = ora("Compressing with AI...").start();
 
     await streamAI(
-      "You are an expert software architect. Compress architectural context into a structured JSON object. " +
-        "Return ONLY valid JSON matching the ArchitectureState schema — no markdown, no explanation, just the JSON object.",
+      COMPRESS_SYSTEM_PROMPT,
       prompt,
       aiConfig,
-      (text) => { chunks.push(text); process.stdout.write("."); },
+      (text) => { chunks.push(text); },
       { smart: true }
     );
 
-    process.stdout.write("\n\n");
+    compressSpinner.succeed("Compression complete");
+    console.log();
 
     const stateJson = chunks.join("").trim();
     if (!stateJson) {
@@ -772,58 +747,6 @@ export async function memoryStateUpdateAiCommand() {
   }
 }
 
-function buildCompressionPrompt(
-  projectName: string,
-  decisions: Decision[],
-  changes: ChangeEvent[],
-  current: ArchitectureState | null
-): string {
-  const parts: string[] = [];
-
-  parts.push(`Project: ${projectName}`);
-  parts.push("");
-
-  if (current) {
-    parts.push("## Current Architecture State");
-    parts.push(JSON.stringify(current, null, 2));
-    parts.push("");
-  }
-
-  if (decisions.length) {
-    parts.push("## Active Decisions");
-    for (const d of decisions) {
-      parts.push(`### ${d.id}: ${d.title}`);
-      parts.push(`Context: ${d.context}`);
-      parts.push(`Decision: ${d.decision}`);
-      parts.push(`Affects: ${d.affects.join(", ")}`);
-      parts.push(`Risk: ${d.risk_level}`);
-      parts.push("");
-    }
-  }
-
-  if (changes.length) {
-    parts.push("## Recent Changes (last 10)");
-    for (const c of changes) {
-      parts.push(`### ${c.id}: ${c.summary}`);
-      if (c.architectural_impact) parts.push(`Impact: ${c.architectural_impact}`);
-      if (c.files_changed?.length) parts.push(`Files: ${c.files_changed.join(", ")}`);
-      parts.push("");
-    }
-  }
-
-  parts.push("## Task");
-  parts.push(
-    "Based on the above, generate a compressed ArchitectureState JSON object with exactly these fields:\n" +
-    "- version: string (YYYY-MM-DD)\n" +
-    "- summary: string (1-3 sentences capturing the essence of the current architecture)\n" +
-    "- core_principles: string[] (3-6 key engineering principles in use)\n" +
-    "- critical_paths: string[] (3-5 most important data/request flows)\n" +
-    "- constraints: string[] (hard constraints: Node version, package manager, required env vars, etc.)\n" +
-    `- active_decisions: string[] (IDs of active decisions exactly as listed above)`
-  );
-
-  return parts.join("\n");
-}
 
 export async function memoryChangeAnalyzeCommand(changeIdArg?: string) {
   const config = requireAuth();
@@ -918,20 +841,27 @@ export async function memoryChangeAnalyzeCommand(changeIdArg?: string) {
     }
     console.log();
 
-    const prompt = buildChangeAnalysisPrompt(project.name, target, state, decisions, rules);
+    const prompt = buildAnalyzePrompt(project.name, target, state, decisions, rules);
 
     const separator = "  " + "─".repeat(50);
-    console.log(separator);
+    const analyzeSpinner = ora("Analyzing with AI...").start();
+    let headerPrinted = false;
 
     await streamAI(
-      "You are an expert software architect analyzing the architectural impact of a change event. " +
-        "Be concrete and direct. Reference specific decisions, rules, and modules from the provided context. " +
-        "Keep the analysis focused and actionable.",
+      ANALYZE_SYSTEM_PROMPT,
       prompt,
       aiConfig,
-      (text) => process.stdout.write(text)
+      (text) => {
+        if (!headerPrinted) {
+          analyzeSpinner.stop();
+          console.log(separator);
+          headerPrinted = true;
+        }
+        process.stdout.write(text);
+      }
     );
 
+    if (!headerPrinted) analyzeSpinner.stop();
     process.stdout.write("\n");
     console.log(separator);
     console.log();
@@ -941,80 +871,6 @@ export async function memoryChangeAnalyzeCommand(changeIdArg?: string) {
   }
 }
 
-function buildChangeAnalysisPrompt(
-  projectName: string,
-  change: ChangeEvent,
-  state: ArchitectureState | null,
-  decisions: Decision[],
-  rules: ViolationRule[]
-): string {
-  const parts: string[] = [];
-
-  parts.push(`Project: ${projectName}`);
-  parts.push("");
-  parts.push("## Change Event to Analyze");
-  parts.push(`ID: ${change.id}`);
-  parts.push(`Summary: ${change.summary}`);
-  if (change.files_changed?.length) {
-    parts.push(`Files changed: ${change.files_changed.join(", ")}`);
-  }
-  if (change.architectural_impact) {
-    parts.push(`Recorded impact: ${change.architectural_impact}`);
-  }
-  if (change.risk_assessment) {
-    parts.push(`Recorded risk: ${change.risk_assessment}`);
-  }
-  if (change.related_decisions?.length) {
-    parts.push(`Related decisions (as recorded): ${change.related_decisions.join(", ")}`);
-  }
-  parts.push("");
-
-  if (state) {
-    parts.push("## Current Architecture State");
-    parts.push(`Summary: ${state.summary}`);
-    if (state.core_principles?.length) {
-      parts.push(`Core Principles: ${state.core_principles.join("; ")}`);
-    }
-    if (state.constraints?.length) {
-      parts.push(`Constraints: ${state.constraints.join("; ")}`);
-    }
-    parts.push("");
-  }
-
-  if (decisions.length) {
-    parts.push("## Active Architectural Decisions");
-    for (const d of decisions) {
-      parts.push(`- ${d.id}: ${d.title}`);
-      parts.push(`  Decision: ${d.decision}`);
-      if (d.affects?.length) parts.push(`  Affects: ${d.affects.join(", ")}`);
-      if (d.constraints_introduced?.length) {
-        parts.push(`  Constraints: ${d.constraints_introduced.join(", ")}`);
-      }
-    }
-    parts.push("");
-  }
-
-  if (rules.length) {
-    parts.push("## Violation Rules");
-    for (const r of rules) {
-      parts.push(`- ${r.id} [${r.severity.toUpperCase()}]: ${r.description}`);
-      if (r.related_decision) parts.push(`  Related to: ${r.related_decision}`);
-    }
-    parts.push("");
-  }
-
-  parts.push("## Task");
-  parts.push(
-    "Analyze the architectural impact of this change event. Structure your response as:\n" +
-    "1. **Impact Summary** — what this change implies architecturally in 2-3 sentences\n" +
-    "2. **Affected Decisions** — which active decisions are touched or reinforced by this change\n" +
-    "3. **Rule Compliance** — whether this change respects or potentially violates any violation rules\n" +
-    "4. **Risk Assessment** — low / medium / high with brief justification\n" +
-    "5. **Overlooked Concerns** — anything the recorded impact or risk assessment missed (if applicable)"
-  );
-
-  return parts.join("\n");
-}
 
 export async function timelineCommand() {
   const config = requireAuth();
@@ -1090,8 +946,7 @@ export async function timelineCommand() {
       console.log();
     }
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }
 
@@ -1148,7 +1003,6 @@ export async function memoryDecisionListCommand() {
       }
     }
   } catch (err) {
-    console.error("\nFailed to connect to server:", (err as Error).message);
-    process.exit(1);
+    handleFetchError(err);
   }
 }

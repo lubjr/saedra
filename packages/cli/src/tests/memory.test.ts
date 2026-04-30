@@ -1,14 +1,12 @@
 import { describe, test, expect, vi, beforeEach } from "vitest";
-import * as loginModule from "../commands/login.js";
 import * as helpersModule from "../commands/helpers.js";
 import * as childProcess from "node:child_process";
 import * as prompts from "@inquirer/prompts";
 
-vi.mock("../commands/login.js", () => ({
-  getConfig: vi.fn(),
-}));
-
 vi.mock("../commands/helpers.js", () => ({
+  requireAuth: vi.fn(),
+  parseError: vi.fn(),
+  handleFetchError: vi.fn(),
   selectProject: vi.fn(),
 }));
 
@@ -30,7 +28,8 @@ vi.mock("@inquirer/prompts", () => ({
   confirm: vi.fn(),
 }));
 
-const mockGetConfig = vi.mocked(loginModule.getConfig);
+const mockRequireAuth = vi.mocked(helpersModule.requireAuth);
+const mockHandleFetchError = vi.mocked(helpersModule.handleFetchError);
 const mockSelectProject = vi.mocked(helpersModule.selectProject);
 const mockExecSync = vi.mocked(childProcess.execSync);
 const mockConfirm = vi.mocked(prompts.confirm);
@@ -93,12 +92,13 @@ describe("memory", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockHandleFetchError.mockImplementation(() => { process.exit(1 as never); });
     globalThis.fetch = mockFetch as typeof globalThis.fetch;
   });
 
   describe("memoryStateCommand", () => {
     test("exits with 1 when not authenticated", async () => {
-      mockGetConfig.mockReturnValue(null);
+      mockRequireAuth.mockImplementation(() => { process.exit(1 as never); });
 
       await expect(memoryStateCommand()).rejects.toThrow();
 
@@ -106,7 +106,7 @@ describe("memory", () => {
     });
 
     test("prints no state message when no architecture docs found", async () => {
-      mockGetConfig.mockReturnValue(MOCK_CONFIG);
+      mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
       mockFetch.mockResolvedValue({ ok: true, json: async () => [] });
 
@@ -119,7 +119,7 @@ describe("memory", () => {
     });
 
     test("exits with 1 when fetch fails", async () => {
-      mockGetConfig.mockReturnValue(MOCK_CONFIG);
+      mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
       mockFetch.mockResolvedValue({
         ok: false,
@@ -133,7 +133,7 @@ describe("memory", () => {
     });
 
     test("displays architecture state when docs are found", async () => {
-      mockGetConfig.mockReturnValue(MOCK_CONFIG);
+      mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
       mockFetch
         .mockResolvedValueOnce({
@@ -156,7 +156,7 @@ describe("memory", () => {
     });
 
     test("exits with 1 when architecture state content is malformed JSON", async () => {
-      mockGetConfig.mockReturnValue(MOCK_CONFIG);
+      mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
       mockFetch
         .mockResolvedValueOnce({
@@ -178,7 +178,7 @@ describe("memory", () => {
 
   describe("memoryChangeLogCommand (no-prompt git mode)", () => {
     test("exits with 1 when noPrompt is true but fromGit is false", async () => {
-      mockGetConfig.mockReturnValue(MOCK_CONFIG);
+      mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
 
       await expect(memoryChangeLogCommand(false, true)).rejects.toThrow();
@@ -187,7 +187,7 @@ describe("memory", () => {
     });
 
     test("exits with 1 when git commands fail", async () => {
-      mockGetConfig.mockReturnValue(MOCK_CONFIG);
+      mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
       mockExecSync.mockImplementation(() => {
         throw new Error("not a git repo");
@@ -199,7 +199,7 @@ describe("memory", () => {
     });
 
     test("saves change event automatically from git commit", async () => {
-      mockGetConfig.mockReturnValue(MOCK_CONFIG);
+      mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
       mockExecSync
         .mockReturnValueOnce("feat: add login flow\n" as any)
@@ -220,7 +220,7 @@ describe("memory", () => {
     });
 
     test("exits with 1 when API fails to save change event", async () => {
-      mockGetConfig.mockReturnValue(MOCK_CONFIG);
+      mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
       mockExecSync
         .mockReturnValueOnce("feat: add login\n" as any)
@@ -239,7 +239,7 @@ describe("memory", () => {
 
   describe("memoryChangeListCommand", () => {
     test("exits with 1 when not authenticated", async () => {
-      mockGetConfig.mockReturnValue(null);
+      mockRequireAuth.mockImplementation(() => { process.exit(1 as never); });
 
       await expect(memoryChangeListCommand()).rejects.toThrow();
 
@@ -247,7 +247,7 @@ describe("memory", () => {
     });
 
     test("prints no changes message when list is empty", async () => {
-      mockGetConfig.mockReturnValue(MOCK_CONFIG);
+      mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
       mockFetch.mockResolvedValue({ ok: true, json: async () => [] });
 
@@ -260,7 +260,7 @@ describe("memory", () => {
     });
 
     test("lists change events when docs are found", async () => {
-      mockGetConfig.mockReturnValue(MOCK_CONFIG);
+      mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
       mockFetch.mockResolvedValue({
         ok: true,
@@ -276,7 +276,7 @@ describe("memory", () => {
     });
 
     test("exits with 1 when fetch fails", async () => {
-      mockGetConfig.mockReturnValue(MOCK_CONFIG);
+      mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
       mockFetch.mockResolvedValue({
         ok: false,
@@ -292,7 +292,7 @@ describe("memory", () => {
 
   describe("memoryRuleListCommand", () => {
     test("exits with 1 when not authenticated", async () => {
-      mockGetConfig.mockReturnValue(null);
+      mockRequireAuth.mockImplementation(() => { process.exit(1 as never); });
 
       await expect(memoryRuleListCommand()).rejects.toThrow();
 
@@ -300,7 +300,7 @@ describe("memory", () => {
     });
 
     test("prints no rules message when list is empty", async () => {
-      mockGetConfig.mockReturnValue(MOCK_CONFIG);
+      mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
       mockFetch.mockResolvedValue({ ok: true, json: async () => [] });
 
@@ -313,7 +313,7 @@ describe("memory", () => {
     });
 
     test("lists rules when docs are found", async () => {
-      mockGetConfig.mockReturnValue(MOCK_CONFIG);
+      mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
       mockFetch.mockResolvedValue({
         ok: true,
@@ -329,7 +329,7 @@ describe("memory", () => {
     });
 
     test("exits with 1 when fetch fails", async () => {
-      mockGetConfig.mockReturnValue(MOCK_CONFIG);
+      mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
       mockFetch.mockResolvedValue({
         ok: false,
