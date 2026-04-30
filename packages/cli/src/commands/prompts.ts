@@ -24,18 +24,42 @@ export function buildReviewPrompt(
   projectName: string,
   files: Array<{ file: string; diff: string }>,
   rules: ViolationRule[],
-  decisions: Decision[]
+  decisions: Decision[],
+  state: ArchitectureState | null = null
 ): string {
   const parts: string[] = [];
 
   parts.push(`Project: ${projectName}`);
   parts.push("");
 
+  if (state && (state.critical_paths?.length || state.constraints?.length)) {
+    parts.push("## Architecture State");
+    if (state.critical_paths?.length) {
+      parts.push("Critical Paths:");
+      for (const p of state.critical_paths) parts.push(`  - ${p}`);
+    }
+    if (state.constraints?.length) {
+      parts.push("Constraints:");
+      for (const c of state.constraints) parts.push(`  - ${c}`);
+    }
+    parts.push("");
+  }
+
   if (rules.length) {
     parts.push("## Violation Rules");
     for (const r of rules) {
       parts.push(`- ${r.id} [${r.severity.toUpperCase()}]: ${r.description}`);
-      if (r.related_decision) parts.push(`  Related decision: ${r.related_decision}`);
+      if (r.related_decision) {
+        const dec = decisions.find((d) => d.id === r.related_decision);
+        if (dec) {
+          const constraints = dec.constraints_introduced?.length
+            ? ` — constraints: [${dec.constraints_introduced.join("; ")}]`
+            : "";
+          parts.push(`  Related decision: "${dec.title}"${constraints}`);
+        } else {
+          parts.push(`  Related decision: ${r.related_decision}`);
+        }
+      }
     }
     parts.push("");
   }
