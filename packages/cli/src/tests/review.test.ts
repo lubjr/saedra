@@ -7,9 +7,12 @@ import * as childProcess from "child_process";
 vi.mock("../commands/helpers.js", () => ({
   requireAuth: vi.fn(),
   selectProject: vi.fn(),
+  loadLocalContext: vi.fn(),
+  isContextFresh: vi.fn(),
 }));
 
 vi.mock("../commands/arch-context.js", () => ({
+  fetchState: vi.fn(),
   fetchDecisions: vi.fn(),
   fetchRules: vi.fn(),
 }));
@@ -28,6 +31,7 @@ vi.mock("../commands/ai.js", () => ({
 
 const mockRequireAuth = vi.mocked(helpersModule.requireAuth);
 const mockSelectProject = vi.mocked(helpersModule.selectProject);
+const mockFetchState = vi.mocked(archContextModule.fetchState);
 const mockFetchDecisions = vi.mocked(archContextModule.fetchDecisions);
 const mockFetchRules = vi.mocked(archContextModule.fetchRules);
 const mockCallAI = vi.mocked(aiClientModule.callAI);
@@ -150,6 +154,7 @@ describe("review", () => {
       mockExecSync
         .mockReturnValueOnce("src/index.ts\n" as any)
         .mockReturnValueOnce("diff --git a/src/index.ts..." as any);
+      mockFetchState.mockResolvedValue(null);
       mockFetchRules.mockResolvedValue(MOCK_RULES);
       mockFetchDecisions.mockResolvedValue(MOCK_DECISIONS);
       mockCallAI.mockResolvedValue(MOCK_REVIEW_RESULT_OK);
@@ -166,6 +171,7 @@ describe("review", () => {
       mockExecSync
         .mockReturnValueOnce("src/index.ts\n" as any)
         .mockReturnValueOnce("diff --git a/src/index.ts..." as any);
+      mockFetchState.mockResolvedValue(null);
       mockFetchRules.mockResolvedValue(MOCK_RULES);
       mockFetchDecisions.mockResolvedValue(MOCK_DECISIONS);
       mockCallAI.mockResolvedValue(MOCK_REVIEW_RESULT_VIOLATION);
@@ -182,6 +188,7 @@ describe("review", () => {
       mockExecSync
         .mockReturnValueOnce("src/feature.ts\n" as any)
         .mockReturnValueOnce("diff --staged..." as any);
+      mockFetchState.mockResolvedValue(null);
       mockFetchRules.mockResolvedValue([]);
       mockFetchDecisions.mockResolvedValue([]);
       mockCallAI.mockResolvedValue(MOCK_REVIEW_RESULT_OK);

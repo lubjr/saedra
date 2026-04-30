@@ -3,8 +3,8 @@ import ora from "ora";
 import { getAiConfig } from "./ai.js";
 import { callAI } from "./ai-client.js";
 import { selectProject, requireAuth, loadLocalContext, isContextFresh } from "./helpers.js";
-import { fetchDecisions, fetchRules } from "./arch-context.js";
-import type { Decision, ViolationRule } from "../memory/schemas.js";
+import { fetchDecisions, fetchRules, fetchState } from "./arch-context.js";
+import type { Decision, ViolationRule, ArchitectureState } from "../memory/schemas.js";
 import { buildReviewPrompt, REVIEW_SYSTEM_PROMPT, MAX_DIFF_CHARS } from "./prompts.js";
 
 const MAX_FILES = 20;
@@ -90,6 +90,7 @@ export async function reviewCommand(opts: { staged?: boolean; json?: boolean; ba
     : `Fetching context for ${fileLabel}...`;
   const contextSpinner = opts.json ? null : ora(spinnerMsg).start();
 
+  let state: ArchitectureState | null;
   let rules: ViolationRule[];
   let decisions: Decision[];
 
@@ -100,6 +101,7 @@ export async function reviewCommand(opts: { staged?: boolean; json?: boolean; ba
       console.error("\n  No .saedra-context.json found. Run: saedra memory compress\n");
       process.exit(1);
     }
+    state = localCtx.state;
     rules = localCtx.rules;
     decisions = localCtx.decisions;
     contextSpinner?.succeed("Loaded from local snapshot");
@@ -109,11 +111,12 @@ export async function reviewCommand(opts: { staged?: boolean; json?: boolean; ba
     }
   } else {
     try {
-      [rules, decisions] = await Promise.all([
+      [state, rules, decisions] = await Promise.all([
+        fetchState(config.apiUrl, project.id, config.token),
         fetchRules(config.apiUrl, project.id, config.token),
         fetchDecisions(config.apiUrl, project.id, config.token),
       ]);
-      contextSpinner?.succeed(`Loaded ${rules.length} rule${rules.length !== 1 ? "s" : ""} and ${decisions.length} decision${decisions.length !== 1 ? "s" : ""}`);
+      contextSpinner?.succeed(`Loaded ${rules.length} rule${rules.length !== 1 ? "s" : ""} and ${decisions.length} decision${decisions.length !== 1 ? "s" : ""}${state ? " + architecture state" : ""}`);
     } catch (err) {
       const localCtx = loadLocalContext();
       if (!localCtx) {
@@ -126,6 +129,7 @@ export async function reviewCommand(opts: { staged?: boolean; json?: boolean; ba
       if (!isContextFresh(localCtx)) {
         console.error(`     ⚠  Snapshot is older than 60 minutes. Results may be outdated.`);
       }
+      state = localCtx.state;
       rules = localCtx.rules;
       decisions = localCtx.decisions;
     }
@@ -141,7 +145,7 @@ export async function reviewCommand(opts: { staged?: boolean; json?: boolean; ba
   const aiSpinner = opts.json ? null : ora("Reviewing with AI...").start();
 
   try {
-    const prompt = buildReviewPrompt(project.name, filesWithDiffs, rules, decisions);
+    const prompt = buildReviewPrompt(project.name, filesWithDiffs, rules, decisions, state);
 
     const rawText = await callAI(REVIEW_SYSTEM_PROMPT, prompt, aiConfig);
 
