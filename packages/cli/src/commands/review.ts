@@ -46,7 +46,7 @@ function getFileDiff(file: string, staged: boolean, base?: string): string {
 
 interface FileResult {
   file: string;
-  status: "violation" | "ok";
+  status: "violation" | "warning" | "ok";
   violations: Array<{ rule_id: string; detail: string }>;
   note: string;
 }
@@ -160,15 +160,24 @@ export async function reviewCommand(opts: { staged?: boolean; json?: boolean; ba
 
     aiSpinner?.succeed("Review complete");
 
-    const totalViolations = result.files.filter((f) => f.status === "violation").length;
+    const violations = result.files.filter((f) => f.status === "violation");
+    const warnings = result.files.filter((f) => f.status === "warning");
+    const okFiles = result.files.filter((f) => f.status === "ok");
+
+    const summary = {
+      violations: violations.length,
+      warnings: warnings.length,
+      ok: okFiles.length,
+    };
 
     if (opts.json) {
       console.log(JSON.stringify({
         project: project.name,
-        total_violations: totalViolations,
+        total_violations: violations.length,
+        summary,
         files: result.files,
       }, null, 2));
-      process.exit(totalViolations > 0 ? 1 : 0);
+      process.exit(violations.length > 0 ? 1 : 0);
     }
 
     const separator = "  " + "─".repeat(50);
@@ -178,7 +187,8 @@ export async function reviewCommand(opts: { staged?: boolean; json?: boolean; ba
       console.log(`\n  ⚠  Note: ${truncatedCount} file${truncatedCount > 1 ? "s were" : " was"} truncated (diff > 3000 chars). Results may be incomplete.`);
     }
 
-    for (const fileResult of result.files) {
+    const ordered = [...violations, ...warnings, ...okFiles];
+    for (const fileResult of ordered) {
       if (fileResult.status === "violation") {
         console.log(`\n  ⚠  VIOLATION  ${fileResult.file}`);
         if (fileResult.note) console.log(`     ${fileResult.note}`);
@@ -190,6 +200,17 @@ export async function reviewCommand(opts: { staged?: boolean; json?: boolean; ba
             console.log(`     Decision: ${rule.related_decision}`);
           }
         }
+      } else if (fileResult.status === "warning") {
+        console.log(`\n  ⚡  WARNING  ${fileResult.file}`);
+        if (fileResult.note) console.log(`     ${fileResult.note}`);
+        for (const v of fileResult.violations) {
+          const rule = rules.find((r) => r.id === v.rule_id);
+          console.log(`     Relates to: ${v.rule_id}${rule ? ` — ${rule.description}` : ""}`);
+          console.log(`     Detail:     ${v.detail}`);
+          if (rule?.related_decision) {
+            console.log(`     Decision:   ${rule.related_decision}`);
+          }
+        }
       } else {
         console.log(`\n  ✓  OK  ${fileResult.file}`);
         if (fileResult.note) console.log(`     ${fileResult.note}`);
@@ -198,8 +219,15 @@ export async function reviewCommand(opts: { staged?: boolean; json?: boolean; ba
 
     console.log(`\n${separator}`);
 
-    if (totalViolations > 0) {
-      console.log(`\n  Result: ${totalViolations} violation${totalViolations > 1 ? "s" : ""} — review before opening PR\n`);
+    const parts: string[] = [];
+    if (summary.violations > 0) parts.push(`${summary.violations} violation${summary.violations > 1 ? "s" : ""}`);
+    if (summary.warnings > 0) parts.push(`${summary.warnings} warning${summary.warnings > 1 ? "s" : ""}`);
+    if (summary.ok > 0) parts.push(`${summary.ok} ok`);
+
+    if (summary.violations > 0) {
+      console.log(`\n  Result: ${parts.join(", ")} — review before opening PR\n`);
+    } else if (summary.warnings > 0) {
+      console.log(`\n  Result: ${parts.join(", ")} — no blocking violations\n`);
     } else {
       console.log("\n  Result: no violations found\n");
     }
