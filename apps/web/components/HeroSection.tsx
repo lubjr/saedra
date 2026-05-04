@@ -12,7 +12,7 @@ export const HeroSection = () => {
       <div className="relative z-10 max-w-5xl mx-auto">
         <Badge
           variant="outline"
-          className="mb-8 px-3 py-1.5 rounded-full bg-white/5 border-white/10 text-zinc-300 backdrop-blur-sm hover:bg-white/10 transition-colors text-sm sm:text-base shadow-lg shadow-white/5"
+          className="mb-8 px-3 py-1.5 rounded-full bg-white/5 border-white/10 text-zinc-300 backdrop-blur-sm hover:bg-white/10 transition-colors text-sm shadow-lg shadow-white/5"
         >
           <span className="relative flex h-1.5 w-1.5">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
@@ -30,7 +30,7 @@ export const HeroSection = () => {
           The memory layer for your codebase
         </h1>
 
-        <p className="text-base sm:text-lg text-zinc-400 max-w-2xl mx-auto mb-12 leading-relaxed">
+        <p className="text-sm text-zinc-400 max-w-2xl mx-auto mb-12 leading-relaxed">
           Document your architecture decisions, enforce them on every PR, and
           give your AI tools the context they actually need. It&apos;s also open
           source.
@@ -39,7 +39,8 @@ export const HeroSection = () => {
         <div className="flex justify-center">
           <Button
             size="lg"
-            className="min-w-[180px] bg-teal-500 hover:bg-teal-600 text-white shadow-lg shadow-teal-500/25 hover:shadow-teal-500/40 transition-all"
+            variant="brand"
+            className="min-w-[180px] shadow-lg shadow-teal-500/25 hover:shadow-teal-500/40"
             onClick={() => {
               return (window.location.href = "/signup");
             }}
