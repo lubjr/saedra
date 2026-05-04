@@ -18,7 +18,7 @@ export const HeroSection = () => {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-teal-400"></span>
           </span>
-          <span>Revolutionizing code analysis</span>
+          <span>Now in early access</span>
         </Badge>
 
         <h1
@@ -27,28 +27,34 @@ export const HeroSection = () => {
             fontSize: "clamp(2rem, 6vw, 6rem)",
           }}
         >
-          Welcome to Saedra
+          The memory layer for your codebase
         </h1>
 
         <p className="text-base sm:text-lg text-zinc-400 max-w-2xl mx-auto mb-12 leading-relaxed">
-          Powerful code analysis tools to help you build better software,
-          faster. Catch issues early, improve quality, and ship with confidence.
+          Document your architecture decisions, enforce them on every PR, and
+          give your AI tools the context they actually need. It&apos;s also open
+          source.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
           <Button
-            disabled
             size="lg"
             variant="outline"
             className="min-w-[180px] bg-teal-500 hover:bg-teal-600 text-white shadow-lg shadow-teal-500/25 hover:shadow-teal-500/40 transition-all"
+            onClick={() => {
+              return (window.location.href = "/signup");
+            }}
           >
             Get Started Free
           </Button>
           <Button
-            disabled
             size="lg"
             variant="outline"
-            className="min-w-[180px] bg-teal-500 hover:bg-teal-600 text-white shadow-lg shadow-teal-500/25 hover:shadow-teal-500/40 transition-all"
+            className="min-w-[180px] border-zinc-600 text-zinc-300 hover:bg-zinc-800 hover:text-white transition-all"
+            onClick={() => {
+              return (window.location.href =
+                "https://docs.saedra.pro/docs/cli/getting-started");
+            }}
           >
             View Documentation
           </Button>
