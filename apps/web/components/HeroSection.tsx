@@ -36,27 +36,15 @@ export const HeroSection = () => {
           source.
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+        <div className="flex justify-center">
           <Button
             size="lg"
-            variant="outline"
             className="min-w-[180px] bg-teal-500 hover:bg-teal-600 text-white shadow-lg shadow-teal-500/25 hover:shadow-teal-500/40 transition-all"
             onClick={() => {
               return (window.location.href = "/signup");
             }}
           >
             Get Started Free
-          </Button>
-          <Button
-            size="lg"
-            variant="outline"
-            className="min-w-[180px] border-zinc-600 text-zinc-300 hover:bg-zinc-800 hover:text-white transition-all"
-            onClick={() => {
-              return (window.location.href =
-                "https://docs.saedra.pro/docs/cli/getting-started");
-            }}
-          >
-            View Documentation
           </Button>
         </div>
       </div>
