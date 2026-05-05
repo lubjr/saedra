@@ -6,14 +6,15 @@ import { ArrowUpRightIcon, BookOpenIcon, CodeIcon } from "@repo/ui/lucide";
 const docCategories = [
   {
     title: "Getting Started",
-    description: "Install the CLI, authenticate and set up your first project.",
+    description:
+      "Install the CLI, connect your project and start tracking architecture decisions in minutes.",
     icon: BookOpenIcon,
     href: "https://docs.saedra.pro/docs/cli/getting-started",
   },
   {
     title: "CLI Reference",
     description:
-      "Full reference for all commands: projects, documents, memory and AI.",
+      "Full reference for all commands: auth, memory, decisions, review and AI context.",
     icon: CodeIcon,
     href: "https://docs.saedra.pro/docs/cli/auth",
   },
@@ -26,8 +27,8 @@ export const DocsSection = () => {
       className="flex flex-col items-center text-center py-20 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto min-h-screen scroll-mt-20"
     >
       <h2 className="text-4xl font-bold text-white mb-4">Documentation</h2>
-      <p className="text-zinc-400 text-lg mb-12 text-center max-w-2xl">
-        Explore our guides and API reference to get the most out of Saedra
+      <p className="text-zinc-400 text-sm mb-12 text-center max-w-2xl">
+        Explore our guides and CLI reference to get up and running fast.
       </p>
 
       <div className="grid gap-6 md:grid-cols-2 w-full max-w-2xl mb-12">
