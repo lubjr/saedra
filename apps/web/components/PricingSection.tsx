@@ -8,24 +8,35 @@ const plans = [
   {
     name: "Free",
     price: "$0",
-    description: "Great for quick tests and validation.",
-    features: ["Limited analyses", "Basic resources", "No priority support"],
+    description: "Get started with architectural memory for your project.",
+    features: [
+      "1 project",
+      "Unlimited decisions and rules",
+      "Saedra review via CLI",
+      "Community support",
+    ],
   },
   {
     name: "Pro",
     price: "TBD",
-    description: "Professional plan — coming soon.",
+    description: "For teams that want enforcement at scale.",
     features: [
-      "More analyses per month",
-      "GitHub integration",
+      "Unlimited projects",
+      "GitHub Actions integration",
+      "Review history dashboard",
       "Priority support",
     ],
   },
   {
     name: "Enterprise",
     price: "TBD",
-    description: "Enterprise-grade plan — coming soon.",
-    features: ["Unlimited analyses", "CI/CD integrations", "Dedicated support"],
+    description: "For organizations with advanced needs.",
+    features: [
+      "Everything in Pro",
+      "SSO and RBAC",
+      "Custom AI provider (Bedrock, OpenAI)",
+      "Dedicated support",
+    ],
   },
 ];
 
@@ -36,9 +47,8 @@ export const PricingSection = () => {
       className="flex flex-col items-center text-center py-20 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto min-h-screen scroll-mt-20"
     >
       <h2 className="text-4xl font-bold text-white mb-4">Plans and Pricing</h2>
-      <p className="text-zinc-400 text-lg mb-12 text-center max-w-2xl">
-        Get started immediately for free. Upgrade for more credits, usage and
-        collaboration.
+      <p className="text-zinc-400 text-sm mb-12 text-center max-w-2xl">
+        Start free. Upgrade when your team grows.
       </p>
 
       <div className="grid gap-6 md:grid-cols-3 w-full">
