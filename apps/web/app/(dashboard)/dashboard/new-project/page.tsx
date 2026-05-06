@@ -56,7 +56,8 @@ export default function Page() {
           Create project
         </h1>
         <p className="text-muted-foreground">
-          Create a new project to organize your AWS infrastructure and resources
+          Create a new project to start tracking architecture decisions and
+          running AI-powered code reviews.
         </p>
       </div>
 

@@ -8,9 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/ui/card";
-import { Input } from "@repo/ui/input";
-import { Label } from "@repo/ui/label";
-import { KeyIcon, MapPinIcon, ShieldIcon } from "@repo/ui/lucide";
+import { MapPinIcon, SparklesIcon, ZapIcon } from "@repo/ui/lucide";
 import {
   Select,
   SelectContent,
@@ -21,15 +19,13 @@ import {
 import * as React from "react";
 import { toast } from "sonner";
 
-import { connectAWS } from "../../../../auth/credentials";
 import { useProjects } from "../../../contexts/ProjectsContext";
 
 export default function SettingsPage() {
   const { projects } = useProjects();
   const [selectedProjectId, setSelectedProjectId] = React.useState<string>("");
-  const [accessKey, setAccessKey] = React.useState("");
-  const [secretKey, setSecretKey] = React.useState("");
   const [region, setRegion] = React.useState("us-east-1");
+  const [model, setModel] = React.useState("claude-sonnet-4-5");
   const [isLoading, setIsLoading] = React.useState(false);
 
   const handleSave = async () => {
@@ -39,69 +35,53 @@ export default function SettingsPage() {
     }
 
     setIsLoading(true);
-
-    try {
-      const result = await connectAWS({
-        projectId: selectedProjectId,
-        awsConfig: {
-          accessKey,
-          secretKey,
-          region,
-        },
-      });
-
-      if ("error" in result) {
-        toast.error(result.error);
-        return;
-      }
-
-      toast.success("Credentials saved successfully!");
-    } catch (error) {
-      toast.error("Failed to save credentials");
-      // eslint-disable-next-line no-console
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
+    await new Promise((resolve) => {
+      return setTimeout(resolve, 500);
+    });
+    setIsLoading(false);
+    toast.success("Settings saved!");
   };
 
   const regions = [
     "us-east-1",
     "us-east-2",
-    "us-west-1",
     "us-west-2",
     "eu-west-1",
     "eu-central-1",
     "ap-southeast-1",
     "ap-northeast-1",
-    "sa-east-1",
+  ];
+
+  const models = [
+    { value: "claude-sonnet-4-5", label: "Claude Sonnet 4.5" },
+    { value: "claude-haiku-4-5", label: "Claude Haiku 4.5" },
+    { value: "claude-opus-4", label: "Claude Opus 4" },
   ];
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
-      {/* Header */}
       <div>
         <h1 className="text-3xl font-bold tracking-tight py-2">Settings</h1>
         <p className="text-muted-foreground">
-          Connect your AWS account to integrate with cloud services
+          Configure the AI provider and preferences for your projects.
         </p>
       </div>
 
       <Card className="bg-zinc-900">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <ShieldIcon className="h-5 w-5" />
-            AWS credentials
+            <SparklesIcon className="h-5 w-5" />
+            AI Provider
           </CardTitle>
           <CardDescription>
-            Enter your AWS credentials to enable integration with the services
+            Configure the AI model used for code review and context generation.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-2 max-w-md">
-            <Label htmlFor="project" className="flex items-center gap-2">
-              Select Project
-            </Label>
+            <label htmlFor="project" className="text-sm font-medium">
+              Project
+            </label>
             <Select
               value={selectedProjectId}
               onValueChange={setSelectedProjectId}
@@ -126,55 +106,45 @@ export default function SettingsPage() {
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground">
-              Select the project to connect with AWS
+              Select the project to configure.
             </p>
           </div>
 
           <div className="space-y-2 max-w-md">
-            <Label htmlFor="access-key" className="flex items-center gap-2">
-              <KeyIcon className="h-4 w-4" />
-              AWS Access Key ID
-            </Label>
-            <Input
-              id="access-key"
-              type="text"
-              placeholder="AKIAIOSFODNN7EXAMPLE"
-              value={accessKey}
-              onChange={(e) => {
-                return setAccessKey(e.target.value);
-              }}
-              className="font-mono"
-            />
+            <label
+              htmlFor="model"
+              className="text-sm font-medium flex items-center gap-2"
+            >
+              <ZapIcon className="h-4 w-4" />
+              Model
+            </label>
+            <Select value={model} onValueChange={setModel}>
+              <SelectTrigger id="model">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-zinc-800">
+                {models.map((m) => {
+                  return (
+                    <SelectItem key={m.value} value={m.value}>
+                      {m.label}
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
             <p className="text-xs text-muted-foreground">
-              Your AWS public access key
+              Model used for review and context generation via Amazon Bedrock.
             </p>
           </div>
 
           <div className="space-y-2 max-w-md">
-            <Label htmlFor="secret-key" className="flex items-center gap-2">
-              <ShieldIcon className="h-4 w-4" />
-              AWS Secret Access Key
-            </Label>
-            <Input
-              id="secret-key"
-              type="password"
-              placeholder="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
-              value={secretKey}
-              onChange={(e) => {
-                return setSecretKey(e.target.value);
-              }}
-              className="font-mono"
-            />
-            <p className="text-xs text-muted-foreground">
-              Your private AWS key
-            </p>
-          </div>
-
-          <div className="space-y-2 max-w-md">
-            <Label htmlFor="region" className="flex items-center gap-2">
+            <label
+              htmlFor="region"
+              className="text-sm font-medium flex items-center gap-2"
+            >
               <MapPinIcon className="h-4 w-4" />
-              AWS Region
-            </Label>
+              Bedrock Region
+            </label>
             <Select value={region} onValueChange={setRegion}>
               <SelectTrigger id="region">
                 <SelectValue />
@@ -190,18 +160,16 @@ export default function SettingsPage() {
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground">
-              Select the region where your resources are hosted
+              AWS region where your Bedrock endpoint is configured.
             </p>
           </div>
 
           <div className="pt-4">
             <Button
               onClick={handleSave}
-              disabled={
-                !selectedProjectId || !accessKey || !secretKey || isLoading
-              }
+              disabled={!selectedProjectId || isLoading}
             >
-              {isLoading ? "Saving..." : "Save Credentials"}
+              {isLoading ? "Saving..." : "Save Settings"}
             </Button>
           </div>
         </CardContent>
