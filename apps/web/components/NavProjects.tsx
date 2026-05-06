@@ -8,11 +8,15 @@ import {
   DropdownMenuTrigger,
 } from "@repo/ui/dropdown-menu";
 import {
+  CheckCircle2Icon,
+  ClockIcon,
   FolderIcon,
   FrameIcon,
   MoreHorizontalIcon,
   PlusIcon,
   ShareIcon,
+  ShieldIcon,
+  SparklesIcon,
   TrashIcon,
 } from "@repo/ui/lucide";
 import {
@@ -22,6 +26,9 @@ import {
   SidebarMenuAction,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   useSidebar,
 } from "@repo/ui/sidebar";
 import { Skeleton } from "@repo/ui/skeleton";
@@ -46,6 +53,14 @@ export const NavProjects = ({
   const { delete: deleteProject } = useProjects();
   const router = useRouter();
   const pathname = usePathname();
+
+  const projectSubItems = [
+    { title: "Overview", icon: FolderIcon, slug: "" },
+    { title: "Memory", icon: SparklesIcon, slug: "/memory" },
+    { title: "Decisions", icon: CheckCircle2Icon, slug: "/decisions" },
+    { title: "Rules", icon: ShieldIcon, slug: "/rules" },
+    { title: "Changes", icon: ClockIcon, slug: "/changes" },
+  ];
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
@@ -72,14 +87,52 @@ export const NavProjects = ({
               if (item.icon === "frame") {
                 Icon = FrameIcon;
               }
+              const isActive = pathname.startsWith(
+                `/dashboard/project/${item.id}`,
+              );
+
               return (
                 <SidebarMenuItem key={item.name}>
-                  <SidebarMenuButton asChild>
+                  <SidebarMenuButton asChild isActive={isActive}>
                     <Link href={item.url}>
                       {Icon ? <Icon /> : null}
                       <span>{item.name}</span>
                     </Link>
                   </SidebarMenuButton>
+                  {isActive && (
+                    <SidebarMenuSub>
+                      {projectSubItems.map((sub) => {
+                        const subUrl = `/dashboard/project/${item.id}${sub.slug}`;
+                        const isSubActive = pathname === subUrl;
+                        const isDisabled = sub.slug !== "";
+                        return (
+                          <SidebarMenuSubItem key={sub.title}>
+                            <SidebarMenuSubButton
+                              asChild={!isDisabled}
+                              isActive={isSubActive}
+                              className={
+                                isDisabled
+                                  ? "opacity-40 cursor-not-allowed pointer-events-none"
+                                  : ""
+                              }
+                            >
+                              {isDisabled ? (
+                                <span className="flex items-center gap-2">
+                                  <sub.icon className="h-3.5 w-3.5" />
+                                  <span>{sub.title}</span>
+                                </span>
+                              ) : (
+                                <Link href={subUrl}>
+                                  <sub.icon className="h-3.5 w-3.5" />
+                                  <span>{sub.title}</span>
+                                </Link>
+                              )}
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        );
+                      })}
+                    </SidebarMenuSub>
+                  )}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <SidebarMenuAction showOnHover>
