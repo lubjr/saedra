@@ -64,6 +64,33 @@ export default async function Page({ params }: PageProps) {
     getRecentChanges(id),
   ]);
 
+  const checklist = [
+    {
+      label: "Project created",
+      done: true,
+      hint: null,
+    },
+    {
+      label: "Architecture state generated",
+      done: architectureState !== null,
+      hint: "saedra memory state update --ai",
+    },
+    {
+      label: "First decision recorded",
+      done: decisions.length > 0,
+      hint: "saedra memory decision add",
+    },
+    {
+      label: "First change logged",
+      done: changes.length > 0,
+      hint: "saedra memory change log --from-git",
+    },
+  ];
+
+  const setupComplete = checklist.every((item) => {
+    return item.done;
+  });
+
   return (
     <div className="mx-auto max-w-6xl space-y-6">
       <div>
@@ -74,6 +101,48 @@ export default async function Page({ params }: PageProps) {
           Architectural context, decisions and recent changes for this project.
         </p>
       </div>
+
+      {/* Setup checklist */}
+      {!setupComplete && (
+        <Card className="bg-zinc-900 border-teal-500/20">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ZapIcon className="h-5 w-5 text-teal-400" />
+              Setup Progress
+            </CardTitle>
+            <CardDescription>
+              Complete these steps to get the most out of this project.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2">
+              {checklist.map((item) => {
+                return (
+                  <li key={item.label} className="flex items-start gap-3">
+                    {item.done ? (
+                      <CheckCircle2Icon className="h-4 w-4 text-teal-400 mt-0.5 shrink-0" />
+                    ) : (
+                      <div className="h-4 w-4 rounded-full border border-zinc-600 mt-0.5 shrink-0" />
+                    )}
+                    <div className="min-w-0">
+                      <p
+                        className={`text-sm ${item.done ? "text-muted-foreground line-through" : ""}`}
+                      >
+                        {item.label}
+                      </p>
+                      {!item.done && item.hint && (
+                        <code className="text-teal-400 font-mono text-xs bg-teal-500/10 px-1.5 py-0.5 rounded mt-0.5 inline-block">
+                          {item.hint}
+                        </code>
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Architecture State */}
       <Card className="bg-zinc-900">
