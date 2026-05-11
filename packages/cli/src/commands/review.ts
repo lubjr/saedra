@@ -231,6 +231,32 @@ export async function reviewCommand(opts: { staged?: boolean; json?: boolean; ba
     } else {
       console.log("\n  Result: no violations found\n");
     }
+
+    if (!opts.offline) {
+      try {
+        let branch = "unknown";
+        try {
+          branch = execSync("git rev-parse --abbrev-ref HEAD", { encoding: "utf-8" }).trim();
+        } catch {}
+
+        await fetch(`${config.apiUrl}/projects/${project.id}/reviews`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${config.token}`,
+          },
+          body: JSON.stringify({
+            branch,
+            base: opts.base ?? null,
+            total_files: result.files.length,
+            violations: summary.violations,
+            warnings: summary.warnings,
+            ok: summary.ok,
+            files: result.files,
+          }),
+        });
+      } catch {}
+    }
   } catch (err) {
     aiSpinner?.fail((err as Error).message);
     process.exit(1);
