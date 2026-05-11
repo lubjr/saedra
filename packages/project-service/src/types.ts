@@ -40,6 +40,23 @@ export type CreateDiagramResponse = {
 
 export type DocumentType = 'doc' | 'architecture' | 'decision' | 'change' | 'rule';
 
+export type FileResult = {
+  file: string;
+  status: 'violation' | 'warning' | 'ok';
+  violations: Array<{ rule_id: string; detail: string }>;
+  note: string;
+};
+
+export type ReviewData = {
+  branch: string;
+  base: string | null;
+  total_files: number;
+  violations: number;
+  warnings: number;
+  ok: number;
+  files: FileResult[];
+};
+
 export type DocumentResponse = {
   id: string;
   project_id: string;
