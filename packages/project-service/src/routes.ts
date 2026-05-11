@@ -259,6 +259,67 @@ routes.delete('/:projectId/documents/:documentId', authenticate, async (req, res
   res.status(204).json({ message: 'document deleted' });
 });
 
+routes.post('/:projectId/reviews', authenticate, async (req, res) => {
+  const { projectId } = req.params;
+  const { branch, base, total_files, violations, warnings, ok, files } = req.body;
+
+  if (!projectId || !branch || files === undefined) {
+    return res.status(400).json({ error: 'projectId, branch and files required' });
+  }
+
+  const review = await repo.createReview(projectId, {
+    branch,
+    base: base ?? null,
+    total_files: total_files ?? 0,
+    violations: violations ?? 0,
+    warnings: warnings ?? 0,
+    ok: ok ?? 0,
+    files,
+  });
+
+  if (review && 'error' in review) {
+    return res.status(400).json({ error: review.error });
+  }
+
+  res.status(201).json(review);
+});
+
+routes.get('/:projectId/reviews', authenticate, async (req, res) => {
+  const { projectId } = req.params;
+
+  if (!projectId) {
+    return res.status(400).json({ error: 'projectId required' });
+  }
+
+  const reviews = await repo.listReviewsByProject(projectId);
+
+  if (reviews && 'error' in reviews) {
+    return res.status(400).json({ error: reviews.error });
+  }
+
+  res.json(reviews);
+});
+
+routes.get('/:projectId/reviews/:reviewId', authenticate, async (req, res) => {
+  const { projectId, reviewId } = req.params;
+
+  if (!projectId || !reviewId) {
+    return res.status(400).json({ error: 'projectId and reviewId required' });
+  }
+
+  const review = await repo.getReviewById(reviewId);
+
+  if (!review) {
+    return res.status(404).json({ error: 'review not found' });
+  }
+
+  if ('error' in review) {
+    return res.status(400).json({ error: review.error });
+  }
+
+  res.json(review);
+});
+
 routes.get('/:id', authenticate, async (req, res) => {
   const { id } = req.params;
 
