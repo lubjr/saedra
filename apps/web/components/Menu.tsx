@@ -10,7 +10,6 @@ import {
 export const Menu = () => {
   const links = [
     { href: "#docs", label: "Docs" },
-    { href: "#blog", label: "Blog" },
     { href: "#pricing", label: "Pricing" },
     { href: "#about", label: "About" },
   ];

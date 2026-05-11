@@ -1,8 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-"use client";
-
 import { Badge } from "@repo/ui/badge";
-import { Button } from "@repo/ui/button";
 import {
   Card,
   CardContent,
@@ -10,20 +6,21 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/ui/card";
-import { Label } from "@repo/ui/label";
-import { KeyIcon, SparklesIcon } from "@repo/ui/lucide";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@repo/ui/select";
-import * as React from "react";
-import { toast } from "sonner";
+  CheckCircle2Icon,
+  ClockIcon,
+  CodeIcon,
+  ShieldIcon,
+  SparklesIcon,
+  ZapIcon,
+} from "@repo/ui/lucide";
 
-import { getProjectCredentials } from "../../../../../auth/credentials";
-import { generateDiagram } from "../../../../../auth/diagram";
+import {
+  getArchitectureState,
+  getDecisions,
+  getRecentChanges,
+  getViolationRules,
+} from "../../../../../auth/documents";
 
 interface PageProps {
   params: Promise<{
@@ -31,257 +28,365 @@ interface PageProps {
   }>;
 }
 
-export default function Page({ params }: PageProps) {
-  const { id } = React.use(params);
-  const [credentials, setCredentials] = React.useState<any[]>([]);
-  const [selectedCredentialId, setSelectedCredentialId] =
-    React.useState<string>("");
-  const [diagram, setDiagram] = React.useState<any>(null);
-  const [loading, setLoading] = React.useState(false);
+const severityColor: Record<string, string> = {
+  high: "bg-red-500/10 text-red-400 border-red-500/20",
+  medium: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
+  low: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
+};
 
-  React.useEffect(() => {
-    const fetchCredentials = async () => {
-      const result = await getProjectCredentials({ projectId: id });
+const riskColor: Record<string, string> = {
+  high: "bg-red-500/10 text-red-400 border-red-500/20",
+  medium: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
+  low: "bg-teal-500/10 text-teal-400 border-teal-500/20",
+};
 
-      if ("error" in result) {
-        toast.error("Failed to get credentials");
-        return;
-      }
+const statusColor: Record<string, string> = {
+  active: "bg-teal-500/10 text-teal-400 border-teal-500/20",
+  deprecated: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
+  superseded: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
+};
 
-      if (result.data && Array.isArray(result.data)) {
-        setCredentials(result.data);
-        if (result.data.length > 0) {
-          setSelectedCredentialId(result.data[0].id);
-        }
-      }
-    };
+const formatDate = (iso: string): string => {
+  return new Date(iso).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+};
 
-    fetchCredentials();
-  }, [id]);
+export default async function Page({ params }: PageProps) {
+  const { id } = await params;
 
-  const handleGenerateDiagram = async () => {
-    if (!selectedCredentialId) {
-      toast.error("Please select a credential");
-      return;
-    }
+  const [architectureState, decisions, rules, changes] = await Promise.all([
+    getArchitectureState(id),
+    getDecisions(id),
+    getViolationRules(id),
+    getRecentChanges(id),
+  ]);
 
-    setLoading(true);
+  const checklist = [
+    {
+      label: "Project created",
+      done: true,
+      hint: null,
+    },
+    {
+      label: "Architecture state generated",
+      done: architectureState !== null,
+      hint: "saedra memory state update --ai",
+    },
+    {
+      label: "First decision recorded",
+      done: decisions.length > 0,
+      hint: "saedra memory decision add",
+    },
+    {
+      label: "First change logged",
+      done: changes.length > 0,
+      hint: "saedra memory change log --from-git",
+    },
+  ];
 
-    try {
-      const result = await generateDiagram({
-        projectId: id,
-        credentialId: selectedCredentialId,
-      });
-
-      if (!result) {
-        toast.error("Failed to generate diagram");
-        return;
-      }
-
-      if ("error" in result) {
-        toast.error("Failed to generate diagram");
-        return;
-      }
-
-      setDiagram(result.data);
-      toast.success("Diagram generated successfully!");
-    } catch (error) {
-      toast.error("Failed to generate diagram");
-      // eslint-disable-next-line no-console
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const nodes = diagram?.graph?.nodes || [];
-  const edges = diagram?.graph?.edges || [];
+  const setupComplete = checklist.every((item) => {
+    return item.done;
+  });
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
-      {/* Header */}
       <div>
         <h1 className="text-3xl font-bold tracking-tight py-2">
-          Project Diagram
+          Project Overview
         </h1>
-        <p className="text-muted-foreground">
-          Your project&apos;s infrastructure diagram and resource overview
+        <p className="text-sm text-muted-foreground">
+          Architectural context, decisions and recent changes for this project.
         </p>
       </div>
 
-      {/* Credential Selection */}
+      {/* Setup checklist */}
+      {!setupComplete && (
+        <Card className="bg-zinc-900 border-teal-500/20">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ZapIcon className="h-5 w-5 text-teal-400" />
+              Setup Progress
+            </CardTitle>
+            <CardDescription>
+              Complete these steps to get the most out of this project.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2">
+              {checklist.map((item) => {
+                return (
+                  <li key={item.label} className="flex items-start gap-3">
+                    {item.done ? (
+                      <CheckCircle2Icon className="h-4 w-4 text-teal-400 mt-0.5 shrink-0" />
+                    ) : (
+                      <div className="h-4 w-4 rounded-full border border-zinc-600 mt-0.5 shrink-0" />
+                    )}
+                    <div className="min-w-0">
+                      <p
+                        className={`text-sm ${item.done ? "text-muted-foreground line-through" : ""}`}
+                      >
+                        {item.label}
+                      </p>
+                      {!item.done && item.hint && (
+                        <code className="text-teal-400 font-mono text-xs bg-teal-500/10 px-1.5 py-0.5 rounded mt-0.5 inline-block">
+                          {item.hint}
+                        </code>
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Architecture State */}
       <Card className="bg-zinc-900">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <SparklesIcon className="h-5 w-5" />
-            Generate Diagram
+            Architecture State
           </CardTitle>
           <CardDescription>
-            Select a credential and generate your infrastructure diagram
+            Current summary and core principles of the project architecture.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          {credentials.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              No credentials registered for this project. Please add AWS
-              credentials first.
-            </p>
-          ) : (
-            <>
-              <div className="space-y-2 max-w-md">
-                <Label htmlFor="credential" className="flex items-center gap-2">
-                  <KeyIcon className="h-4 w-4" />
-                  Select Credential
-                </Label>
-                <Select
-                  value={selectedCredentialId}
-                  onValueChange={setSelectedCredentialId}
-                >
-                  <SelectTrigger id="credential">
-                    <SelectValue placeholder="Select a credential" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-zinc-800">
-                    {credentials.map((cred: any) => {
+        <CardContent>
+          {architectureState ? (
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">
+                  Version {architectureState.version}
+                </p>
+                <p className="text-sm">{architectureState.summary}</p>
+              </div>
+              {architectureState.core_principles.length > 0 && (
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
+                    Core Principles
+                  </p>
+                  <ul className="space-y-1">
+                    {architectureState.core_principles.map((p) => {
                       return (
-                        <SelectItem key={cred.id} value={cred.id}>
-                          {cred.access_key_id?.slice(0, 4) ?? "N/A"}*****
-                        </SelectItem>
+                        <li key={p} className="text-sm flex gap-2">
+                          <span className="text-teal-400 shrink-0">—</span>
+                          {p}
+                        </li>
                       );
                     })}
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-muted-foreground">
-                  Choose the AWS credential to use for generating the diagram
-                </p>
-              </div>
-
-              <div className="pt-4">
-                <Button
-                  onClick={handleGenerateDiagram}
-                  disabled={loading || !selectedCredentialId}
-                >
-                  {loading ? "Generating..." : "Generate Diagram"}
-                </Button>
-              </div>
-            </>
+                  </ul>
+                </div>
+              )}
+              {architectureState.constraints.length > 0 && (
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
+                    Constraints
+                  </p>
+                  <ul className="space-y-1">
+                    {architectureState.constraints.map((c) => {
+                      return (
+                        <li key={c} className="text-sm flex gap-2">
+                          <span className="text-yellow-400 shrink-0">—</span>
+                          {c}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              )}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No architecture state found. Run{" "}
+              <code className="text-teal-400 font-mono text-xs bg-teal-500/10 px-1.5 py-0.5 rounded">
+                saedra memory state update --ai
+              </code>{" "}
+              to generate the initial state from your codebase.
+            </p>
           )}
         </CardContent>
       </Card>
 
-      {/* Diagram Display */}
-      {diagram && (
-        <>
-          {/* Stats */}
-          <div className="grid gap-4 md:grid-cols-3">
-            <Card className="bg-zinc-900">
-              <CardHeader className="pb-3">
-                <CardDescription>Total Resources</CardDescription>
-                <CardTitle className="text-3xl">{nodes.length}</CardTitle>
-              </CardHeader>
-            </Card>
-            <Card className="bg-zinc-900">
-              <CardHeader className="pb-3">
-                <CardDescription>Connections</CardDescription>
-                <CardTitle className="text-3xl">{edges.length}</CardTitle>
-              </CardHeader>
-            </Card>
-            <Card className="bg-zinc-900">
-              <CardHeader className="pb-3">
-                <CardDescription>Resource Types</CardDescription>
-                <CardTitle className="text-3xl">
-                  {
-                    new Set(
-                      nodes.map((n: any) => {
-                        return n.type;
-                      }),
-                    ).size
-                  }
-                </CardTitle>
-              </CardHeader>
-            </Card>
-          </div>
-
-          {/* Diagram Visualization */}
-          <Card className="bg-zinc-900">
-            <CardHeader>
-              <CardTitle>Architecture Resources</CardTitle>
-              <CardDescription>
-                Infrastructure components and their connections
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4 grid-cols-3">
-                {nodes.map((node: any) => {
-                  const connectedEdges = edges.filter((edge: any) => {
-                    return edge.source === node.id || edge.target === node.id;
-                  });
-
-                  return (
-                    <div
-                      key={node.id}
-                      className={`group relative rounded-lg border p-4 transition-all hover:shadow-md`}
-                    >
-                      <div className="space-y-3">
-                        <div className="flex items-start justify-between gap-2">
-                          <Badge
-                            variant="default"
-                            className="font-mono text-xs mb-1"
-                          >
-                            {node.type}
-                          </Badge>
-                          {connectedEdges.length > 0 && (
-                            <span className="text-xs text-muted-foreground">
-                              {connectedEdges.length} connection
-                              {connectedEdges.length !== 1 ? "s" : ""}
-                            </span>
-                          )}
-                        </div>
-
-                        <div>
-                          <p className="font-medium leading-tight text-balance">
-                            {node.label}
-                          </p>
-                          <p className="mt-1 font-mono text-xs text-muted-foreground">
-                            {node.id}
-                          </p>
-                        </div>
-
-                        {connectedEdges.length > 0 && (
-                          <div className="space-y-1 border-t pt-3">
-                            <p className="text-xs font-medium text-muted-foreground">
-                              Connected to:
-                            </p>
-                            <div className="flex flex-wrap gap-1">
-                              {connectedEdges.map((edge: any, idx: any) => {
-                                const targetId =
-                                  edge.source === node.id
-                                    ? edge.target
-                                    : edge.source;
-                                const targetNode = nodes.find((n: any) => {
-                                  return n.id === targetId;
-                                });
-                                return (
-                                  <Badge
-                                    key={idx}
-                                    variant="outline"
-                                    className="text-xs"
-                                  >
-                                    {targetNode?.type || targetId}
-                                  </Badge>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        )}
-                      </div>
+      {/* Active Decisions */}
+      <Card className="bg-zinc-900">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <CheckCircle2Icon className="h-5 w-5" />
+            Active Decisions
+          </CardTitle>
+          <CardDescription>
+            Architecture decisions recorded for this project.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {decisions.length > 0 ? (
+            <div className="space-y-3">
+              {decisions.map((dec) => {
+                return (
+                  <div
+                    key={dec.id}
+                    className="flex items-start justify-between gap-4 py-3 border-b border-zinc-800 last:border-0"
+                  >
+                    <div className="space-y-1 min-w-0">
+                      <p className="text-sm font-medium truncate">
+                        {dec.title}
+                      </p>
+                      <p className="text-xs font-mono text-muted-foreground">
+                        {dec.id}
+                      </p>
+                      {dec.affects.length > 0 && (
+                        <p className="text-xs text-muted-foreground">
+                          Affects: {dec.affects.join(", ")}
+                        </p>
+                      )}
                     </div>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
-        </>
-      )}
+                    <div className="flex gap-2 shrink-0">
+                      <Badge
+                        variant="outline"
+                        className={statusColor[dec.status]}
+                      >
+                        {dec.status}
+                      </Badge>
+                      <Badge
+                        variant="outline"
+                        className={riskColor[dec.risk_level]}
+                      >
+                        {dec.risk_level}
+                      </Badge>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No decisions found. Run{" "}
+              <code className="text-teal-400 font-mono text-xs bg-teal-500/10 px-1.5 py-0.5 rounded">
+                saedra memory decision add
+              </code>{" "}
+              to record your first architecture decision.
+            </p>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Violation Rules */}
+      <Card className="bg-zinc-900">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <ShieldIcon className="h-5 w-5" />
+            Violation Rules
+          </CardTitle>
+          <CardDescription>Rules enforced on every PR review.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {rules.length > 0 ? (
+            <div className="flex flex-wrap gap-2">
+              {rules.map((rule) => {
+                return (
+                  <Badge
+                    key={rule.id}
+                    variant="outline"
+                    className={severityColor[rule.severity]}
+                    title={rule.description}
+                  >
+                    {rule.description.length > 60
+                      ? rule.description.slice(0, 57) + "..."
+                      : rule.description}
+                  </Badge>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No rules found. Rules are created automatically from your
+              decisions when you run{" "}
+              <code className="text-teal-400 font-mono text-xs bg-teal-500/10 px-1.5 py-0.5 rounded">
+                saedra review
+              </code>
+              .
+            </p>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Recent Changes */}
+      <Card className="bg-zinc-900">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <ClockIcon className="h-5 w-5" />
+            Recent Changes
+          </CardTitle>
+          <CardDescription>
+            Last change events logged for this project.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {changes.length > 0 ? (
+            <div className="space-y-0">
+              {changes.map((chg, i) => {
+                return (
+                  <div key={chg.id} className="flex gap-4">
+                    <div className="flex flex-col items-center">
+                      <div className="w-2 h-2 rounded-full bg-teal-400 mt-1.5 shrink-0" />
+                      {i < changes.length - 1 && (
+                        <div className="w-px flex-1 bg-zinc-700 mt-1" />
+                      )}
+                    </div>
+                    <div className="pb-4 min-w-0">
+                      <p className="text-sm font-medium">{chg.summary}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {formatDate(chg.created_at)}
+                      </p>
+                      {chg.files_changed.length > 0 && (
+                        <p className="text-xs text-muted-foreground mt-1 font-mono truncate">
+                          {chg.files_changed.slice(0, 3).join(", ")}
+                          {chg.files_changed.length > 3 &&
+                            ` +${chg.files_changed.length - 3} more`}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No changes found. Run{" "}
+              <code className="text-teal-400 font-mono text-xs bg-teal-500/10 px-1.5 py-0.5 rounded">
+                saedra memory change log --from-git
+              </code>{" "}
+              to log changes from your git history.
+            </p>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* CLI hint */}
+      <Card className="bg-zinc-900 border-teal-500/20">
+        <CardContent className="pt-6">
+          <div className="flex items-start gap-3">
+            <CodeIcon className="h-5 w-5 text-teal-400 mt-0.5 shrink-0" />
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-white">
+                Get started with the CLI
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Install the Saedra CLI and run{" "}
+                <code className="text-teal-400 font-mono text-xs bg-teal-500/10 px-1.5 py-0.5 rounded">
+                  saedra init
+                </code>{" "}
+                inside your repository to start tracking architectural context.
+              </p>
+            </div>
+            <ZapIcon className="h-4 w-4 text-teal-400 shrink-0 mt-0.5" />
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
