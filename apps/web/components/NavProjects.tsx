@@ -14,6 +14,7 @@ import {
   FrameIcon,
   MoreHorizontalIcon,
   PlusIcon,
+  SearchIcon,
   ShareIcon,
   ShieldIcon,
   SparklesIcon,
@@ -55,11 +56,17 @@ export const NavProjects = ({
   const pathname = usePathname();
 
   const projectSubItems = [
-    { title: "Overview", icon: FolderIcon, slug: "" },
-    { title: "Memory", icon: SparklesIcon, slug: "/memory" },
-    { title: "Decisions", icon: CheckCircle2Icon, slug: "/decisions" },
-    { title: "Rules", icon: ShieldIcon, slug: "/rules" },
-    { title: "Changes", icon: ClockIcon, slug: "/changes" },
+    { title: "Overview", icon: FolderIcon, slug: "", disabled: false },
+    { title: "Reviews", icon: SearchIcon, slug: "/reviews", disabled: false },
+    { title: "Memory", icon: SparklesIcon, slug: "/memory", disabled: true },
+    {
+      title: "Decisions",
+      icon: CheckCircle2Icon,
+      slug: "/decisions",
+      disabled: true,
+    },
+    { title: "Rules", icon: ShieldIcon, slug: "/rules", disabled: true },
+    { title: "Changes", icon: ClockIcon, slug: "/changes", disabled: true },
   ];
 
   return (
@@ -104,7 +111,7 @@ export const NavProjects = ({
                       {projectSubItems.map((sub) => {
                         const subUrl = `/dashboard/project/${item.id}${sub.slug}`;
                         const isSubActive = pathname === subUrl;
-                        const isDisabled = sub.slug !== "";
+                        const isDisabled = sub.disabled;
                         return (
                           <SidebarMenuSubItem key={sub.title}>
                             <SidebarMenuSubButton
