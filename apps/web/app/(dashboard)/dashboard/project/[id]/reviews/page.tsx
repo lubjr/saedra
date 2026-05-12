@@ -7,6 +7,7 @@ import {
   CardTitle,
 } from "@repo/ui/card";
 import { SearchIcon } from "@repo/ui/lucide";
+import Link from "next/link";
 
 import { getProjectReviews } from "../../../../../../auth/reviews";
 
@@ -71,9 +72,10 @@ export default async function Page({ params }: PageProps) {
               {reviews.map((review, i) => {
                 const status = reviewStatus(review.violations, review.warnings);
                 return (
-                  <div
+                  <Link
                     key={review.id}
-                    className={`flex items-start justify-between gap-4 py-4 ${
+                    href={`/dashboard/project/${id}/reviews/${review.id}`}
+                    className={`flex items-start justify-between gap-4 py-4 hover:bg-zinc-800/50 -mx-2 px-2 rounded transition-colors ${
                       i < reviews.length - 1 ? "border-b border-zinc-800" : ""
                     }`}
                   >
@@ -119,7 +121,7 @@ export default async function Page({ params }: PageProps) {
                         {review.ok} ok
                       </Badge>
                     </div>
-                  </div>
+                  </Link>
                 );
               })}
             </div>
