@@ -18,6 +18,7 @@ import {
   ShareIcon,
   ShieldIcon,
   SparklesIcon,
+  TargetIcon,
   TrashIcon,
 } from "@repo/ui/lucide";
 import {
@@ -58,6 +59,7 @@ export const NavProjects = ({
   const projectSubItems = [
     { title: "Overview", icon: FolderIcon, slug: "", disabled: false },
     { title: "Reviews", icon: SearchIcon, slug: "/reviews", disabled: false },
+    { title: "Metrics", icon: TargetIcon, slug: "/metrics", disabled: false },
     { title: "Memory", icon: SparklesIcon, slug: "/memory", disabled: true },
     {
       title: "Decisions",
