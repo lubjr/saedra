@@ -320,6 +320,35 @@ routes.get('/:projectId/reviews/:reviewId', authenticate, async (req, res) => {
   res.json(review);
 });
 
+routes.get('/:projectId/settings', authenticate, async (req, res) => {
+  const { projectId } = req.params;
+
+  const settings = await repo.getSettings(projectId);
+
+  if (settings && 'error' in settings) {
+    return res.status(400).json({ error: settings.error });
+  }
+
+  res.json(settings ?? { ai_provider: 'claude', model: 'claude-sonnet-4-6' });
+});
+
+routes.put('/:projectId/settings', authenticate, async (req, res) => {
+  const { projectId } = req.params;
+  const { ai_provider, model } = req.body;
+
+  if (!ai_provider || !model) {
+    return res.status(400).json({ error: 'ai_provider and model required' });
+  }
+
+  const settings = await repo.upsertSettings(projectId, { ai_provider, model });
+
+  if ('error' in settings) {
+    return res.status(400).json({ error: settings.error });
+  }
+
+  res.json(settings);
+});
+
 routes.get('/:id', authenticate, async (req, res) => {
   const { id } = req.params;
 

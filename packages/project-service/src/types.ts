@@ -57,6 +57,14 @@ export type ReviewData = {
   files: FileResult[];
 };
 
+export type ProjectSettings = {
+  id: string;
+  project_id: string;
+  ai_provider: string;
+  model: string;
+  updated_at: string;
+};
+
 export type DocumentResponse = {
   id: string;
   project_id: string;
