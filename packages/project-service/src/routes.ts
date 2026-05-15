@@ -323,6 +323,10 @@ routes.get('/:projectId/reviews/:reviewId', authenticate, async (req, res) => {
 routes.get('/:projectId/settings', authenticate, async (req, res) => {
   const { projectId } = req.params;
 
+  if (!projectId) {
+    return res.status(400).json({ error: 'projectId required' });
+  }
+
   const settings = await repo.getSettings(projectId);
 
   if (settings && 'error' in settings) {
@@ -336,7 +340,7 @@ routes.put('/:projectId/settings', authenticate, async (req, res) => {
   const { projectId } = req.params;
   const { ai_provider, model } = req.body;
 
-  if (!ai_provider || !model) {
+  if (!projectId || !ai_provider || !model) {
     return res.status(400).json({ error: 'ai_provider and model required' });
   }
 
