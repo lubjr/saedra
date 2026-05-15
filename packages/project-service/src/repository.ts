@@ -1,7 +1,7 @@
-import { type CreateProjectResponse, type CreateCredentialsResponse, type CreateDiagramResponse, type DocumentResponse, type DocumentType, type ReviewData } from "./types.js";
+import { type CreateProjectResponse, type CreateCredentialsResponse, type CreateDiagramResponse, type DocumentResponse, type DocumentType, type ReviewData, type ProjectSettings } from "./types.js";
 import { collectResources, type AwsCredentials } from "@repo/aws-connector/aws";
 import { generateDiagramFromResources } from "@repo/diagram-service/diagram";
-import { ProjectDB, AwsCredentialsDB, DiagramDB, LoginDB, ProfileDB, DocumentDB, ReviewDB } from "@repo/db-queries/queries";
+import { ProjectDB, AwsCredentialsDB, DiagramDB, LoginDB, ProfileDB, DocumentDB, ReviewDB, SettingsDB } from "@repo/db-queries/queries";
 
 export const signUpUser = async (email: string, password: string): Promise<{ userId: string } | { error: string }> => {
   const { data, error } = await LoginDB.signUpUser(email, password);
@@ -275,4 +275,24 @@ export const getReviewById = async (reviewId: string): Promise<any> => {
   }
 
   return data;
+}
+
+export const getSettings = async (projectId: string): Promise<ProjectSettings | null | { error: string }> => {
+  const { data, error } = await SettingsDB.getProjectSettings(projectId);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return data;
+}
+
+export const upsertSettings = async (projectId: string, data: { ai_provider: string; model: string }): Promise<ProjectSettings | { error: string }> => {
+  const { data: settings, error } = await SettingsDB.upsertProjectSettings(projectId, data);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return settings;
 }
