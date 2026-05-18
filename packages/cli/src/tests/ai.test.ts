@@ -23,7 +23,6 @@ const mockConfirm = vi.mocked(prompts.confirm);
 const { getAiConfig, aiStatusCommand, aiRemoveCommand } = await import("../commands/ai.js");
 
 const MOCK_AI_CONFIG = {
-  provider: "claude" as const,
   apiKey: "sk-ant-api-key-1234567890abcdef",
 };
 
@@ -80,7 +79,7 @@ describe("ai", () => {
       );
     });
 
-    test("logs provider and masked key when AI is configured", async () => {
+    test("logs masked key when AI is configured", async () => {
       mockFs.existsSync.mockReturnValue(true);
       mockFs.readFileSync.mockReturnValue(JSON.stringify(MOCK_AI_CONFIG));
 
@@ -88,7 +87,7 @@ describe("ai", () => {
 
       expect(mockExit).not.toHaveBeenCalled();
       expect(console.log).toHaveBeenCalledWith(
-        expect.stringContaining(MOCK_AI_CONFIG.provider)
+        expect.stringContaining("sk-ant-a")
       );
     });
   });
