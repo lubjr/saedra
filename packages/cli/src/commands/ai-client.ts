@@ -1,27 +1,30 @@
 import type { AiConfig } from "./ai.js";
 
-const CLAUDE_SONNET = "claude-sonnet-4-6";
-const CLAUDE_OPUS = "claude-opus-4-6";
-const OPENAI_DEFAULT = "gpt-4o";
+const FALLBACK_CLAUDE_MODEL = "claude-sonnet-4-6";
+const FALLBACK_OPENAI_MODEL = "gpt-4o";
+
+export interface AiCallOptions {
+  provider: string;
+  model: string;
+}
 
 export async function callAI(
   system: string,
   user: string,
   config: AiConfig,
-  opts: { smart?: boolean } = {}
+  opts: AiCallOptions
 ): Promise<string> {
-  if (config.provider === "claude") {
+  if (opts.provider === "claude") {
     const { default: Anthropic } = await import("@anthropic-ai/sdk");
     const anthropic = new Anthropic({ apiKey: config.apiKey });
 
-    const messages = [{ role: "user" as const, content: user }];
-    const base = { max_tokens: 4096, system, messages };
-
-    const response = await anthropic.messages.create(
-      opts.smart
-        ? { ...base, model: CLAUDE_OPUS, thinking: { type: "enabled" as const, budget_tokens: 10000 } }
-        : { ...base, model: CLAUDE_SONNET }
-    );
+    const model = opts.model || FALLBACK_CLAUDE_MODEL;
+    const response = await anthropic.messages.create({
+      model,
+      max_tokens: 4096,
+      system,
+      messages: [{ role: "user", content: user }],
+    });
 
     type TextContent = Extract<(typeof response.content)[number], { type: "text" }>;
     return response.content
@@ -33,8 +36,9 @@ export async function callAI(
   const { default: OpenAI } = await import("openai");
   const openai = new OpenAI({ apiKey: config.apiKey });
 
+  const model = opts.model || FALLBACK_OPENAI_MODEL;
   const response = await openai.chat.completions.create({
-    model: OPENAI_DEFAULT,
+    model,
     messages: [
       { role: "system", content: system },
       { role: "user", content: user },
@@ -49,20 +53,19 @@ export async function streamAI(
   user: string,
   config: AiConfig,
   onChunk: (text: string) => void,
-  opts: { smart?: boolean } = {}
+  opts: AiCallOptions
 ): Promise<void> {
-  if (config.provider === "claude") {
+  if (opts.provider === "claude") {
     const { default: Anthropic } = await import("@anthropic-ai/sdk");
     const anthropic = new Anthropic({ apiKey: config.apiKey });
 
-    const messages = [{ role: "user" as const, content: user }];
-    const base = { max_tokens: 4096, system, messages };
-
-    const stream = anthropic.messages.stream(
-      opts.smart
-        ? { ...base, model: CLAUDE_OPUS, thinking: { type: "enabled" as const, budget_tokens: 10000 } }
-        : { ...base, model: CLAUDE_SONNET }
-    );
+    const model = opts.model || FALLBACK_CLAUDE_MODEL;
+    const stream = anthropic.messages.stream({
+      model,
+      max_tokens: 4096,
+      system,
+      messages: [{ role: "user", content: user }],
+    });
 
     for await (const event of stream) {
       if (
@@ -78,8 +81,9 @@ export async function streamAI(
   const { default: OpenAI } = await import("openai");
   const openai = new OpenAI({ apiKey: config.apiKey });
 
+  const model = opts.model || FALLBACK_OPENAI_MODEL;
   const stream = await openai.chat.completions.create({
-    model: OPENAI_DEFAULT,
+    model,
     stream: true,
     messages: [
       { role: "system", content: system },
