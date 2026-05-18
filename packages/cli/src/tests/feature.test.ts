@@ -8,6 +8,7 @@ import * as prompts from "@inquirer/prompts";
 vi.mock("../commands/helpers.js", () => ({
   requireAuth: vi.fn(),
   selectProject: vi.fn(),
+  fetchProjectSettings: vi.fn().mockResolvedValue({ ai_provider: "claude", model: "claude-sonnet-4-6" }),
 }));
 
 vi.mock("../commands/ai.js", () => ({
@@ -48,7 +49,7 @@ const MOCK_CONFIG = {
 
 const MOCK_PROJECT = { id: "proj-1", name: "Test Project" };
 
-const MOCK_AI_CONFIG = { provider: "claude" as const, apiKey: "sk-ant-test" };
+const MOCK_AI_CONFIG = { apiKey: "sk-ant-test" };
 
 const MOCK_STATE = {
   version: "2026-01-01",

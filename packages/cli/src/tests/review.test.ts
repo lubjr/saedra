@@ -9,6 +9,7 @@ vi.mock("../commands/helpers.js", () => ({
   selectProject: vi.fn(),
   loadLocalContext: vi.fn(),
   isContextFresh: vi.fn(),
+  fetchProjectSettings: vi.fn().mockResolvedValue({ ai_provider: "claude", model: "claude-sonnet-4-6" }),
 }));
 
 vi.mock("../commands/arch-context.js", () => ({
@@ -51,7 +52,7 @@ const MOCK_CONFIG = {
 
 const MOCK_PROJECT = { id: "proj-1", name: "Test Project" };
 
-const MOCK_AI_CONFIG = { provider: "claude" as const, apiKey: "sk-ant-test" };
+const MOCK_AI_CONFIG = { apiKey: "sk-ant-test" };
 
 const MOCK_RULES = [
   {

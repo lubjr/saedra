@@ -14,8 +14,9 @@ vi.mock("openai", () => ({
 
 const { callAI, streamAI } = await import("../commands/ai-client.js");
 
-const MOCK_CLAUDE_CONFIG = { provider: "claude" as const, apiKey: "sk-ant-test-key" };
-const MOCK_OPENAI_CONFIG = { provider: "openai" as const, apiKey: "sk-openai-test-key" };
+const MOCK_CONFIG = { apiKey: "sk-ant-test-key" };
+const MOCK_CLAUDE_OPTS = { provider: "claude", model: "claude-sonnet-4-6" };
+const MOCK_OPENAI_OPTS = { provider: "openai", model: "gpt-4o" };
 
 const MOCK_SYSTEM = "You are a helpful assistant.";
 const MOCK_USER = "Explain the architecture.";
@@ -35,7 +36,7 @@ describe("ai-client", () => {
         ],
       });
 
-      const result = await callAI(MOCK_SYSTEM, MOCK_USER, MOCK_CLAUDE_CONFIG);
+      const result = await callAI(MOCK_SYSTEM, MOCK_USER, MOCK_CONFIG, MOCK_CLAUDE_OPTS);
 
       expect(mockCreate).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -51,7 +52,7 @@ describe("ai-client", () => {
         choices: [{ message: { content: "OpenAI response" } }],
       });
 
-      const result = await callAI(MOCK_SYSTEM, MOCK_USER, MOCK_OPENAI_CONFIG);
+      const result = await callAI(MOCK_SYSTEM, MOCK_USER, MOCK_CONFIG, MOCK_OPENAI_OPTS);
 
       expect(mockChatCreate).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -67,25 +68,25 @@ describe("ai-client", () => {
     test("returns empty string when OpenAI returns no choices", async () => {
       mockChatCreate.mockResolvedValue({ choices: [] });
 
-      const result = await callAI(MOCK_SYSTEM, MOCK_USER, MOCK_OPENAI_CONFIG);
+      const result = await callAI(MOCK_SYSTEM, MOCK_USER, MOCK_CONFIG, MOCK_OPENAI_OPTS);
 
       expect(result).toBe("");
     });
 
-    test("uses claude-opus model when smart option is true", async () => {
-      mockCreate.mockResolvedValue({ content: [{ type: "text", text: "Smart response" }] });
+    test("uses the model from opts", async () => {
+      mockCreate.mockResolvedValue({ content: [{ type: "text", text: "Response" }] });
 
-      await callAI(MOCK_SYSTEM, MOCK_USER, MOCK_CLAUDE_CONFIG, { smart: true });
+      await callAI(MOCK_SYSTEM, MOCK_USER, MOCK_CONFIG, { provider: "claude", model: "claude-opus-4-6" });
 
       expect(mockCreate).toHaveBeenCalledWith(
         expect.objectContaining({ model: "claude-opus-4-6" })
       );
     });
 
-    test("uses claude-sonnet model by default", async () => {
+    test("uses claude-sonnet model when specified", async () => {
       mockCreate.mockResolvedValue({ content: [{ type: "text", text: "Fast response" }] });
 
-      await callAI(MOCK_SYSTEM, MOCK_USER, MOCK_CLAUDE_CONFIG);
+      await callAI(MOCK_SYSTEM, MOCK_USER, MOCK_CONFIG, MOCK_CLAUDE_OPTS);
 
       expect(mockCreate).toHaveBeenCalledWith(
         expect.objectContaining({ model: "claude-sonnet-4-6" })
@@ -103,7 +104,7 @@ describe("ai-client", () => {
       mockStream.mockReturnValue(mockAsyncGen());
 
       const chunks: string[] = [];
-      await streamAI(MOCK_SYSTEM, MOCK_USER, MOCK_CLAUDE_CONFIG, (text) => chunks.push(text));
+      await streamAI(MOCK_SYSTEM, MOCK_USER, MOCK_CONFIG, (text) => chunks.push(text), MOCK_CLAUDE_OPTS);
 
       expect(chunks).toEqual(["Hello ", "World"]);
     });
@@ -117,7 +118,7 @@ describe("ai-client", () => {
       mockStream.mockReturnValue(mockAsyncGen());
 
       const chunks: string[] = [];
-      await streamAI(MOCK_SYSTEM, MOCK_USER, MOCK_CLAUDE_CONFIG, (text) => chunks.push(text));
+      await streamAI(MOCK_SYSTEM, MOCK_USER, MOCK_CONFIG, (text) => chunks.push(text), MOCK_CLAUDE_OPTS);
 
       expect(chunks).toEqual(["Result"]);
     });
@@ -131,7 +132,7 @@ describe("ai-client", () => {
       mockChatCreate.mockResolvedValue(mockAsyncGen());
 
       const chunks: string[] = [];
-      await streamAI(MOCK_SYSTEM, MOCK_USER, MOCK_OPENAI_CONFIG, (text) => chunks.push(text));
+      await streamAI(MOCK_SYSTEM, MOCK_USER, MOCK_CONFIG, (text) => chunks.push(text), MOCK_OPENAI_OPTS);
 
       expect(chunks).toEqual(["Hello ", "World"]);
     });

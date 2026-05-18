@@ -2,7 +2,7 @@ import { execSync } from "child_process";
 import ora from "ora";
 import { getAiConfig } from "./ai.js";
 import { callAI } from "./ai-client.js";
-import { selectProject, requireAuth, loadLocalContext, isContextFresh } from "./helpers.js";
+import { selectProject, requireAuth, loadLocalContext, isContextFresh, fetchProjectSettings } from "./helpers.js";
 import { fetchDecisions, fetchRules, fetchState } from "./arch-context.js";
 import type { Decision, ViolationRule, ArchitectureState } from "../memory/schemas.js";
 import { buildReviewPrompt, REVIEW_SYSTEM_PROMPT, MAX_DIFF_CHARS } from "./prompts.js";
@@ -64,6 +64,8 @@ export async function reviewCommand(opts: { staged?: boolean; json?: boolean; ba
     console.error("\n  AI not configured. Run: saedra ai setup\n");
     process.exit(1);
   }
+
+  const projectSettings = await fetchProjectSettings(config.apiUrl, project.id, config.token);
 
   const allChangedFiles = getChangedFiles(opts.staged ?? false, opts.base);
 
@@ -147,7 +149,10 @@ export async function reviewCommand(opts: { staged?: boolean; json?: boolean; ba
   try {
     const prompt = buildReviewPrompt(project.name, filesWithDiffs, rules, decisions, state);
 
-    const rawText = await callAI(REVIEW_SYSTEM_PROMPT, prompt, aiConfig);
+    const rawText = await callAI(REVIEW_SYSTEM_PROMPT, prompt, aiConfig, {
+      provider: projectSettings.ai_provider,
+      model: projectSettings.model,
+    });
 
     let result: ReviewResult;
     try {
