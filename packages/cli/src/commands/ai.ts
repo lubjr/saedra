@@ -1,21 +1,17 @@
 import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { select, confirm, password } from "@inquirer/prompts";
+import { confirm, password } from "@inquirer/prompts";
 
 const CONFIG_DIR = join(process.env.HOME ?? process.env.USERPROFILE ?? "~", ".saedra");
 const AI_CONFIG_FILE = join(CONFIG_DIR, "ai.json");
 
-export type AiProvider = "claude" | "openai";
-
 export interface AiConfig {
-  provider: AiProvider;
   apiKey: string;
 }
 
 export function getAiConfig(): AiConfig | null {
   const apiKey = process.env.SAEDRA_AI_API_KEY;
-  const provider = process.env.SAEDRA_AI_PROVIDER as AiProvider | undefined;
-  if (apiKey && provider) return { provider, apiKey };
+  if (apiKey) return { apiKey };
   if (!existsSync(AI_CONFIG_FILE)) return null;
   try {
     return JSON.parse(readFileSync(AI_CONFIG_FILE, "utf-8")) as AiConfig;
@@ -37,7 +33,7 @@ function removeAiConfig() {
 export async function aiSetupCommand() {
   const existing = getAiConfig();
   if (existing) {
-    console.log(`\n  AI already configured: ${existing.provider}`);
+    console.log(`\n  AI already configured.`);
     const overwrite = await confirm({ message: "Overwrite?", default: false });
     if (!overwrite) {
       console.log("\nAborted.\n");
@@ -46,27 +42,18 @@ export async function aiSetupCommand() {
   }
 
   console.log("\n  AI Setup\n");
+  console.log("  Provider and model are configured per-project in the dashboard.\n");
 
-  const provider = await select<AiProvider>({
-    message: "AI provider:",
-    choices: [
-      { name: "Claude (Anthropic)", value: "claude" },
-      { name: "OpenAI", value: "openai" },
-    ],
-  });
-
-  const keyLabel = provider === "claude" ? "Anthropic API key (sk-ant-...):" : "OpenAI API key (sk-...):";
-  const apiKey = await password({ message: keyLabel });
+  const apiKey = await password({ message: "API key (Anthropic or OpenAI):" });
 
   if (!apiKey.trim()) {
     console.error("\nAPI key cannot be empty.\n");
     process.exit(1);
   }
 
-  saveAiConfig({ provider, apiKey: apiKey.trim() });
+  saveAiConfig({ apiKey: apiKey.trim() });
 
-  console.log(`\n  AI configured: ${provider}\n`);
-  console.log(`  Config saved to: ${AI_CONFIG_FILE}\n`);
+  console.log(`\n  API key saved to: ${AI_CONFIG_FILE}\n`);
 }
 
 export async function aiStatusCommand() {
@@ -81,9 +68,9 @@ export async function aiStatusCommand() {
 
   const maskedKey = config.apiKey.slice(0, 8) + "..." + config.apiKey.slice(-4);
 
-  console.log(`  Provider: ${config.provider}`);
-  console.log(`  API Key:  ${maskedKey}`);
-  console.log(`  Config:   ${AI_CONFIG_FILE}\n`);
+  console.log(`  API Key: ${maskedKey}`);
+  console.log(`  Config:  ${AI_CONFIG_FILE}`);
+  console.log(`\n  Provider and model are set per-project in the dashboard.\n`);
 }
 
 export async function aiRemoveCommand() {
@@ -95,7 +82,7 @@ export async function aiRemoveCommand() {
   }
 
   const confirmed = await confirm({
-    message: `Remove AI configuration (${config.provider})?`,
+    message: "Remove AI configuration?",
     default: false,
   });
 

@@ -367,8 +367,8 @@ export default async function Page({ params }: PageProps) {
       </Card>
 
       {/* CLI hint */}
-      <Card className="bg-zinc-900 border-teal-500/20">
-        <CardContent className="pt-6">
+      <Card className="bg-zinc-900 border-teal-500/20 py-0">
+        <CardContent className="p-4">
           <div className="flex items-start gap-3">
             <CodeIcon className="h-5 w-5 text-teal-400 mt-0.5 shrink-0" />
             <div className="space-y-1">

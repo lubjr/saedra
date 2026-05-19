@@ -3,7 +3,7 @@ import { input, select, confirm } from "@inquirer/prompts";
 import ora from "ora";
 import { getAiConfig } from "./ai.js";
 import { streamAI } from "./ai-client.js";
-import { selectProject, requireAuth, parseError, handleFetchError } from "./helpers.js";
+import { selectProject, requireAuth, parseError, handleFetchError, fetchProjectSettings } from "./helpers.js";
 import { buildCompressPrompt, buildAnalyzePrompt, COMPRESS_SYSTEM_PROMPT, ANALYZE_SYSTEM_PROMPT } from "./prompts.js";
 import type { SaedraConfig } from "./login.js";
 import type { ArchitectureState, Decision, ChangeEvent, ViolationRule } from "../memory/schemas.js";
@@ -631,6 +631,8 @@ export async function memoryStateUpdateAiCommand() {
     process.exit(1);
   }
 
+  const projectSettings = await fetchProjectSettings(config.apiUrl, project.id, config.token);
+
   console.log("\n  AI Architecture Compression\n");
   console.log("  Fetching project memory...");
 
@@ -687,7 +689,7 @@ export async function memoryStateUpdateAiCommand() {
       prompt,
       aiConfig,
       (text) => { chunks.push(text); },
-      { smart: true }
+      { provider: projectSettings.ai_provider, model: projectSettings.model }
     );
 
     compressSpinner.succeed("Compression complete");
@@ -757,6 +759,8 @@ export async function memoryChangeAnalyzeCommand(changeIdArg?: string) {
     console.error("\n  AI not configured. Run: saedra ai setup\n");
     process.exit(1);
   }
+
+  const projectSettings = await fetchProjectSettings(config.apiUrl, project.id, config.token);
 
   try {
     const [decisionsRes, changesRes, stateRes, rulesRes] = await Promise.all([
@@ -858,7 +862,8 @@ export async function memoryChangeAnalyzeCommand(changeIdArg?: string) {
           headerPrinted = true;
         }
         process.stdout.write(text);
-      }
+      },
+      { provider: projectSettings.ai_provider, model: projectSettings.model }
     );
 
     if (!headerPrinted) analyzeSpinner.stop();

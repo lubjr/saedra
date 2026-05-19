@@ -97,6 +97,27 @@ export async function selectProject(config: SaedraConfig): Promise<{ id: string;
   return { id, name };
 }
 
+export async function fetchProjectSettings(
+  apiUrl: string,
+  projectId: string,
+  token: string
+): Promise<{ ai_provider: string; model: string }> {
+  const defaults = { ai_provider: "claude", model: "claude-sonnet-4-6" };
+  try {
+    const res = await fetch(`${apiUrl}/projects/${projectId}/settings`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) return defaults;
+    const data = (await res.json()) as { ai_provider?: string; model?: string };
+    return {
+      ai_provider: data.ai_provider ?? defaults.ai_provider,
+      model: data.model ?? defaults.model,
+    };
+  } catch {
+    return defaults;
+  }
+}
+
 export async function selectDocument(
   config: SaedraConfig,
   projectId: string

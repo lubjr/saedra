@@ -2,7 +2,7 @@ import { input } from "@inquirer/prompts";
 import ora from "ora";
 import { getAiConfig } from "./ai.js";
 import { streamAI } from "./ai-client.js";
-import { selectProject, requireAuth } from "./helpers.js";
+import { selectProject, requireAuth, fetchProjectSettings } from "./helpers.js";
 import { fetchState, fetchDecisions, fetchChanges } from "./arch-context.js";
 import { buildFeaturePrompt, FEATURE_SYSTEM_PROMPT } from "./prompts.js";
 
@@ -15,6 +15,8 @@ export async function aiFeatureCommand(descriptionArg?: string) {
     console.error("\n  AI not configured. Run: saedra ai setup\n");
     process.exit(1);
   }
+
+  const projectSettings = await fetchProjectSettings(config.apiUrl, project.id, config.token);
 
   let description = descriptionArg?.trim() ?? "";
   if (!description) {
@@ -60,7 +62,8 @@ export async function aiFeatureCommand(descriptionArg?: string) {
           headerPrinted = true;
         }
         process.stdout.write(text);
-      }
+      },
+      { provider: projectSettings.ai_provider, model: projectSettings.model }
     );
 
     if (!headerPrinted) aiSpinner.stop();
