@@ -15,6 +15,7 @@ import {
   MoreHorizontalIcon,
   PlusIcon,
   SearchIcon,
+  SettingsIcon,
   ShareIcon,
   ShieldIcon,
   SparklesIcon,
@@ -60,6 +61,12 @@ export const NavProjects = ({
     { title: "Overview", icon: FolderIcon, slug: "", disabled: false },
     { title: "Reviews", icon: SearchIcon, slug: "/reviews", disabled: false },
     { title: "Metrics", icon: TargetIcon, slug: "/metrics", disabled: false },
+    {
+      title: "Settings",
+      icon: SettingsIcon,
+      slug: "/settings",
+      disabled: false,
+    },
     { title: "Memory", icon: SparklesIcon, slug: "/memory", disabled: true },
     {
       title: "Decisions",
