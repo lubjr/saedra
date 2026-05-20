@@ -67,7 +67,7 @@ export const NavProjects = ({
       slug: "/settings",
       disabled: false,
     },
-    { title: "Memory", icon: SparklesIcon, slug: "/memory", disabled: true },
+    { title: "Memory", icon: SparklesIcon, slug: "/memory", disabled: false },
     {
       title: "Decisions",
       icon: CheckCircle2Icon,
