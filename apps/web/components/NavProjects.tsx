@@ -72,7 +72,7 @@ export const NavProjects = ({
       title: "Decisions",
       icon: CheckCircle2Icon,
       slug: "/decisions",
-      disabled: true,
+      disabled: false,
     },
     { title: "Rules", icon: ShieldIcon, slug: "/rules", disabled: true },
     { title: "Changes", icon: ClockIcon, slug: "/changes", disabled: true },
