@@ -74,7 +74,7 @@ export const NavProjects = ({
       slug: "/decisions",
       disabled: false,
     },
-    { title: "Rules", icon: ShieldIcon, slug: "/rules", disabled: true },
+    { title: "Rules", icon: ShieldIcon, slug: "/rules", disabled: false },
     { title: "Changes", icon: ClockIcon, slug: "/changes", disabled: true },
   ];
 
