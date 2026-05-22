@@ -75,7 +75,7 @@ export const NavProjects = ({
       disabled: false,
     },
     { title: "Rules", icon: ShieldIcon, slug: "/rules", disabled: false },
-    { title: "Changes", icon: ClockIcon, slug: "/changes", disabled: true },
+    { title: "Changes", icon: ClockIcon, slug: "/changes", disabled: false },
   ];
 
   return (
