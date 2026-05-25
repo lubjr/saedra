@@ -37,6 +37,7 @@ import {
 import { Skeleton } from "@repo/ui/skeleton";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import * as React from "react";
 
 import { useProjects } from "../app/contexts/ProjectsContext";
 
@@ -49,6 +50,7 @@ export const NavProjects = ({
     name: string;
     url: string;
     icon: string;
+    has_memory?: boolean;
   }[];
   isLoading?: boolean;
 }) => {
@@ -56,26 +58,90 @@ export const NavProjects = ({
   const { delete: deleteProject } = useProjects();
   const router = useRouter();
   const pathname = usePathname();
+  const [collapsedIds, setCollapsedIds] = React.useState<Set<string>>(
+    new Set(),
+  );
+
+  const handleProjectClick = (
+    e: React.MouseEvent,
+    projectId: string,
+    isActive: boolean,
+  ) => {
+    if (isActive) {
+      e.preventDefault();
+      setCollapsedIds((prev) => {
+        const next = new Set(prev);
+        if (next.has(projectId)) next.delete(projectId);
+        else next.add(projectId);
+        return next;
+      });
+    } else {
+      setCollapsedIds((prev) => {
+        if (!prev.has(projectId)) return prev;
+        const next = new Set(prev);
+        next.delete(projectId);
+        return next;
+      });
+    }
+  };
 
   const projectSubItems = [
-    { title: "Overview", icon: FolderIcon, slug: "", disabled: false },
-    { title: "Reviews", icon: SearchIcon, slug: "/reviews", disabled: false },
-    { title: "Metrics", icon: TargetIcon, slug: "/metrics", disabled: false },
+    {
+      title: "Overview",
+      icon: FolderIcon,
+      slug: "",
+      disabled: false,
+      memoryOnly: false,
+    },
+    {
+      title: "Reviews",
+      icon: SearchIcon,
+      slug: "/reviews",
+      disabled: false,
+      memoryOnly: false,
+    },
+    {
+      title: "Metrics",
+      icon: TargetIcon,
+      slug: "/metrics",
+      disabled: false,
+      memoryOnly: false,
+    },
     {
       title: "Settings",
       icon: SettingsIcon,
       slug: "/settings",
       disabled: false,
+      memoryOnly: false,
     },
-    { title: "Memory", icon: SparklesIcon, slug: "/memory", disabled: true },
+    {
+      title: "Memory",
+      icon: SparklesIcon,
+      slug: "/memory",
+      disabled: false,
+      memoryOnly: true,
+    },
     {
       title: "Decisions",
       icon: CheckCircle2Icon,
       slug: "/decisions",
-      disabled: true,
+      disabled: false,
+      memoryOnly: true,
     },
-    { title: "Rules", icon: ShieldIcon, slug: "/rules", disabled: true },
-    { title: "Changes", icon: ClockIcon, slug: "/changes", disabled: true },
+    {
+      title: "Rules",
+      icon: ShieldIcon,
+      slug: "/rules",
+      disabled: false,
+      memoryOnly: true,
+    },
+    {
+      title: "Changes",
+      icon: ClockIcon,
+      slug: "/changes",
+      disabled: false,
+      memoryOnly: true,
+    },
   ];
 
   return (
@@ -109,44 +175,53 @@ export const NavProjects = ({
 
               return (
                 <SidebarMenuItem key={item.name}>
-                  <SidebarMenuButton asChild isActive={isActive}>
-                    <Link href={item.url}>
+                  <SidebarMenuButton asChild isActive={false}>
+                    <Link
+                      href={item.url}
+                      onClick={(e) => {
+                        return handleProjectClick(e, item.id, isActive);
+                      }}
+                    >
                       {Icon ? <Icon /> : null}
                       <span>{item.name}</span>
                     </Link>
                   </SidebarMenuButton>
-                  {isActive && (
+                  {isActive && !collapsedIds.has(item.id) && (
                     <SidebarMenuSub>
-                      {projectSubItems.map((sub) => {
-                        const subUrl = `/dashboard/project/${item.id}${sub.slug}`;
-                        const isSubActive = pathname === subUrl;
-                        const isDisabled = sub.disabled;
-                        return (
-                          <SidebarMenuSubItem key={sub.title}>
-                            <SidebarMenuSubButton
-                              asChild={!isDisabled}
-                              isActive={isSubActive}
-                              className={
-                                isDisabled
-                                  ? "opacity-40 cursor-not-allowed pointer-events-none"
-                                  : ""
-                              }
-                            >
-                              {isDisabled ? (
-                                <span className="flex items-center gap-2">
-                                  <sub.icon className="h-3.5 w-3.5" />
-                                  <span>{sub.title}</span>
-                                </span>
-                              ) : (
-                                <Link href={subUrl}>
-                                  <sub.icon className="h-3.5 w-3.5" />
-                                  <span>{sub.title}</span>
-                                </Link>
-                              )}
-                            </SidebarMenuSubButton>
-                          </SidebarMenuSubItem>
-                        );
-                      })}
+                      {projectSubItems
+                        .filter((sub) => {
+                          return !sub.memoryOnly || item.has_memory;
+                        })
+                        .map((sub) => {
+                          const subUrl = `/dashboard/project/${item.id}${sub.slug}`;
+                          const isSubActive = pathname === subUrl;
+                          const isDisabled = sub.disabled;
+                          return (
+                            <SidebarMenuSubItem key={sub.title}>
+                              <SidebarMenuSubButton
+                                asChild={!isDisabled}
+                                isActive={isSubActive}
+                                className={
+                                  isDisabled
+                                    ? "opacity-40 cursor-not-allowed pointer-events-none"
+                                    : ""
+                                }
+                              >
+                                {isDisabled ? (
+                                  <span className="flex items-center gap-2">
+                                    <sub.icon className="h-3.5 w-3.5" />
+                                    <span>{sub.title}</span>
+                                  </span>
+                                ) : (
+                                  <Link href={subUrl}>
+                                    <sub.icon className="h-3.5 w-3.5" />
+                                    <span>{sub.title}</span>
+                                  </Link>
+                                )}
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          );
+                        })}
                     </SidebarMenuSub>
                   )}
                   <DropdownMenu>

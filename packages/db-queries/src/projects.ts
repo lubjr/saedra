@@ -13,7 +13,7 @@ export const ProjectDB: ProjectDBType = {
   },
 
   async getProjectsByUser(userId: string) {
-    return serviceClient.from('projects').select('*').eq('user_id', userId);
+    return serviceClient.from('projects').select('*, documents(count)').eq('user_id', userId);
   },
 
   async getProjectById(projectId: string) {
