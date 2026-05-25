@@ -164,7 +164,13 @@ export const listProjectByUserId = async (userId: string): Promise<CreateProject
       return { error: error.message };
     }
 
-    return data;
+    const projects = (data ?? []).map((p: any) => {
+      const docCount = (p.documents as { count: number }[] | undefined)?.[0]?.count ?? 0;
+      const { documents: _docs, ...rest } = p;
+      return { ...rest, has_memory: docCount > 0 };
+    });
+
+    return projects;
 }
 
 export const getProjectById = async (id: string): Promise<CreateProjectResponse> => {

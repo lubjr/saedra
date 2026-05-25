@@ -93,7 +93,7 @@ describe('ProjectDB', () => {
       const result = await ProjectDB.getProjectsByUser(userId)
 
       expect(mockFrom).toHaveBeenCalledWith('projects')
-      expect(mockSelect).toHaveBeenCalledWith('*')
+      expect(mockSelect).toHaveBeenCalledWith('*, documents(count)')
       expect(mockSelectEq).toHaveBeenCalledWith('user_id', userId)
       expect(result).toEqual(expected)
     })
