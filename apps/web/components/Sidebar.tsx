@@ -63,6 +63,7 @@ export const AppSidebar = () => {
             name: project.name,
             url: `/dashboard/project/${project.id}`,
             icon: "frame",
+            has_memory: project.has_memory ?? false,
           };
         })
       : [];
