@@ -38,5 +38,8 @@ export const ZapIcon = Lucide.Zap;
 export const ClockIcon = Lucide.Clock;
 export const TargetIcon = Lucide.Target;
 export const UsersIcon = Lucide.Users;
+export const ChevronRightIcon = Lucide.ChevronRight;
+export const XIcon = Lucide.X;
+export const GitBranchIcon = Lucide.GitBranch;
 
 export type { LucideIcon } from "lucide-react";
