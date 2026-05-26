@@ -1,6 +1,7 @@
 import { Card } from "@repo/ui/card";
 import {
   ArchiveIcon,
+  ArrowUpRightIcon,
   ClockIcon,
   FolderIcon,
   GitBranchIcon,
@@ -98,7 +99,14 @@ export const ProjectCard = ({ project, summary }: Props) => {
 
           {/* Footer */}
           <div className="pt-3 border-t border-zinc-800 flex items-center justify-between">
-            {summary?.health != null ? (
+            {isSetup ? (
+              <span className="flex items-center gap-1 text-[11px] text-teal-400 font-mono">
+                Run{" "}
+                <code className="bg-teal-500/10 px-1 rounded">saedra init</code>{" "}
+                to start
+                <ArrowUpRightIcon className="size-3 shrink-0" />
+              </span>
+            ) : summary?.health != null ? (
               <span
                 className={`flex items-center gap-1.5 text-[11px] font-mono ${healthColor(summary.health)}`}
               >
@@ -123,7 +131,8 @@ export const ProjectCard = ({ project, summary }: Props) => {
                 <span className="text-zinc-700">health</span>
               </span>
             )}
-            {summary?.decisions_count != null &&
+            {!isSetup &&
+              summary?.decisions_count != null &&
               summary.decisions_count > 0 && (
                 <span className="text-[11px] font-mono text-muted-foreground">
                   <span className="text-foreground">

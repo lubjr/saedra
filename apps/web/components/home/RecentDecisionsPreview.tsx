@@ -1,3 +1,5 @@
+import { CheckCircle2Icon } from "@repo/ui/lucide";
+
 import type { Decision } from "../../auth/documents";
 
 interface Props {
@@ -22,13 +24,42 @@ const statusDot: Record<string, string> = {
   superseded: "bg-yellow-400",
 };
 
-export const RecentDecisionsPreview = ({ hasMemory, decisions }: Props) => {
-  const hasDecisions = decisions && decisions.length > 0;
+const AddDecisionCta = () => {
+  return (
+    <div className="mt-auto pt-3 border-t border-zinc-800/60">
+      <p className="text-[11px] text-zinc-600">
+        Add more with{" "}
+        <code className="font-mono text-zinc-500">
+          saedra memory decision add
+        </code>
+      </p>
+    </div>
+  );
+};
 
-  if (hasDecisions) {
+export const RecentDecisionsPreview = ({ hasMemory, decisions }: Props) => {
+  const count = decisions?.length ?? 0;
+
+  if (count === 0) {
     return (
+      <div className="flex flex-col gap-3 flex-1">
+        <div className="size-7 rounded-md bg-zinc-800 grid place-items-center">
+          <CheckCircle2Icon className="size-4 text-zinc-600" />
+        </div>
+        <p className="text-sm text-zinc-500">No decisions tracked yet.</p>
+        {!hasMemory && (
+          <code className="text-teal-400 font-mono text-xs bg-teal-500/10 px-2 py-1 rounded self-start">
+            saedra memory decision add
+          </code>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col flex-1">
       <ul className="flex flex-col divide-y divide-dashed divide-zinc-800">
-        {decisions.map((dec) => {
+        {decisions!.map((dec) => {
           return (
             <li key={dec.id} className="flex items-start gap-3 py-3 first:pt-0">
               <span
@@ -46,21 +77,7 @@ export const RecentDecisionsPreview = ({ hasMemory, decisions }: Props) => {
           );
         })}
       </ul>
-    );
-  }
-
-  return (
-    <div className="flex flex-col gap-2 text-sm text-zinc-500">
-      <p>No decisions tracked yet.</p>
-      {!hasMemory && (
-        <p>
-          Use{" "}
-          <code className="text-teal-400 font-mono text-xs bg-teal-500/10 px-1.5 py-0.5 rounded">
-            saedra memory decision add
-          </code>{" "}
-          to record your first architecture decision.
-        </p>
-      )}
+      {count < 3 && <AddDecisionCta />}
     </div>
   );
 };
