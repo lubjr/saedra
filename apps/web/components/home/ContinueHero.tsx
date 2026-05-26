@@ -1,10 +1,17 @@
 "use client";
 
 import { Button } from "@repo/ui/button";
-import { ChevronRightIcon, ShieldIcon, SparklesIcon } from "@repo/ui/lucide";
+import {
+  ChevronRightIcon,
+  GitBranchIcon,
+  ShieldIcon,
+  SparklesIcon,
+} from "@repo/ui/lucide";
 import Link from "next/link";
 import { toast } from "sonner";
 
+import type { Decision } from "../../auth/documents";
+import type { ProjectSummary } from "../../auth/projects";
 import { RecentDecisionsPreview } from "./RecentDecisionsPreview";
 
 interface Project {
@@ -14,7 +21,41 @@ interface Project {
   has_memory: boolean;
 }
 
-export const ContinueHero = ({ project }: { project: Project }) => {
+interface Props {
+  project: Project;
+  summary?: ProjectSummary;
+  decisions?: Decision[];
+}
+
+const formatRelativeDate = (iso: string): string => {
+  const diff = Date.now() - new Date(iso).getTime();
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+  if (minutes < 60) return `${minutes}m ago`;
+  if (hours < 24) return `${hours}h ago`;
+  if (days === 1) return "Yesterday";
+  if (days < 7) return `${days} days`;
+  if (days < 30) return `${Math.floor(days / 7)}w ago`;
+  return `${Math.floor(days / 30)}mo ago`;
+};
+
+const lastReviewLabel = (summary: ProjectSummary): string => {
+  if (!summary.last_review_at) return "No reviews yet";
+  const time = formatRelativeDate(summary.last_review_at);
+  const { last_review_violations: v, last_review_warnings: w } = summary;
+  const outcome =
+    v > 0
+      ? `${v} violation${v > 1 ? "s" : ""}`
+      : w > 0
+        ? `${w} warning${w > 1 ? "s" : ""}`
+        : "clean";
+  return `${time} · ${outcome}`;
+};
+
+export const ContinueHero = ({ project, summary, decisions }: Props) => {
+  const hasReviews = !!summary?.last_review_at;
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-[1.05fr_1fr] rounded-2xl overflow-hidden border border-zinc-800">
       {/* Hero side */}
@@ -40,18 +81,38 @@ export const ContinueHero = ({ project }: { project: Project }) => {
               <span className="size-1.5 rounded-full bg-teal-400 shadow-[0_0_8px_#2dd4bf] animate-pulse" />
               Active
             </span>
+            {summary?.last_review_branch && (
+              <span className="flex items-center gap-1.5 font-mono text-xs px-2.5 py-1 rounded-full bg-zinc-950 border border-zinc-800 text-muted-foreground">
+                <GitBranchIcon className="size-3" />
+                {summary.last_review_branch}
+              </span>
+            )}
             <span className="flex items-center gap-1.5 font-mono text-xs px-2.5 py-1 rounded-full bg-zinc-950 border border-zinc-800 text-muted-foreground">
               <ShieldIcon className="size-3" />
-              No reviews yet
+              {summary ? lastReviewLabel(summary) : "No reviews yet"}
             </span>
           </div>
 
           <p className="text-sm text-muted-foreground">
-            Run{" "}
-            <code className="text-teal-400 font-mono text-xs bg-teal-500/10 px-1.5 py-0.5 rounded">
-              saedra review
-            </code>{" "}
-            to check architectural health and surface pending decisions.
+            {summary && hasReviews ? (
+              <>
+                <strong className="text-foreground font-semibold">
+                  {summary.decisions_count}
+                </strong>{" "}
+                decisions logged · architectural health{" "}
+                <strong className="text-foreground font-semibold">
+                  {summary.health}
+                </strong>
+              </>
+            ) : (
+              <>
+                Run{" "}
+                <code className="text-teal-400 font-mono text-xs bg-teal-500/10 px-1.5 py-0.5 rounded">
+                  saedra review
+                </code>{" "}
+                to check architectural health and surface pending decisions.
+              </>
+            )}
           </p>
 
           <div className="flex flex-wrap gap-2.5 pt-1">
@@ -63,11 +124,11 @@ export const ContinueHero = ({ project }: { project: Project }) => {
             <Button
               variant="outline"
               size="lg"
-              onClick={() =>
-                toast.info(
+              onClick={() => {
+                return toast.info(
                   "Run 'saedra review' in your terminal to start a new review.",
-                )
-              }
+                );
+              }}
             >
               <SparklesIcon className="size-4" /> Run review
             </Button>
@@ -79,6 +140,7 @@ export const ContinueHero = ({ project }: { project: Project }) => {
       <RecentDecisionsPreview
         projectId={project.id}
         hasMemory={project.has_memory}
+        decisions={decisions}
       />
     </div>
   );

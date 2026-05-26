@@ -1,4 +1,4 @@
-import { type CreateProjectResponse, type CreateCredentialsResponse, type CreateDiagramResponse, type DocumentResponse, type DocumentType, type ReviewData, type ProjectSettings } from "./types.js";
+import { type CreateProjectResponse, type CreateCredentialsResponse, type CreateDiagramResponse, type DocumentResponse, type DocumentType, type ReviewData, type ProjectSettings, type ProjectSummary } from "./types.js";
 import { collectResources, type AwsCredentials } from "@repo/aws-connector/aws";
 import { generateDiagramFromResources } from "@repo/diagram-service/diagram";
 import { ProjectDB, AwsCredentialsDB, DiagramDB, LoginDB, ProfileDB, DocumentDB, ReviewDB, SettingsDB } from "@repo/db-queries/queries";
@@ -156,6 +156,76 @@ export const deleteCredentials = async (projectId: string): Promise<boolean> => 
 
   return true;
 }
+
+export const getProjectSummaries = async (userId: string): Promise<ProjectSummary[]> => {
+  const { projects, reviews, docs } = await ProjectDB.getProjectSummaryData(userId);
+
+  const now = Date.now();
+  const NINETY_DAYS = 90 * 24 * 60 * 60 * 1000;
+
+  return projects.map((p: any) => {
+    const projectReviews = reviews.filter((r: any) => r.project_id === p.id);
+    const projectDocs = docs.filter((d: any) => d.project_id === p.id);
+
+    const last5 = projectReviews.slice(0, 5);
+    const health: number | null = last5.length > 0
+      ? Math.round(
+          last5.reduce((sum: number, r: any) => {
+            const score = r.total_files > 0 ? (1 - r.violations / r.total_files) * 100 : 100;
+            return sum + score;
+          }, 0) / last5.length
+        )
+      : null;
+
+    let health_delta = 0;
+    if (projectReviews.length >= 2) {
+      const curr = projectReviews[0].total_files > 0
+        ? Math.round((1 - projectReviews[0].violations / projectReviews[0].total_files) * 100)
+        : 100;
+      const prev = projectReviews[1].total_files > 0
+        ? Math.round((1 - projectReviews[1].violations / projectReviews[1].total_files) * 100)
+        : 100;
+      health_delta = curr - prev;
+    }
+
+    const lastReview = projectReviews[0] ?? null;
+    const decisions_count = projectDocs.filter((d: any) => d.type === 'decision').length;
+
+    const lastDocDate = projectDocs[0]?.created_at ?? null;
+    const lastReviewDate = lastReview?.created_at ?? null;
+    const candidates = [lastDocDate, lastReviewDate].filter(Boolean) as string[];
+    const last_activity_at = candidates.length > 0
+      ? (candidates.sort((a, b) => new Date(b).getTime() - new Date(a).getTime())[0] ?? null)
+      : null;
+
+    const isSetup = health === null;
+    const isArchived = !isSetup && last_activity_at
+      ? now - new Date(last_activity_at).getTime() > NINETY_DAYS
+      : false;
+    const status: ProjectSummary["status"] = isSetup ? "setup" : isArchived ? "archived" : "active";
+
+    const health_history = projectReviews.slice(0, 7).reverse().map((r: any) =>
+      r.total_files > 0 ? Math.round((1 - r.violations / r.total_files) * 100) : 100
+    );
+
+    return {
+      id: p.id,
+      name: p.name,
+      created_at: p.created_at,
+      has_memory: projectDocs.length > 0,
+      health,
+      health_delta,
+      decisions_count,
+      last_activity_at,
+      last_review_at: lastReview?.created_at ?? null,
+      last_review_warnings: lastReview?.warnings ?? 0,
+      last_review_violations: lastReview?.violations ?? 0,
+      last_review_branch: lastReview?.branch ?? null,
+      status,
+      health_history,
+    };
+  });
+};
 
 export const listProjectByUserId = async (userId: string): Promise<CreateProjectResponse> => {
     const { data, error } = await ProjectDB.getProjectsByUser(userId);

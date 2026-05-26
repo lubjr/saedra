@@ -41,5 +41,6 @@ export const UsersIcon = Lucide.Users;
 export const ChevronRightIcon = Lucide.ChevronRight;
 export const XIcon = Lucide.X;
 export const GitBranchIcon = Lucide.GitBranch;
+export const ArchiveIcon = Lucide.Archive;
 
 export type { LucideIcon } from "lucide-react";

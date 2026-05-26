@@ -7,6 +7,10 @@ import Link from "next/link";
 import * as React from "react";
 import { toast } from "sonner";
 
+import type { Decision } from "../../../auth/documents";
+import { getDecisions } from "../../../auth/documents";
+import type { ProjectSummary } from "../../../auth/projects";
+import { getProjectSummaries } from "../../../auth/projects";
 import { EmptyProjects } from "../../../components/EmptyProjects";
 import { ContinueHero } from "../../../components/home/ContinueHero";
 import { FilterChips } from "../../../components/home/FilterChips";
@@ -23,6 +27,10 @@ export default function Page() {
 
   const { projects, isLoading } = useProjects();
   const [filter, setFilter] = React.useState<Filter>("all");
+  const [summaries, setSummaries] = React.useState<
+    Record<string, ProjectSummary>
+  >({});
+  const [heroDecisions, setHeroDecisions] = React.useState<Decision[]>([]);
 
   const projectsList = Array.isArray(projects)
     ? projects
@@ -31,20 +39,53 @@ export default function Page() {
       : [];
 
   const sorted = [...projectsList].sort((a, b) => {
-    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    const aTime = summaries[a.id]?.last_activity_at ?? a.created_at;
+    const bTime = summaries[b.id]?.last_activity_at ?? b.created_at;
+    return new Date(bTime).getTime() - new Date(aTime).getTime();
   });
 
   const hero = sorted[0];
   const rest = sorted.slice(1);
 
+  React.useEffect(() => {
+    getProjectSummaries().then((data) => {
+      const map: Record<string, ProjectSummary> = {};
+      for (const s of data) {
+        map[s.id] = s;
+      }
+      setSummaries(map);
+    });
+  }, []);
+
+  React.useEffect(() => {
+    if (!hero?.id) return;
+    getDecisions(hero.id).then((decisions) => {
+      setHeroDecisions(decisions.slice(0, 4));
+    });
+  }, [hero?.id]);
+
+  const summaryList = Object.values(summaries);
   const counts: Record<Filter, number> = {
-    all: rest.length,
-    active: rest.length,
-    setup: 0,
-    archived: 0,
+    all: sorted.length,
+    active:
+      summaryList.length > 0
+        ? summaryList.filter((s) => {
+            return s.status === "active";
+          }).length
+        : sorted.length,
+    setup: summaryList.filter((s) => {
+      return s.status === "setup";
+    }).length,
+    archived: summaryList.filter((s) => {
+      return s.status === "archived";
+    }).length,
   };
 
-  const filtered = filter === "archived" || filter === "setup" ? [] : rest;
+  const filtered = rest.filter((p) => {
+    if (filter === "all") return true;
+    const status = summaries[p.id]?.status ?? "active";
+    return status === filter;
+  });
 
   if (isLoading) {
     return (
@@ -82,7 +123,13 @@ export default function Page() {
       </div>
 
       {/* Continue hero */}
-      {hero && <ContinueHero project={hero} />}
+      {hero && (
+        <ContinueHero
+          project={hero}
+          summary={summaries[hero.id]}
+          decisions={heroDecisions.length > 0 ? heroDecisions : undefined}
+        />
+      )}
 
       {/* All projects grid */}
       {rest.length > 0 && (
@@ -95,7 +142,13 @@ export default function Page() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {filtered.map((project) => {
-              return <ProjectCard key={project.id} project={project} />;
+              return (
+                <ProjectCard
+                  key={project.id}
+                  project={project}
+                  summary={summaries[project.id]}
+                />
+              );
             })}
           </div>
         </section>

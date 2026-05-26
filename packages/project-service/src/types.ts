@@ -65,6 +65,23 @@ export type ProjectSettings = {
   updated_at: string;
 };
 
+export type ProjectSummary = {
+  id: string;
+  name: string;
+  created_at: string;
+  has_memory: boolean;
+  health: number | null;
+  health_delta: number;
+  decisions_count: number;
+  last_activity_at: string | null;
+  last_review_at: string | null;
+  last_review_warnings: number;
+  last_review_violations: number;
+  last_review_branch: string | null;
+  status: "active" | "setup" | "archived";
+  health_history: number[];
+};
+
 export type DocumentResponse = {
   id: string;
   project_id: string;
