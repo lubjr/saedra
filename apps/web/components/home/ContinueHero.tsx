@@ -2,16 +2,19 @@
 
 import { Button } from "@repo/ui/button";
 import {
+  ArrowUpRightIcon,
   ChevronRightIcon,
   GitBranchIcon,
   ShieldIcon,
   SparklesIcon,
 } from "@repo/ui/lucide";
 import Link from "next/link";
+import * as React from "react";
 import { toast } from "sonner";
 
 import type { Decision } from "../../auth/documents";
 import type { ProjectSummary } from "../../auth/projects";
+import { MetricsPreview } from "./MetricsPreview";
 import { RecentDecisionsPreview } from "./RecentDecisionsPreview";
 
 interface Project {
@@ -26,6 +29,8 @@ interface Props {
   summary?: ProjectSummary;
   decisions?: Decision[];
 }
+
+type PreviewMode = "decisions" | "metrics";
 
 const formatRelativeDate = (iso: string): string => {
   const diff = Date.now() - new Date(iso).getTime();
@@ -54,7 +59,9 @@ const lastReviewLabel = (summary: ProjectSummary): string => {
 };
 
 export const ContinueHero = ({ project, summary, decisions }: Props) => {
+  const [mode, setMode] = React.useState<PreviewMode>("decisions");
   const hasReviews = !!summary?.last_review_at;
+  const hasDecisions = !!decisions && decisions.length > 0;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-[1.05fr_1fr] rounded-2xl overflow-hidden border border-zinc-800">
@@ -137,11 +144,54 @@ export const ContinueHero = ({ project, summary, decisions }: Props) => {
       </div>
 
       {/* Preview side */}
-      <RecentDecisionsPreview
-        projectId={project.id}
-        hasMemory={project.has_memory}
-        decisions={decisions}
-      />
+      <div className="bg-zinc-950 p-6 flex flex-col">
+        {/* Preview header with tabs */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex gap-1">
+            <button
+              onClick={() => {
+                return setMode("decisions");
+              }}
+              className={`text-[11px] px-2.5 py-1 rounded transition-colors cursor-pointer ${mode === "decisions" ? "bg-zinc-800 text-foreground" : "text-zinc-500 hover:text-foreground"}`}
+            >
+              Decisions
+            </button>
+            {summary && (
+              <button
+                onClick={() => {
+                  return setMode("metrics");
+                }}
+                className={`text-[11px] px-2.5 py-1 rounded transition-colors cursor-pointer ${mode === "metrics" ? "bg-zinc-800 text-foreground" : "text-zinc-500 hover:text-foreground"}`}
+              >
+                Metrics
+              </button>
+            )}
+          </div>
+          {mode === "decisions" && hasDecisions && (
+            <Link
+              href={`/dashboard/project/${project.id}/decisions`}
+              className="text-xs text-teal-400 hover:text-teal-300 flex items-center gap-1 transition-colors"
+            >
+              View all <ArrowUpRightIcon className="size-3" />
+            </Link>
+          )}
+          {mode === "metrics" && (
+            <span className="text-[11px] bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded font-mono">
+              7d
+            </span>
+          )}
+        </div>
+
+        {/* Preview content */}
+        {mode === "decisions" || !summary ? (
+          <RecentDecisionsPreview
+            hasMemory={project.has_memory}
+            decisions={decisions}
+          />
+        ) : (
+          <MetricsPreview summary={summary} />
+        )}
+      </div>
     </div>
   );
 };
