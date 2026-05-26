@@ -7,6 +7,12 @@ export interface ProjectSettings {
   model: string;
 }
 
+export interface ProjectSettingsResponse {
+  ai_provider: string;
+  model: string;
+  is_configured: boolean;
+}
+
 const getToken = async (): Promise<string | null> => {
   const cookieStore = await cookies();
   return cookieStore.get("access_token")?.value ?? null;
@@ -14,9 +20,14 @@ const getToken = async (): Promise<string | null> => {
 
 export const getProjectSettings = async (
   projectId: string,
-): Promise<ProjectSettings> => {
+): Promise<ProjectSettingsResponse> => {
   const token = await getToken();
-  if (!token) return { ai_provider: "claude", model: "claude-sonnet-4-6" };
+  if (!token)
+    return {
+      ai_provider: "claude",
+      model: "claude-sonnet-4-6",
+      is_configured: false,
+    };
 
   try {
     const res = await fetch(
@@ -27,11 +38,42 @@ export const getProjectSettings = async (
       },
     );
 
-    if (!res.ok) return { ai_provider: "claude", model: "claude-sonnet-4-6" };
+    if (!res.ok)
+      return {
+        ai_provider: "claude",
+        model: "claude-sonnet-4-6",
+        is_configured: false,
+      };
 
-    return await res.json();
+    const data = await res.json();
+    return { ...data, is_configured: !!data.id };
   } catch {
-    return { ai_provider: "claude", model: "claude-sonnet-4-6" };
+    return {
+      ai_provider: "claude",
+      model: "claude-sonnet-4-6",
+      is_configured: false,
+    };
+  }
+};
+
+export const deleteProjectSettings = async (
+  projectId: string,
+): Promise<boolean> => {
+  const token = await getToken();
+  if (!token) return false;
+
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}/settings`,
+      {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
+
+    return res.ok;
+  } catch {
+    return false;
   }
 };
 

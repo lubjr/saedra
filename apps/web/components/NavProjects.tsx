@@ -108,13 +108,6 @@ export const NavProjects = ({
       memoryOnly: false,
     },
     {
-      title: "Settings",
-      icon: SettingsIcon,
-      slug: "/settings",
-      disabled: false,
-      memoryOnly: false,
-    },
-    {
       title: "Memory",
       icon: SparklesIcon,
       slug: "/memory",
@@ -141,6 +134,13 @@ export const NavProjects = ({
       slug: "/changes",
       disabled: false,
       memoryOnly: true,
+    },
+    {
+      title: "Settings",
+      icon: SettingsIcon,
+      slug: "/settings",
+      disabled: false,
+      memoryOnly: false,
     },
   ];
 

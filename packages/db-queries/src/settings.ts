@@ -8,6 +8,7 @@ interface UpsertSettingsData {
 type SettingsDBType = {
   getProjectSettings(projectId: string): Promise<any>;
   upsertProjectSettings(projectId: string, data: UpsertSettingsData): Promise<any>;
+  deleteProjectSettings(projectId: string): Promise<any>;
 };
 
 export const SettingsDB: SettingsDBType = {
@@ -17,6 +18,13 @@ export const SettingsDB: SettingsDBType = {
       .select("id, project_id, ai_provider, model, updated_at")
       .eq("project_id", projectId)
       .maybeSingle();
+  },
+
+  async deleteProjectSettings(projectId: string) {
+    return serviceClient
+      .from("project_settings")
+      .delete()
+      .eq("project_id", projectId);
   },
 
   async upsertProjectSettings(projectId: string, data: UpsertSettingsData) {

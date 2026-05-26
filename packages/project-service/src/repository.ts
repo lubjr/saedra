@@ -293,6 +293,14 @@ export const getSettings = async (projectId: string): Promise<ProjectSettings | 
   return data;
 }
 
+export const deleteSettings = async (projectId: string): Promise<boolean> => {
+  const { error } = await SettingsDB.deleteProjectSettings(projectId);
+
+  if (error) return false;
+  
+  return true;
+}
+
 export const upsertSettings = async (projectId: string, data: { ai_provider: string; model: string }): Promise<ProjectSettings | { error: string }> => {
   const { data: settings, error } = await SettingsDB.upsertProjectSettings(projectId, data);
 
