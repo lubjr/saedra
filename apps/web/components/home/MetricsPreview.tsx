@@ -10,16 +10,14 @@ const Sparkline = ({ data }: { data: number[] }) => {
   const h = 32;
   const min = Math.min(...data);
   const max = Math.max(...data);
-  const range = max - min || 1;
+  const range = max - min;
   const step = w / (data.length - 1);
-  const pts = data
-    .map((v, i) => {
-      return `${i * step},${h - ((v - min) / range) * (h - 6) - 3}`;
-    })
-    .join(" ");
+  const yFor = (v: number) =>
+    range === 0 ? h * 0.25 : h - ((v - min) / range) * (h - 6) - 3;
+  const pts = data.map((v, i) => `${i * step},${yFor(v)}`).join(" ");
   const lastX = (data.length - 1) * step;
   const lastVal = data[data.length - 1] ?? 0;
-  const lastY = h - ((lastVal - min) / range) * (h - 6) - 3;
+  const lastY = yFor(lastVal);
   return (
     <svg
       width={w}
