@@ -164,6 +164,17 @@ routes.post('/:id/diagram', authenticate, async (req, res) => {
   res.json(diagram);
 });
 
+routes.get('/summaries/user/:userId', authenticate, async (req, res) => {
+  const { userId } = req.params;
+
+  if (!userId) {
+    return res.status(400).json({ error: 'userId required' });
+  }
+
+  const summaries = await repo.getProjectSummaries(userId);
+  res.json(summaries);
+});
+
 routes.get('/user/:userId', authenticate, async (req, res) => {
   const { userId } = req.params;
 
@@ -334,6 +345,22 @@ routes.get('/:projectId/settings', authenticate, async (req, res) => {
   }
 
   res.json(settings ?? { ai_provider: 'claude', model: 'claude-sonnet-4-6' });
+});
+
+routes.delete('/:projectId/settings', authenticate, async (req, res) => {
+  const { projectId } = req.params;
+
+  if (!projectId) {
+    return res.status(400).json({ error: 'projectId required' });
+  }
+
+  const ok = await repo.deleteSettings(projectId);
+
+  if (!ok) {
+    return res.status(500).json({ error: 'failed to delete settings' });
+  }
+
+  res.status(204).end();
 });
 
 routes.put('/:projectId/settings', authenticate, async (req, res) => {
