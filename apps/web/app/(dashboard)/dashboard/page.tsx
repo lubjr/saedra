@@ -81,7 +81,7 @@ export default function Page() {
     }).length,
   };
 
-  const filtered = rest.filter((p) => {
+  const filtered = sorted.filter((p) => {
     if (filter === "all") return true;
     const status = summaries[p.id]?.status ?? "active";
     return status === filter;
