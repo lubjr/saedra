@@ -97,17 +97,22 @@ export const MetricsPreview = ({ summary }: Props) => {
             <span className="text-zinc-500"> / {totalReviews} clean</span>
           </p>
           {totalReviews > 0 ? (
-            <div className="flex items-end gap-[2px] h-6">
-              {health_history.map((score, i) => {
-                return (
+            cleanReviews === totalReviews ? (
+              <span className="flex items-center gap-1.5 text-[11px] text-teal-400 font-mono">
+                <span className="size-1.5 rounded-full bg-teal-400" />
+                All clean
+              </span>
+            ) : (
+              <div className="flex items-end gap-[2px] h-6">
+                {health_history.map((score, i) => (
                   <span
                     key={i}
-                    className={`w-[5px] rounded-sm ${barColor(score)}`}
+                    className={`flex-1 rounded-sm ${barColor(score)}`}
                     style={{ height: `${Math.max(3, (score / 100) * 24)}px` }}
                   />
-                );
-              })}
-            </div>
+                ))}
+              </div>
+            )
           ) : (
             <p className="text-[11px] text-zinc-600">No reviews yet</p>
           )}
