@@ -216,6 +216,7 @@ export const getProjectSummaries = async (userId: string): Promise<ProjectSummar
       health,
       health_delta,
       decisions_count,
+      reviews_count: projectReviews.length,
       last_activity_at,
       last_review_at: lastReview?.created_at ?? null,
       last_review_warnings: lastReview?.warnings ?? 0,

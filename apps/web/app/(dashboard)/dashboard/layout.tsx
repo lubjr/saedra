@@ -10,10 +10,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <ClientWrapper>
         <SidebarProvider className="bg-zinc-950">
           <AppSidebar />
-          <SidebarInset>
+          <SidebarInset className="h-dvh overflow-hidden flex flex-col">
             <HeaderPanel />
-            <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-              <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min">
+            <div className="flex flex-1 flex-col gap-4 p-4 pt-0 overflow-hidden">
+              <div className="bg-muted/50 flex-1 rounded-xl overflow-y-auto">
                 <div className="w-full p-4">{children}</div>
               </div>
             </div>

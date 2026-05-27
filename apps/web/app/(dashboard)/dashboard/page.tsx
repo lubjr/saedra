@@ -15,6 +15,7 @@ import { EmptyProjects } from "../../../components/EmptyProjects";
 import { ContinueHero } from "../../../components/home/ContinueHero";
 import { FilterChips } from "../../../components/home/FilterChips";
 import { ProjectCard } from "../../../components/home/ProjectCard";
+import { SearchInput } from "../../../components/home/SearchInput";
 import { SetupBanner } from "../../../components/home/SetupBanner";
 import { useProjects } from "../../contexts/ProjectsContext";
 
@@ -27,6 +28,7 @@ export default function Page() {
 
   const { projects, isLoading } = useProjects();
   const [filter, setFilter] = React.useState<Filter>("all");
+  const [query, setQuery] = React.useState("");
   const [summaries, setSummaries] = React.useState<
     Record<string, ProjectSummary>
   >({});
@@ -44,8 +46,14 @@ export default function Page() {
     return new Date(bTime).getTime() - new Date(aTime).getTime();
   });
 
-  const hero = sorted[0];
-  const rest = sorted.slice(1);
+  const searched = query
+    ? sorted.filter((p) => {
+        return p.name.toLowerCase().includes(query.toLowerCase());
+      })
+    : sorted;
+
+  const hero = !query ? sorted[0] : undefined;
+  const heroForDecisions = sorted[0];
 
   React.useEffect(() => {
     getProjectSummaries().then((data) => {
@@ -58,30 +66,36 @@ export default function Page() {
   }, []);
 
   React.useEffect(() => {
-    if (!hero?.id) return;
-    getDecisions(hero.id).then((decisions) => {
+    if (!heroForDecisions?.id) return;
+    getDecisions(heroForDecisions.id).then((decisions) => {
       setHeroDecisions(decisions.slice(0, 4));
     });
-  }, [hero?.id]);
+  }, [heroForDecisions?.id]);
 
   const summaryList = Object.values(summaries);
+  const totalDecisions = summaryList.reduce((acc, s) => {
+    return acc + (s.decisions_count ?? 0);
+  }, 0);
+  const totalReviews = summaryList.reduce((acc, s) => {
+    return acc + (s.reviews_count ?? 0);
+  }, 0);
   const counts: Record<Filter, number> = {
-    all: sorted.length,
+    all: searched.length,
     active:
       summaryList.length > 0
-        ? summaryList.filter((s) => {
-            return s.status === "active";
+        ? searched.filter((p) => {
+            return (summaries[p.id]?.status ?? "active") === "active";
           }).length
-        : sorted.length,
-    setup: summaryList.filter((s) => {
-      return s.status === "setup";
+        : searched.length,
+    setup: searched.filter((p) => {
+      return summaries[p.id]?.status === "setup";
     }).length,
-    archived: summaryList.filter((s) => {
-      return s.status === "archived";
+    archived: searched.filter((p) => {
+      return summaries[p.id]?.status === "archived";
     }).length,
   };
 
-  const filtered = sorted.filter((p) => {
+  const filtered = searched.filter((p) => {
     if (filter === "all") return true;
     const status = summaries[p.id]?.status ?? "active";
     return status === filter;
@@ -105,16 +119,27 @@ export default function Page() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8 pb-16">
+    <div className="mx-auto max-w-6xl space-y-6">
       {/* Page header */}
-      <div className="flex items-start justify-between">
-        <div>
+      <div className="flex items-center gap-3">
+        <div className="shrink-0">
           <h1 className="text-3xl font-bold tracking-tight">Home</h1>
           <p className="text-sm text-muted-foreground mt-1">
             {sorted.length} {sorted.length === 1 ? "project" : "projects"}
+            {summaryList.length > 0 && (
+              <>
+                {" · "}
+                {totalDecisions}{" "}
+                {totalDecisions === 1 ? "decision" : "decisions"}
+                {" · "}
+                {totalReviews} {totalReviews === 1 ? "review" : "reviews"}
+              </>
+            )}
           </p>
         </div>
-        <Button variant="ghost" size="sm" asChild>
+        <div className="flex-1" />
+        <SearchInput value={query} onChange={setQuery} />
+        <Button variant="brand" size="sm" asChild className="shrink-0">
           <Link href="/dashboard/new-project">
             <PlusIcon className="h-4 w-4" />
             New Project
@@ -122,7 +147,7 @@ export default function Page() {
         </Button>
       </div>
 
-      {/* Continue hero */}
+      {/* Continue hero — hidden during search */}
       {hero && (
         <ContinueHero
           project={hero}
@@ -131,12 +156,19 @@ export default function Page() {
         />
       )}
 
+      {/* Search empty state */}
+      {query && filtered.length === 0 && (
+        <p className="text-sm text-zinc-500 py-8 text-center">
+          No projects match &ldquo;{query}&rdquo;
+        </p>
+      )}
+
       {/* All projects grid */}
-      {rest.length > 0 && (
+      {filtered.length > 0 && (
         <section className="space-y-4">
           <div className="flex items-center justify-between">
             <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
-              All projects
+              {query ? "Results" : "All projects"}
             </p>
             <FilterChips active={filter} onChange={setFilter} counts={counts} />
           </div>
