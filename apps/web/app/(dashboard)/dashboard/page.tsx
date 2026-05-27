@@ -81,8 +81,7 @@ export default function Page() {
     }).length,
   };
 
-  const baseList = filter === "all" ? rest : sorted;
-  const filtered = baseList.filter((p) => {
+  const filtered = sorted.filter((p) => {
     if (filter === "all") return true;
     const status = summaries[p.id]?.status ?? "active";
     return status === filter;
