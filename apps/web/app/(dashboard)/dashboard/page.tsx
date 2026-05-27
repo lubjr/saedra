@@ -1,56 +1,24 @@
 "use client";
 
 import { Button } from "@repo/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@repo/ui/card";
-import { FolderIcon, PlusIcon, ZapIcon } from "@repo/ui/lucide";
+import { PlusIcon } from "@repo/ui/lucide";
 import { Skeleton } from "@repo/ui/skeleton";
 import Link from "next/link";
 import * as React from "react";
 import { toast } from "sonner";
 
+import type { Decision } from "../../../auth/documents";
+import { getDecisions } from "../../../auth/documents";
+import type { ProjectSummary } from "../../../auth/projects";
+import { getProjectSummaries } from "../../../auth/projects";
 import { EmptyProjects } from "../../../components/EmptyProjects";
+import { ContinueHero } from "../../../components/home/ContinueHero";
+import { FilterChips } from "../../../components/home/FilterChips";
+import { ProjectCard } from "../../../components/home/ProjectCard";
+import { SetupBanner } from "../../../components/home/SetupBanner";
 import { useProjects } from "../../contexts/ProjectsContext";
 
-const steps = [
-  {
-    cmd: "npm install -g saedra",
-    label: "Install the CLI",
-  },
-  {
-    cmd: "saedra login",
-    label: "Authenticate",
-  },
-  {
-    cmd: "saedra init --with-hooks",
-    label: "Link your repository and install git hooks",
-  },
-  {
-    cmd: "saedra memory decision add",
-    label: "Record your first architecture decision",
-  },
-  {
-    cmd: "saedra memory change log --from-git",
-    label: "Log recent changes from git history",
-  },
-  {
-    cmd: "saedra review",
-    label: "Run your first architectural review",
-  },
-];
-
-const formatDate = (iso: string): string => {
-  return new Date(iso).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-};
+type Filter = "all" | "active" | "setup" | "archived";
 
 export default function Page() {
   React.useEffect(() => {
@@ -58,6 +26,11 @@ export default function Page() {
   }, []);
 
   const { projects, isLoading } = useProjects();
+  const [filter, setFilter] = React.useState<Filter>("all");
+  const [summaries, setSummaries] = React.useState<
+    Record<string, ProjectSummary>
+  >({});
+  const [heroDecisions, setHeroDecisions] = React.useState<Decision[]>([]);
 
   const projectsList = Array.isArray(projects)
     ? projects
@@ -65,13 +38,63 @@ export default function Page() {
       ? [projects]
       : [];
 
+  const sorted = [...projectsList].sort((a, b) => {
+    const aTime = summaries[a.id]?.last_activity_at ?? a.created_at;
+    const bTime = summaries[b.id]?.last_activity_at ?? b.created_at;
+    return new Date(bTime).getTime() - new Date(aTime).getTime();
+  });
+
+  const hero = sorted[0];
+  const rest = sorted.slice(1);
+
+  React.useEffect(() => {
+    getProjectSummaries().then((data) => {
+      const map: Record<string, ProjectSummary> = {};
+      for (const s of data) {
+        map[s.id] = s;
+      }
+      setSummaries(map);
+    });
+  }, []);
+
+  React.useEffect(() => {
+    if (!hero?.id) return;
+    getDecisions(hero.id).then((decisions) => {
+      setHeroDecisions(decisions.slice(0, 4));
+    });
+  }, [hero?.id]);
+
+  const summaryList = Object.values(summaries);
+  const counts: Record<Filter, number> = {
+    all: sorted.length,
+    active:
+      summaryList.length > 0
+        ? summaryList.filter((s) => {
+            return s.status === "active";
+          }).length
+        : sorted.length,
+    setup: summaryList.filter((s) => {
+      return s.status === "setup";
+    }).length,
+    archived: summaryList.filter((s) => {
+      return s.status === "archived";
+    }).length,
+  };
+
+  const filtered = rest.filter((p) => {
+    if (filter === "all") return true;
+    const status = summaries[p.id]?.status ?? "active";
+    return status === filter;
+  });
+
   if (isLoading) {
     return (
-      <div className="flex flex-col justify-center items-center h-full gap-4">
-        <div className="w-full max-w-2xl space-y-4 p-4">
-          <Skeleton className="w-full" style={{ height: "128px" }} />
-          <Skeleton className="w-full" style={{ height: "128px" }} />
-          <Skeleton className="w-full" style={{ height: "128px" }} />
+      <div className="mx-auto max-w-6xl space-y-6">
+        <Skeleton className="w-full rounded-2xl" style={{ height: "240px" }} />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <Skeleton className="w-full rounded-xl" style={{ height: "140px" }} />
+          <Skeleton className="w-full rounded-xl" style={{ height: "140px" }} />
+          <Skeleton className="w-full rounded-xl" style={{ height: "140px" }} />
         </div>
       </div>
     );
@@ -82,92 +105,57 @@ export default function Page() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight py-2">Home</h1>
-        <p className="text-sm text-muted-foreground">
-          Your projects and setup guide.
-        </p>
+    <div className="mx-auto max-w-6xl space-y-8 pb-16">
+      {/* Page header */}
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Home</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            {sorted.length} {sorted.length === 1 ? "project" : "projects"}
+          </p>
+        </div>
+        <Button variant="ghost" size="sm" asChild>
+          <Link href="/dashboard/new-project">
+            <PlusIcon className="h-4 w-4" />
+            New Project
+          </Link>
+        </Button>
       </div>
 
-      {/* Project cards */}
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-            Projects
-          </h2>
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/dashboard/new-project">
-              <PlusIcon className="h-4 w-4" />
-              New Project
-            </Link>
-          </Button>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {projectsList.map((project) => {
-            return (
-              <Link
-                key={project.id}
-                href={`/dashboard/project/${project.id}`}
-                className="block"
-              >
-                <Card className="bg-zinc-900 hover:bg-zinc-800 transition-colors cursor-pointer h-full py-0">
-                  <CardContent className="px-4 py-3">
-                    <div className="flex items-start gap-3">
-                      <div className="bg-teal-500/10 p-2 rounded-md shrink-0">
-                        <FolderIcon className="h-4 w-4 text-teal-400" />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium truncate">
-                          {project.name}
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                          Created {formatDate(project.created_at)}
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            );
-          })}
-        </div>
-      </div>
+      {/* Continue hero */}
+      {hero && (
+        <ContinueHero
+          project={hero}
+          summary={summaries[hero.id]}
+          decisions={heroDecisions.length > 0 ? heroDecisions : undefined}
+        />
+      )}
 
-      {/* Getting started guide */}
-      <Card className="bg-zinc-900 border-teal-500/20">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <ZapIcon className="h-5 w-5 text-teal-400" />
-            Getting Started
-          </CardTitle>
-          <CardDescription>
-            Run these commands inside your repository to start tracking
-            architectural context.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ol className="space-y-3">
-            {steps.map((step, i) => {
+      {/* All projects grid */}
+      {rest.length > 0 && (
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
+              All projects
+            </p>
+            <FilterChips active={filter} onChange={setFilter} counts={counts} />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {filtered.map((project) => {
               return (
-                <li key={step.cmd} className="flex items-start gap-3">
-                  <span className="text-xs font-mono text-muted-foreground mt-1.5 w-4 shrink-0 text-right">
-                    {i + 1}.
-                  </span>
-                  <div className="min-w-0 space-y-0.5">
-                    <p className="text-xs text-muted-foreground">
-                      {step.label}
-                    </p>
-                    <code className="text-teal-400 font-mono text-xs bg-teal-500/10 px-2 py-1 rounded block">
-                      {step.cmd}
-                    </code>
-                  </div>
-                </li>
+                <ProjectCard
+                  key={project.id}
+                  project={project}
+                  summary={summaries[project.id]}
+                />
               );
             })}
-          </ol>
-        </CardContent>
-      </Card>
+          </div>
+        </section>
+      )}
+
+      {/* Setup banner */}
+      <SetupBanner />
     </div>
   );
 }

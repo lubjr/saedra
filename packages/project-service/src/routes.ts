@@ -164,6 +164,17 @@ routes.post('/:id/diagram', authenticate, async (req, res) => {
   res.json(diagram);
 });
 
+routes.get('/summaries/user/:userId', authenticate, async (req, res) => {
+  const { userId } = req.params;
+
+  if (!userId) {
+    return res.status(400).json({ error: 'userId required' });
+  }
+
+  const summaries = await repo.getProjectSummaries(userId);
+  res.json(summaries);
+});
+
 routes.get('/user/:userId', authenticate, async (req, res) => {
   const { userId } = req.params;
 
