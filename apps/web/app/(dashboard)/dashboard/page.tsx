@@ -73,6 +73,12 @@ export default function Page() {
   }, [heroForDecisions?.id]);
 
   const summaryList = Object.values(summaries);
+  const totalDecisions = summaryList.reduce((acc, s) => {
+    return acc + (s.decisions_count ?? 0);
+  }, 0);
+  const totalReviews = summaryList.reduce((acc, s) => {
+    return acc + (s.reviews_count ?? 0);
+  }, 0);
   const counts: Record<Filter, number> = {
     all: searched.length,
     active:
@@ -113,18 +119,27 @@ export default function Page() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8 pb-16">
+    <div className="mx-auto max-w-6xl space-y-6">
       {/* Page header */}
       <div className="flex items-center gap-3">
         <div className="shrink-0">
           <h1 className="text-3xl font-bold tracking-tight">Home</h1>
           <p className="text-sm text-muted-foreground mt-1">
             {sorted.length} {sorted.length === 1 ? "project" : "projects"}
+            {summaryList.length > 0 && (
+              <>
+                {" · "}
+                {totalDecisions}{" "}
+                {totalDecisions === 1 ? "decision" : "decisions"}
+                {" · "}
+                {totalReviews} {totalReviews === 1 ? "review" : "reviews"}
+              </>
+            )}
           </p>
         </div>
         <div className="flex-1" />
         <SearchInput value={query} onChange={setQuery} />
-        <Button variant="ghost" size="sm" asChild className="shrink-0">
+        <Button variant="brand" size="sm" asChild className="shrink-0">
           <Link href="/dashboard/new-project">
             <PlusIcon className="h-4 w-4" />
             New Project

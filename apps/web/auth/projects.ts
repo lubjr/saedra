@@ -10,6 +10,7 @@ export interface ProjectSummary {
   health: number | null;
   health_delta: number;
   decisions_count: number;
+  reviews_count: number;
   last_activity_at: string | null;
   last_review_at: string | null;
   last_review_warnings: number;
