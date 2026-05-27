@@ -106,7 +106,7 @@ export const ContinueHero = ({ project, summary, decisions }: Props) => {
                 <strong className="text-foreground font-semibold">
                   {summary.decisions_count}
                 </strong>{" "}
-                decisions logged · architectural health{" "}
+                {summary.decisions_count === 1 ? "decision" : "decisions"} logged · architectural health{" "}
                 <strong className="text-foreground font-semibold">
                   {summary.health}
                 </strong>

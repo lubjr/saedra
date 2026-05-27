@@ -34,7 +34,9 @@ export const SetupBanner = () => {
               </code>{" "}
               inside your repo to start tracking architectural context.{" "}
               <a
-                href="#"
+                href="https://docs.saedra.pro"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-teal-400 hover:text-teal-300 inline-flex items-center gap-0.5 transition-colors"
               >
                 Full setup guide <ArrowUpRightIcon className="size-3" />
