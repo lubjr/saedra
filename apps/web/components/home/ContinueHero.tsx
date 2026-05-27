@@ -152,7 +152,7 @@ export const ContinueHero = ({ project, summary, decisions }: Props) => {
               onClick={() => {
                 return setMode("decisions");
               }}
-              className={`text-[11px] px-2.5 py-1 rounded transition-colors cursor-pointer ${mode === "decisions" ? "bg-zinc-800 text-foreground" : "text-zinc-500 hover:text-foreground"}`}
+              className={`text-[11px] px-2.5 py-1 rounded transition-colors cursor-pointer ${mode === "decisions" ? "bg-zinc-800 border border-zinc-700 text-foreground" : "text-zinc-500 hover:text-foreground"}`}
             >
               Decisions
             </button>
@@ -161,7 +161,7 @@ export const ContinueHero = ({ project, summary, decisions }: Props) => {
                 onClick={() => {
                   return setMode("metrics");
                 }}
-                className={`text-[11px] px-2.5 py-1 rounded transition-colors cursor-pointer ${mode === "metrics" ? "bg-zinc-800 text-foreground" : "text-zinc-500 hover:text-foreground"}`}
+                className={`text-[11px] px-2.5 py-1 rounded transition-colors cursor-pointer ${mode === "metrics" ? "bg-zinc-800 border border-zinc-700 text-foreground" : "text-zinc-500 hover:text-foreground"}`}
               >
                 Metrics
               </button>

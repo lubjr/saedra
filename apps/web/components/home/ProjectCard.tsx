@@ -138,7 +138,7 @@ export const ProjectCard = ({ project, summary }: Props) => {
                   <span className="text-foreground">
                     {summary.decisions_count}
                   </span>{" "}
-                  <span className="text-zinc-600">decisions</span>
+                  <span className="text-zinc-600">{summary.decisions_count === 1 ? "decision" : "decisions"}</span>
                 </span>
               )}
           </div>
