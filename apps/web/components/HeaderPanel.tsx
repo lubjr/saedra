@@ -3,12 +3,14 @@
 import {
   Breadcrumb,
   BreadcrumbItem,
+  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@repo/ui/breadcrumb";
 import { Separator } from "@repo/ui/separator";
 import { SidebarTrigger } from "@repo/ui/sidebar";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { useProjects } from "../app/contexts/ProjectsContext";
@@ -48,6 +50,9 @@ export const HeaderPanel = () => {
   if (title === "Dashboard") {
     title = "Home";
   }
+
+  const isNewProject = pathname === "/dashboard/new-project";
+
   return (
     <header className="flex h-16 shrink-0 items-center gap-2">
       <div className="flex items-center gap-2 px-4">
@@ -59,9 +64,23 @@ export const HeaderPanel = () => {
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbSeparator className="hidden md:block" />
-            <BreadcrumbItem>
-              <BreadcrumbPage>{title}</BreadcrumbPage>
-            </BreadcrumbItem>
+            {isNewProject ? (
+              <>
+                <BreadcrumbItem>
+                  <BreadcrumbLink asChild>
+                    <Link href="/dashboard">Home</Link>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>Create project</BreadcrumbPage>
+                </BreadcrumbItem>
+              </>
+            ) : (
+              <BreadcrumbItem>
+                <BreadcrumbPage>{title}</BreadcrumbPage>
+              </BreadcrumbItem>
+            )}
           </BreadcrumbList>
         </Breadcrumb>
       </div>
