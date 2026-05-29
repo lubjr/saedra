@@ -26,7 +26,6 @@ import {
   useSidebar,
 } from "@repo/ui/sidebar";
 import { Skeleton } from "@repo/ui/skeleton";
-import Link from "next/link";
 import * as React from "react";
 
 import { logout } from "../auth/auth";
@@ -47,6 +46,7 @@ export const NavUser = ({
 }) => {
   const { isMobile } = useSidebar();
   const [accountDialogOpen, setAccountDialogOpen] = React.useState(false);
+  const [section, setSection] = React.useState<"profile" | "preferences">("profile");
 
   if (isLoading) {
     return (
@@ -117,20 +117,25 @@ export const NavUser = ({
 
             <DropdownMenuSeparator className="bg-zinc-700" />
 
-            <Link href="/dashboard/settings">
-              <DropdownMenuGroup>
-                <DropdownMenuItem className="hover:bg-zinc-700 focus:bg-zinc-700">
-                  <SettingsIcon />
-                  Settings
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-            </Link>
+            <DropdownMenuGroup>
+              <DropdownMenuItem
+                className="hover:bg-zinc-700 focus:bg-zinc-700"
+                onSelect={() => {
+                  setSection("preferences");
+                  setAccountDialogOpen(true);
+                }}
+              >
+                <SettingsIcon />
+                Settings
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
 
             <DropdownMenuGroup>
               <DropdownMenuItem
                 className="hover:bg-zinc-700 focus:bg-zinc-700"
                 onSelect={() => {
-                  return setAccountDialogOpen(true);
+                  setSection("profile");
+                  setAccountDialogOpen(true);
                 }}
               >
                 <BadgeCheckIcon />
@@ -172,6 +177,7 @@ export const NavUser = ({
           currentUsername={user.name || ""}
           currentAvatarUrl={user.avatar || ""}
           onProfileUpdated={refreshUser || (async () => {})}
+          initialSection={section}
         />
       </SidebarMenuItem>
     </SidebarMenu>
