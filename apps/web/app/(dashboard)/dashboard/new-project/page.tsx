@@ -86,7 +86,7 @@ export default function Page() {
               <SparklesIcon className="size-4" />
             </span>
             <div className="space-y-1">
-              <CardTitle className="text-lg font-semibold">
+              <CardTitle className="text-base font-semibold">
                 New project
               </CardTitle>
               <CardDescription>
@@ -100,7 +100,7 @@ export default function Page() {
             <div className="space-y-2">
               <Label
                 htmlFor="name"
-                className="text-base flex items-center gap-1.5"
+                className="text-sm font-semibold flex items-center gap-1.5"
               >
                 <FolderIcon className="size-3.5" />
                 Project name
@@ -134,13 +134,13 @@ export default function Page() {
             <div className="space-y-2">
               <Label
                 htmlFor="description"
-                className="text-base flex items-center gap-1.5"
+                className="text-sm font-semibold flex items-center gap-1.5"
               >
                 <BookOpenIcon className="size-3.5" />
                 Description
                 <Badge
                   variant="outline"
-                  className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground border-zinc-700 bg-zinc-950 px-1.5 py-0.5 ml-0.5"
+                  className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground border-zinc-700 bg-zinc-950 px-1.5 py-0.5 ml-0.5"
                 >
                   Optional
                 </Badge>
@@ -162,13 +162,13 @@ export default function Page() {
             <div className="space-y-2">
               <Label
                 htmlFor="repo"
-                className="text-base flex items-center gap-1.5"
+                className="text-sm font-semibold flex items-center gap-1.5"
               >
                 <GitBranchIcon className="size-3.5" />
                 Linked repository
                 <Badge
                   variant="outline"
-                  className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground border-zinc-700 bg-zinc-950 px-1.5 py-0.5 ml-0.5"
+                  className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground border-zinc-700 bg-zinc-950 px-1.5 py-0.5 ml-0.5"
                 >
                   Optional
                 </Badge>
