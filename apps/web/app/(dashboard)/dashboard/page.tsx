@@ -17,6 +17,7 @@ import { FilterChips } from "../../../components/home/FilterChips";
 import { ProjectCard } from "../../../components/home/ProjectCard";
 import { SearchInput } from "../../../components/home/SearchInput";
 import { SetupBanner } from "../../../components/home/SetupBanner";
+import { usePreferences } from "../../../hooks/usePreferences";
 import { useProjects } from "../../contexts/ProjectsContext";
 
 type Filter = "all" | "active" | "setup" | "archived";
@@ -27,6 +28,7 @@ export default function Page() {
   }, []);
 
   const { projects, isLoading } = useProjects();
+  const { prefs } = usePreferences();
   const [filter, setFilter] = React.useState<Filter>("all");
   const [query, setQuery] = React.useState("");
   const [summaries, setSummaries] = React.useState<
@@ -41,6 +43,14 @@ export default function Page() {
       : [];
 
   const sorted = [...projectsList].sort((a, b) => {
+    if (prefs.projectSort === "name") {
+      return a.name.localeCompare(b.name);
+    }
+    if (prefs.projectSort === "health") {
+      const aH = summaries[a.id]?.health ?? -1;
+      const bH = summaries[b.id]?.health ?? -1;
+      return bH - aH;
+    }
     const aTime = summaries[a.id]?.last_activity_at ?? a.created_at;
     const bTime = summaries[b.id]?.last_activity_at ?? b.created_at;
     return new Date(bTime).getTime() - new Date(aTime).getTime();
@@ -172,13 +182,16 @@ export default function Page() {
             </p>
             <FilterChips active={filter} onChange={setFilter} counts={counts} />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div
+            className={`grid grid-cols-1 sm:grid-cols-2 gap-3 ${prefs.density === "compact" ? "lg:grid-cols-4" : "lg:grid-cols-3"}`}
+          >
             {filtered.map((project) => {
               return (
                 <ProjectCard
                   key={project.id}
                   project={project}
                   summary={summaries[project.id]}
+                  timestamps={prefs.timestamps}
                 />
               );
             })}

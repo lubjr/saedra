@@ -26,7 +26,6 @@ import {
   useSidebar,
 } from "@repo/ui/sidebar";
 import { Skeleton } from "@repo/ui/skeleton";
-import Link from "next/link";
 import * as React from "react";
 
 import { logout } from "../auth/auth";
@@ -47,6 +46,9 @@ export const NavUser = ({
 }) => {
   const { isMobile } = useSidebar();
   const [accountDialogOpen, setAccountDialogOpen] = React.useState(false);
+  const [section, setSection] = React.useState<"profile" | "preferences">(
+    "profile",
+  );
 
   if (isLoading) {
     return (
@@ -71,7 +73,7 @@ export const NavUser = ({
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground cursor-pointer"
             >
               <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarImage src={user.avatar} alt={user.name} />
@@ -108,7 +110,7 @@ export const NavUser = ({
             <DropdownMenuGroup>
               <DropdownMenuItem
                 disabled
-                className="hover:bg-zinc-700 focus:bg-zinc-700"
+                className="hover:bg-zinc-700 focus:bg-zinc-700 cursor-pointer"
               >
                 <SparklesIcon />
                 Upgrade to Pro
@@ -117,20 +119,12 @@ export const NavUser = ({
 
             <DropdownMenuSeparator className="bg-zinc-700" />
 
-            <Link href="/dashboard/settings">
-              <DropdownMenuGroup>
-                <DropdownMenuItem className="hover:bg-zinc-700 focus:bg-zinc-700">
-                  <SettingsIcon />
-                  Settings
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-            </Link>
-
             <DropdownMenuGroup>
               <DropdownMenuItem
-                className="hover:bg-zinc-700 focus:bg-zinc-700"
+                className="hover:bg-zinc-700 focus:bg-zinc-700 cursor-pointer"
                 onSelect={() => {
-                  return setAccountDialogOpen(true);
+                  setSection("profile");
+                  setAccountDialogOpen(true);
                 }}
               >
                 <BadgeCheckIcon />
@@ -138,24 +132,34 @@ export const NavUser = ({
               </DropdownMenuItem>
               <DropdownMenuItem
                 disabled
-                className="hover:bg-zinc-700 focus:bg-zinc-700"
+                className="hover:bg-zinc-700 focus:bg-zinc-700 cursor-pointer"
+              >
+                <BellIcon />
+                Notifications
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                disabled
+                className="hover:bg-zinc-700 focus:bg-zinc-700 cursor-pointer"
               >
                 <CreditCardIcon />
                 Billing
               </DropdownMenuItem>
               <DropdownMenuItem
-                disabled
-                className="hover:bg-zinc-700 focus:bg-zinc-700"
+                className="hover:bg-zinc-700 focus:bg-zinc-700 cursor-pointer"
+                onSelect={() => {
+                  setSection("preferences");
+                  setAccountDialogOpen(true);
+                }}
               >
-                <BellIcon />
-                Notifications
+                <SettingsIcon />
+                Settings
               </DropdownMenuItem>
             </DropdownMenuGroup>
 
             <DropdownMenuSeparator className="bg-zinc-700" />
 
             <DropdownMenuItem
-              className="hover:bg-zinc-700 focus:bg-zinc-700"
+              className="hover:bg-zinc-700 focus:bg-zinc-700 cursor-pointer"
               onClick={async () => {
                 await logout();
                 window.location.reload();
@@ -172,6 +176,7 @@ export const NavUser = ({
           currentUsername={user.name || ""}
           currentAvatarUrl={user.avatar || ""}
           onProfileUpdated={refreshUser || (async () => {})}
+          initialSection={section}
         />
       </SidebarMenuItem>
     </SidebarMenu>
