@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@repo/ui/button";
-import { GitBranchIcon, SparklesIcon } from "@repo/ui/lucide";
+import { CopyIcon, GitBranchIcon, SparklesIcon } from "@repo/ui/lucide";
 import { toast } from "sonner";
 
 import type { ProjectSummary } from "../../auth/projects";
@@ -75,7 +75,7 @@ export const OverviewHeader = ({ projectName, summary }: Props) => {
       </div>
       <div className="flex items-center gap-2 shrink-0 pt-1">
         <Button variant="outline" size="sm" onClick={handleCopyCli}>
-          copy CLI
+          <CopyIcon className="size-3.5" /> Copy command
         </Button>
         <Button variant="brand" size="sm" onClick={handleRunReview}>
           <SparklesIcon className="size-4" /> Run review
