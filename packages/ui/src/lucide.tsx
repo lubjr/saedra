@@ -44,5 +44,7 @@ export const GitBranchIcon = Lucide.GitBranch;
 export const ArchiveIcon = Lucide.Archive;
 export const UserIcon = Lucide.User;
 export const ImageIcon = Lucide.Image;
+export const CopyIcon = Lucide.Copy;
+export const TerminalIcon = Lucide.Terminal;
 
 export type { LucideIcon } from "lucide-react";

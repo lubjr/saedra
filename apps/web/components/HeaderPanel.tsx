@@ -19,39 +19,38 @@ export const HeaderPanel = () => {
   const pathname = usePathname();
   const { projects } = useProjects();
 
-  const lastSegment = pathname.split("/").pop() || "";
-  const decodedSegment = decodeURIComponent(lastSegment);
+  const segments = pathname.split("/").filter(Boolean);
+  const projectIdx = segments.indexOf("project");
+  const isProjectPage = projectIdx !== -1;
+  const isNewProject = pathname === "/dashboard/new-project";
 
-  let title = decodedSegment.replace(/-/g, " ").replace(/\b\w/g, (char) => {
-    return char.toUpperCase();
-  });
-
-  const isProjectPage = pathname.includes("/dashboard/project/");
+  let projectName: string | null = null;
+  let subPage: string | null = null;
 
   if (isProjectPage && projects) {
-    const projectId = lastSegment;
-    const project = Array.isArray(projects)
-      ? projects.find((p) => {
-          return p.id === projectId;
-        })
-      : null;
-
+    const projectId = segments[projectIdx + 1] ?? "";
+    const projectList = Array.isArray(projects) ? projects : [];
+    const project = projectList.find((p) => {
+      return p.id === projectId;
+    });
     if (project) {
-      const projectName = project.name;
-
-      title = projectName
-        .replace(/-/g, " ")
-        .replace(/\b\w/g, (char: string) => {
-          return char.toUpperCase();
-        });
+      projectName = project.name;
     }
+    const sub = segments[projectIdx + 2];
+    subPage = sub
+      ? sub.replace(/-/g, " ").replace(/\b\w/g, (c: string) => {
+          return c.toUpperCase();
+        })
+      : "Overview";
   }
 
-  if (title === "Dashboard") {
-    title = "Home";
-  }
-
-  const isNewProject = pathname === "/dashboard/new-project";
+  const lastSegment = segments[segments.length - 1] ?? "";
+  let simpleTitle = decodeURIComponent(lastSegment)
+    .replace(/-/g, " ")
+    .replace(/\b\w/g, (c) => {
+      return c.toUpperCase();
+    });
+  if (simpleTitle === "Dashboard") simpleTitle = "Home";
 
   return (
     <header className="flex h-16 shrink-0 items-center gap-2">
@@ -76,9 +75,25 @@ export const HeaderPanel = () => {
                   <BreadcrumbPage>Create project</BreadcrumbPage>
                 </BreadcrumbItem>
               </>
+            ) : isProjectPage && projectName ? (
+              <>
+                <BreadcrumbItem>
+                  <BreadcrumbLink asChild>
+                    <Link
+                      href={`/dashboard/project/${segments[projectIdx + 1]}`}
+                    >
+                      {projectName}
+                    </Link>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>{subPage}</BreadcrumbPage>
+                </BreadcrumbItem>
+              </>
             ) : (
               <BreadcrumbItem>
-                <BreadcrumbPage>{title}</BreadcrumbPage>
+                <BreadcrumbPage>{simpleTitle}</BreadcrumbPage>
               </BreadcrumbItem>
             )}
           </BreadcrumbList>

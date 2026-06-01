@@ -142,3 +142,14 @@ export const getProjectSummaries = async (): Promise<ProjectSummary[]> => {
     return [];
   }
 };
+
+export const getProjectSummary = async (
+  projectId: string,
+): Promise<ProjectSummary | null> => {
+  const summaries = await getProjectSummaries();
+  return (
+    summaries.find((s) => {
+      return s.id === projectId;
+    }) ?? null
+  );
+};
