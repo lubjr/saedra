@@ -25,14 +25,16 @@ const DEFAULTS: Preferences = {
 
 const KEY = "saedra:preferences";
 
-export function usePreferences() {
+export const usePreferences = () => {
   const [prefs, setPrefs] = React.useState<Preferences>(DEFAULTS);
 
   React.useEffect(() => {
     try {
       const raw = localStorage.getItem(KEY);
       if (raw) setPrefs({ ...DEFAULTS, ...JSON.parse(raw) });
-    } catch {}
+    } catch {
+      // storage unavailable
+    }
   }, []);
 
   const save = (next: Partial<Preferences>) => {
@@ -40,10 +42,12 @@ export function usePreferences() {
       const merged = { ...p, ...next };
       try {
         localStorage.setItem(KEY, JSON.stringify(merged));
-      } catch {}
+      } catch {
+        // storage unavailable
+      }
       return merged;
     });
   };
 
   return { prefs, save };
-}
+};

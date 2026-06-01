@@ -2,17 +2,17 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/avatar";
 import { Button } from "@repo/ui/button";
-import { Dialog, DialogContent } from "@repo/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@repo/ui/dialog";
 import { Input } from "@repo/ui/input";
 import { Label } from "@repo/ui/label";
 import {
   BadgeCheckIcon,
   BellIcon,
-  BookOpenIcon,
   CreditCardIcon,
-  KeyIcon,
+  ImageIcon,
   LogOutIcon,
   SettingsIcon,
+  UserIcon,
   XIcon,
 } from "@repo/ui/lucide";
 import {
@@ -40,18 +40,21 @@ export type AccountSettingsDialogProps = {
   initialSection?: AccountSettingsSection;
 };
 
-/* ---------- Segmented control ---------- */
 const Segmented = ({
   value,
   onChange,
   options,
+  disabled,
 }: {
   value: string;
   onChange: (v: string) => void;
   options: { value: string; label: string }[];
+  disabled?: boolean;
 }) => {
   return (
-    <div className="inline-flex rounded-md border border-zinc-800 bg-zinc-950 p-0.5">
+    <div
+      className={`inline-flex rounded-md border border-zinc-800 bg-zinc-950 p-0.5 ${disabled ? "opacity-50" : ""}`}
+    >
       {options.map((o) => {
         return (
           <button
@@ -60,11 +63,12 @@ const Segmented = ({
             onClick={() => {
               return onChange(o.value);
             }}
+            disabled={disabled}
             className={`px-2.5 py-1 rounded text-xs font-medium transition ${
               o.value === value
                 ? "bg-zinc-800 text-zinc-100"
                 : "text-zinc-500 hover:text-zinc-300"
-            }`}
+            } ${disabled ? "cursor-not-allowed" : ""}`}
           >
             {o.label}
           </button>
@@ -74,13 +78,14 @@ const Segmented = ({
   );
 };
 
-/* ---------- Switch ---------- */
 const Switch = ({
   checked,
   onChange,
+  disabled,
 }: {
   checked: boolean;
   onChange: (v: boolean) => void;
+  disabled?: boolean;
 }) => {
   return (
     <button
@@ -88,9 +93,10 @@ const Switch = ({
       onClick={() => {
         return onChange(!checked);
       }}
+      disabled={disabled}
       className={`relative w-9 h-5 rounded-full transition-colors ${
         checked ? "bg-teal-600" : "bg-zinc-700"
-      }`}
+      } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
     >
       <span
         className={`absolute top-0.5 size-4 rounded-full bg-white transition-all ${
@@ -101,7 +107,6 @@ const Switch = ({
   );
 };
 
-/* ---------- Preferences row ---------- */
 const SettingRow = ({
   title,
   desc,
@@ -130,7 +135,58 @@ const GroupHeader = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-/* ---------- Profile section ---------- */
+const LogoutButton = () => {
+  return (
+    <button
+      type="button"
+      onClick={async () => {
+        await logout();
+        window.location.reload();
+      }}
+      className="inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-red-400 transition cursor-pointer"
+    >
+      <LogOutIcon className="size-4" />
+      Log out
+    </button>
+  );
+};
+
+const SaveBar = ({
+  onClose,
+  onSave,
+  loading,
+  saveDisabled,
+}: {
+  onClose: () => void;
+  onSave: () => void;
+  loading?: boolean;
+  saveDisabled?: boolean;
+}) => {
+  return (
+    <div className="flex items-center justify-between border-t border-zinc-800 bg-zinc-950/40 px-6 py-3.5 shrink-0">
+      <LogoutButton />
+      <div className="flex gap-2">
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={onClose}
+          disabled={loading}
+        >
+          Cancel
+        </Button>
+        <Button
+          type="button"
+          variant="brand"
+          onClick={onSave}
+          disabled={loading || saveDisabled}
+        >
+          {loading ? "Saving..." : "Save changes"}
+        </Button>
+      </div>
+    </div>
+  );
+};
+
 const ProfilePanel = ({
   currentUsername,
   currentAvatarUrl,
@@ -200,9 +256,9 @@ const ProfilePanel = ({
         <div className="space-y-2">
           <Label
             htmlFor="username"
-            className="text-sm font-semibold flex items-center gap-1.5"
+            className="text-sm font-medium text-zinc-200 flex items-center gap-1.5"
           >
-            <KeyIcon className="size-3.5" />
+            <UserIcon className="size-3.5 text-zinc-500" />
             Username
           </Label>
           <Input
@@ -219,9 +275,9 @@ const ProfilePanel = ({
         <div className="space-y-2">
           <Label
             htmlFor="avatarUrl"
-            className="text-sm font-semibold flex items-center gap-1.5"
+            className="text-sm font-medium text-zinc-200 flex items-center gap-1.5"
           >
-            <BookOpenIcon className="size-3.5" />
+            <ImageIcon className="size-3.5 text-zinc-500" />
             Avatar URL
           </Label>
           <Input
@@ -245,7 +301,6 @@ const ProfilePanel = ({
   );
 };
 
-/* ---------- Preferences section ---------- */
 const PreferencesPanel = ({ onClose }: { onClose: () => void }) => {
   const { prefs, save } = usePreferences();
   const [local, setLocal] = React.useState(prefs);
@@ -291,6 +346,7 @@ const PreferencesPanel = ({ onClose }: { onClose: () => void }) => {
                 { value: "system", label: "System" },
                 { value: "dark", label: "Dark" },
               ]}
+              disabled
             />
           </SettingRow>
           <SettingRow
@@ -306,6 +362,7 @@ const PreferencesPanel = ({ onClose }: { onClose: () => void }) => {
                 { value: "comfortable", label: "Comfortable" },
                 { value: "compact", label: "Compact" },
               ]}
+              disabled
             />
           </SettingRow>
           <SettingRow
@@ -317,6 +374,7 @@ const PreferencesPanel = ({ onClose }: { onClose: () => void }) => {
               onChange={(v) => {
                 return set("reduceMotion", v);
               }}
+              disabled
             />
           </SettingRow>
         </div>
@@ -330,7 +388,7 @@ const PreferencesPanel = ({ onClose }: { onClose: () => void }) => {
                 return set("language", v as typeof local.language);
               }}
             >
-              <SelectTrigger className="w-48">
+              <SelectTrigger className="w-48" disabled>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -347,7 +405,7 @@ const PreferencesPanel = ({ onClose }: { onClose: () => void }) => {
                 return set("timezone", v);
               }}
             >
-              <SelectTrigger className="w-48">
+              <SelectTrigger className="w-48" disabled>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -377,6 +435,7 @@ const PreferencesPanel = ({ onClose }: { onClose: () => void }) => {
                 { value: "relative", label: "Relative" },
                 { value: "exact", label: "Exact" },
               ]}
+              disabled
             />
           </SettingRow>
         </div>
@@ -390,7 +449,7 @@ const PreferencesPanel = ({ onClose }: { onClose: () => void }) => {
                 return set("startPage", v as typeof local.startPage);
               }}
             >
-              <SelectTrigger className="w-48">
+              <SelectTrigger className="w-48" disabled>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -409,7 +468,7 @@ const PreferencesPanel = ({ onClose }: { onClose: () => void }) => {
                 return set("projectSort", v as typeof local.projectSort);
               }}
             >
-              <SelectTrigger className="w-48">
+              <SelectTrigger className="w-48" disabled>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -422,20 +481,17 @@ const PreferencesPanel = ({ onClose }: { onClose: () => void }) => {
         </div>
       </div>
 
-      <SaveBar onClose={onClose} onSave={handleSave} />
+      <SaveBar onClose={onClose} onSave={handleSave} saveDisabled />
     </>
   );
 };
 
-/* ---------- Coming soon panel ---------- */
 const ComingSoonPanel = ({
   label,
   icon: Icon,
-  onClose,
 }: {
   label: string;
   icon: React.ElementType;
-  onClose: () => void;
 }) => {
   return (
     <>
@@ -456,58 +512,6 @@ const ComingSoonPanel = ({
   );
 };
 
-/* ---------- Save bar ---------- */
-const LogoutButton = () => {
-  return (
-    <button
-      type="button"
-      onClick={async () => {
-        await logout();
-        window.location.reload();
-      }}
-      className="inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-red-400 transition"
-    >
-      <LogOutIcon className="size-4" />
-      Log out
-    </button>
-  );
-};
-
-const SaveBar = ({
-  onClose,
-  onSave,
-  loading,
-}: {
-  onClose: () => void;
-  onSave: () => void;
-  loading?: boolean;
-}) => {
-  return (
-    <div className="flex items-center justify-between border-t border-zinc-800 bg-zinc-950/40 px-6 py-3.5 shrink-0">
-      <LogoutButton />
-      <div className="flex gap-2">
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={onClose}
-          disabled={loading}
-        >
-          Cancel
-        </Button>
-        <Button
-          type="button"
-          variant="brand"
-          onClick={onSave}
-          disabled={loading}
-        >
-          {loading ? "Saving..." : "Save changes"}
-        </Button>
-      </div>
-    </div>
-  );
-};
-
-/* ---------- Rail sections ---------- */
 const SECTIONS = [
   {
     id: "profile" as const,
@@ -516,10 +520,10 @@ const SECTIONS = [
     soon: false,
   },
   {
-    id: "preferences" as const,
-    label: "Preferences",
-    Icon: SettingsIcon,
-    soon: false,
+    id: "notifications" as const,
+    label: "Notifications",
+    Icon: BellIcon,
+    soon: true,
   },
   {
     id: "billing" as const,
@@ -528,16 +532,15 @@ const SECTIONS = [
     soon: true,
   },
   {
-    id: "notifications" as const,
-    label: "Notifications",
-    Icon: BellIcon,
-    soon: true,
+    id: "preferences" as const,
+    label: "Settings",
+    Icon: SettingsIcon,
+    soon: false,
   },
 ];
 
 type SectionId = "profile" | "preferences" | "billing" | "notifications";
 
-/* ---------- Main dialog ---------- */
 export const AccountSettingsDialog = ({
   open,
   onOpenChange,
@@ -572,29 +575,21 @@ export const AccountSettingsDialog = ({
       return <PreferencesPanel onClose={onClose} />;
     }
     if (active === "billing") {
-      return (
-        <ComingSoonPanel
-          label="Billing"
-          icon={CreditCardIcon}
-          onClose={onClose}
-        />
-      );
+      return <ComingSoonPanel label="Billing" icon={CreditCardIcon} />;
     }
-    return (
-      <ComingSoonPanel
-        label="Notifications"
-        icon={BellIcon}
-        onClose={onClose}
-      />
-    );
+    return <ComingSoonPanel label="Notifications" icon={BellIcon} />;
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl p-0 gap-0 overflow-hidden bg-zinc-900 border-zinc-800">
+      <DialogContent
+        className="sm:max-w-2xl p-0 gap-0 overflow-hidden bg-zinc-900 border-zinc-800"
+        showCloseButton={false}
+      >
+        <DialogTitle className="sr-only">Account Settings</DialogTitle>
         <div
           className="grid grid-cols-[200px_1fr] min-h-0"
-          style={{ maxHeight: "86vh" }}
+          style={{ height: "min(86vh, 500px)" }}
         >
           {/* Left rail */}
           <nav className="bg-zinc-950 border-r border-zinc-800 p-3 flex flex-col gap-0.5">
@@ -627,7 +622,7 @@ export const AccountSettingsDialog = ({
                       ? "bg-teal-500/10 text-teal-400"
                       : s.soon
                         ? "text-zinc-600 cursor-not-allowed"
-                        : "text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100"
+                        : "text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100 cursor-pointer"
                   }`}
                 >
                   <s.Icon
@@ -650,7 +645,7 @@ export const AccountSettingsDialog = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800 rounded-md p-1.5 transition"
+                className="text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800 rounded-md p-1.5 transition cursor-pointer"
               >
                 <XIcon className="size-4" />
               </button>
