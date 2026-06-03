@@ -6,14 +6,17 @@ import { toast } from "sonner";
 import type { Decision } from "../../../auth/documents";
 import type { ProjectSummary } from "../../../auth/projects";
 import type { ReviewSummary } from "../../../auth/reviews";
+import { DecisionTimelineCard } from "./DecisionTimelineCard";
 import { MetricsHeader } from "./MetricsHeader";
 import { MetricsKpiStrip } from "./MetricsKpiStrip";
+import { ReviewStreakCard } from "./ReviewStreakCard";
+import { RiskBreakdownCard } from "./RiskBreakdownCard";
 import { ViolationsCard } from "./ViolationsCard";
 
 type Range = "7d" | "30d" | "90d" | "all";
 
 interface Props {
-  projectName: string;
+  projectId: string;
   summary: ProjectSummary | null;
   reviews: ReviewSummary[];
   decisions: Decision[];
@@ -49,7 +52,7 @@ const sliceByRange = (
 };
 
 export const MetricsClient = ({
-  projectName,
+  projectId,
   summary,
   reviews,
   decisions,
@@ -103,6 +106,53 @@ export const MetricsClient = ({
     return d.status === "superseded";
   }).length;
 
+  const streakCells = ((): ("clean" | "warning" | "violation" | "empty")[] => {
+    const last12 = sortedReviews.slice(-12);
+    const classified = last12.map((r) => {
+      if (r.violations > 0) return "violation" as const;
+      if (r.warnings > 0) return "warning" as const;
+      return "clean" as const;
+    });
+    const padding = Array<"empty">(Math.max(0, 12 - classified.length)).fill(
+      "empty",
+    );
+    return [...padding, ...classified];
+  })();
+
+  const streak = (() => {
+    let count = 0;
+    for (let i = streakCells.length - 1; i >= 0; i--) {
+      if (streakCells[i] === "clean") count++;
+      else break;
+    }
+    return count;
+  })();
+
+  const riskTotal = decisions.length;
+  const riskCounts = {
+    low: decisions.filter((d) => {
+      return d.risk_level === "low";
+    }).length,
+    medium: decisions.filter((d) => {
+      return d.risk_level === "medium";
+    }).length,
+    high: decisions.filter((d) => {
+      return d.risk_level === "high";
+    }).length,
+  };
+  const riskRows = (["low", "medium", "high"] as const).map((label) => {
+    return {
+      label,
+      count: riskCounts[label],
+      pct:
+        riskTotal > 0 ? Math.round((riskCounts[label] / riskTotal) * 100) : 0,
+    };
+  });
+
+  const sortedDecisions = [...decisions].sort((a, b) => {
+    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+  });
+
   const handleExport = () => {
     void navigator.clipboard.writeText(
       JSON.stringify({ chartData, decisions }, null, 2),
@@ -113,7 +163,6 @@ export const MetricsClient = ({
   return (
     <>
       <MetricsHeader
-        projectName={projectName}
         summary={summary}
         range={range}
         onRangeChange={setRange}
@@ -138,6 +187,18 @@ export const MetricsClient = ({
         reviewCount={totalReviews}
         range={range}
       />
+
+      <div className="grid grid-cols-1 lg:grid-cols-[1.55fr_1fr] gap-5 items-start">
+        <DecisionTimelineCard
+          projectId={projectId}
+          decisions={sortedDecisions}
+          range={range}
+        />
+        <div className="flex flex-col gap-5">
+          <ReviewStreakCard cells={streakCells} streak={streak} />
+          <RiskBreakdownCard rows={riskRows} projectId={projectId} />
+        </div>
+      </div>
     </>
   );
 };
