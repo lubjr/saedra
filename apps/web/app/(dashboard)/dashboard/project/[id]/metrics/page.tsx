@@ -16,12 +16,10 @@ export default async function Page({ params }: PageProps) {
     getDecisions(id),
   ]);
 
-  const projectName = summary?.name ?? "Project";
-
   return (
     <div className="mx-auto max-w-6xl space-y-5">
       <MetricsClient
-        projectName={projectName}
+        projectId={id}
         summary={summary}
         reviews={reviews}
         decisions={decisions}

@@ -8,7 +8,6 @@ import type { ProjectSummary } from "../../../auth/projects";
 type Range = "7d" | "30d" | "90d" | "all";
 
 interface Props {
-  projectName: string;
   summary: ProjectSummary | null;
   range: Range;
   onRangeChange: (r: Range) => void;
@@ -48,7 +47,6 @@ const StatusChip = ({ status }: { status: ProjectSummary["status"] }) => {
 const RANGES: Range[] = ["7d", "30d", "90d", "all"];
 
 export const MetricsHeader = ({
-  projectName,
   summary,
   range,
   onRangeChange,
