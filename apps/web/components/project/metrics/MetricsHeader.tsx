@@ -1,14 +1,18 @@
 "use client";
 
 import { Button } from "@repo/ui/button";
-import { CopyIcon, GitBranchIcon, SparklesIcon } from "@repo/ui/lucide";
-import { toast } from "sonner";
+import { DownloadIcon, GitBranchIcon } from "@repo/ui/lucide";
 
-import type { ProjectSummary } from "../../auth/projects";
+import type { ProjectSummary } from "../../../auth/projects";
+
+type Range = "7d" | "30d" | "90d" | "all";
 
 interface Props {
   projectName: string;
   summary: ProjectSummary | null;
+  range: Range;
+  onRangeChange: (r: Range) => void;
+  onExport: () => void;
 }
 
 const formatRelativeDate = (iso: string): string => {
@@ -41,24 +45,26 @@ const StatusChip = ({ status }: { status: ProjectSummary["status"] }) => {
   );
 };
 
-export const OverviewHeader = ({ projectName, summary }: Props) => {
-  const handleCopyCli = () => {
-    void navigator.clipboard.writeText("saedra review");
-    toast.success("Copied to clipboard");
-  };
+const RANGES: Range[] = ["7d", "30d", "90d", "all"];
 
-  const handleRunReview = () => {
-    toast.info("Run 'saedra review' in your terminal to start a new review.");
-  };
-
+export const MetricsHeader = ({
+  projectName,
+  summary,
+  range,
+  onRangeChange,
+  onExport,
+}: Props) => {
   return (
     <div className="flex items-start justify-between gap-4">
       <div className="space-y-2">
         <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-teal-400">
-          Project overview
+          Project metrics
         </p>
-        <h1 className="text-3xl font-semibold tracking-tight">Overview</h1>
-        <div className="flex items-center gap-2 flex-wrap">
+        <h1 className="text-3xl font-semibold tracking-tight">Metrics</h1>
+        <p className="text-sm text-zinc-400">
+          Architectural health & evolution over time.
+        </p>
+        <div className="flex items-center gap-2 flex-wrap pt-1">
           {summary && <StatusChip status={summary.status} />}
           {summary?.last_review_branch && (
             <span className="flex items-center gap-1 rounded-full bg-zinc-950 border border-zinc-800 px-2.5 py-0.5 font-mono text-xs text-zinc-400">
@@ -68,17 +74,29 @@ export const OverviewHeader = ({ projectName, summary }: Props) => {
           )}
           {summary?.last_review_at && (
             <span className="rounded-full bg-zinc-950 border border-zinc-800 px-2.5 py-0.5 font-mono text-xs text-zinc-500">
-              {formatRelativeDate(summary.last_review_at)}
+              last review · {formatRelativeDate(summary.last_review_at)}
             </span>
           )}
         </div>
       </div>
       <div className="flex items-center gap-2 shrink-0 pt-1">
-        <Button variant="outline" size="sm" onClick={handleCopyCli}>
-          <CopyIcon className="size-3.5" /> Copy command
-        </Button>
-        <Button variant="brand" size="sm" onClick={handleRunReview}>
-          <SparklesIcon className="size-4" /> Run review
+        <div className="flex items-center rounded-md border border-zinc-800 bg-zinc-950 p-0.5 font-mono text-[11px]">
+          {RANGES.map((r) => {
+            return (
+              <button
+                key={r}
+                onClick={() => {
+                  return onRangeChange(r);
+                }}
+                className={`px-2 py-1 rounded-md transition-colors ${range === r ? "bg-zinc-800 text-zinc-100" : "text-zinc-500 hover:text-zinc-300"}`}
+              >
+                {r}
+              </button>
+            );
+          })}
+        </div>
+        <Button variant="outline" size="sm" onClick={onExport}>
+          <DownloadIcon className="size-3.5" /> Export
         </Button>
       </div>
     </div>
