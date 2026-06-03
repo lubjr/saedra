@@ -46,5 +46,6 @@ export const UserIcon = Lucide.User;
 export const ImageIcon = Lucide.Image;
 export const CopyIcon = Lucide.Copy;
 export const TerminalIcon = Lucide.Terminal;
+export const DownloadIcon = Lucide.Download;
 
 export type { LucideIcon } from "lucide-react";
