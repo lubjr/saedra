@@ -1,6 +1,16 @@
-import { SparklesIcon } from "@repo/ui/lucide";
-
-import { getArchitectureState } from "../../../../../../auth/documents";
+import {
+  getArchitectureState,
+  getDecisions,
+} from "../../../../../../auth/documents";
+import { getProjectSummary } from "../../../../../../auth/projects";
+import { ActiveDecisionsCard } from "../../../../../../components/project/memory/ActiveDecisionsCard";
+import { ConstraintsCard } from "../../../../../../components/project/memory/ConstraintsCard";
+import { CriticalPathsCard } from "../../../../../../components/project/memory/CriticalPathsCard";
+import { MemoryEmpty } from "../../../../../../components/project/memory/MemoryEmpty";
+import { MemoryHeader } from "../../../../../../components/project/memory/MemoryHeader";
+import { MemoryKpiStrip } from "../../../../../../components/project/memory/MemoryKpiStrip";
+import { PrinciplesCard } from "../../../../../../components/project/memory/PrinciplesCard";
+import { SummaryCard } from "../../../../../../components/project/memory/SummaryCard";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -8,132 +18,48 @@ interface PageProps {
 
 export default async function Page({ params }: PageProps) {
   const { id } = await params;
-  const state = await getArchitectureState(id);
+
+  const [state, decisions, summary] = await Promise.all([
+    getArchitectureState(id),
+    getDecisions(id),
+    getProjectSummary(id),
+  ]);
 
   if (!state) {
     return (
-      <div className="mx-auto max-w-6xl space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight py-2">Memory</h1>
-          <p className="text-sm text-muted-foreground">
-            Architecture state recorded by the CLI.
-          </p>
-        </div>
-        <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-8 text-center">
-          <SparklesIcon className="mx-auto h-8 w-8 text-zinc-600 mb-3" />
-          <p className="text-sm text-zinc-400 mb-2">
-            No architecture state recorded yet.
-          </p>
-          <p className="text-sm text-zinc-500">
-            Run{" "}
-            <code className="text-teal-400 font-mono text-xs bg-teal-500/10 px-1.5 py-0.5 rounded">
-              saedra memory state update --ai
-            </code>{" "}
-            to generate the first snapshot.
-          </p>
-        </div>
+      <div className="mx-auto max-w-6xl space-y-5">
+        <MemoryHeader summary={summary} hasState={false} />
+        <MemoryEmpty />
       </div>
     );
   }
 
+  const decisionById = new Map(
+    decisions.map((d) => {
+      return [d.id, d];
+    }),
+  );
+  const activeDecisions = state.active_decisions.map((ref) => {
+    const match = decisionById.get(ref);
+    return { id: ref, title: match?.title ?? ref };
+  });
+
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight py-2">Memory</h1>
-        <p className="text-sm text-muted-foreground">
-          Architecture state recorded by the CLI.
-        </p>
+    <div className="mx-auto max-w-6xl space-y-5">
+      <MemoryHeader summary={summary} hasState />
+      <MemoryKpiStrip state={state} />
+      <SummaryCard state={state} />
+
+      <div className="grid grid-cols-1 lg:grid-cols-[1.55fr_1fr] gap-5 items-start">
+        <div className="flex flex-col gap-5">
+          <PrinciplesCard items={state.core_principles} />
+          <CriticalPathsCard items={state.critical_paths} />
+        </div>
+        <div className="flex flex-col gap-5">
+          <ConstraintsCard items={state.constraints} />
+          <ActiveDecisionsCard projectId={id} decisions={activeDecisions} />
+        </div>
       </div>
-
-      <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-6 space-y-1">
-        <p className="text-xs text-zinc-500 uppercase tracking-wider font-medium">
-          Summary
-        </p>
-        <p className="text-sm text-zinc-200">{state.summary}</p>
-      </div>
-
-      {state.core_principles.length > 0 && (
-        <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-6 space-y-3">
-          <p className="text-xs text-zinc-500 uppercase tracking-wider font-medium">
-            Core Principles
-          </p>
-          <ul className="space-y-1.5">
-            {state.core_principles.map((p, i) => {
-              return (
-                <li
-                  key={i}
-                  className="flex items-start gap-2 text-sm text-zinc-300"
-                >
-                  <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-teal-400 shrink-0" />
-                  {p}
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      )}
-
-      {state.critical_paths.length > 0 && (
-        <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-6 space-y-3">
-          <p className="text-xs text-zinc-500 uppercase tracking-wider font-medium">
-            Critical Paths
-          </p>
-          <ul className="space-y-1.5">
-            {state.critical_paths.map((p, i) => {
-              return (
-                <li
-                  key={i}
-                  className="flex items-start gap-2 text-sm text-zinc-300"
-                >
-                  <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-blue-400 shrink-0" />
-                  {p}
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      )}
-
-      {state.constraints.length > 0 && (
-        <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-6 space-y-3">
-          <p className="text-xs text-zinc-500 uppercase tracking-wider font-medium">
-            Constraints
-          </p>
-          <ul className="space-y-1.5">
-            {state.constraints.map((c, i) => {
-              return (
-                <li
-                  key={i}
-                  className="flex items-start gap-2 text-sm text-zinc-300"
-                >
-                  <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-yellow-400 shrink-0" />
-                  {c}
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      )}
-
-      {state.active_decisions.length > 0 && (
-        <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-6 space-y-3">
-          <p className="text-xs text-zinc-500 uppercase tracking-wider font-medium">
-            Active Decisions
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {state.active_decisions.map((d) => {
-              return (
-                <span
-                  key={d}
-                  className="font-mono text-xs bg-zinc-800 text-zinc-300 px-2 py-1 rounded border border-zinc-700"
-                >
-                  {d}
-                </span>
-              );
-            })}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
