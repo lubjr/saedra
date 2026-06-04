@@ -48,5 +48,7 @@ export const CopyIcon = Lucide.Copy;
 export const TerminalIcon = Lucide.Terminal;
 export const DownloadIcon = Lucide.Download;
 export const ActivityIcon = Lucide.Activity;
+export const RouteIcon = Lucide.Route;
+export const FileTextIcon = Lucide.FileText;
 
 export type { LucideIcon } from "lucide-react";
