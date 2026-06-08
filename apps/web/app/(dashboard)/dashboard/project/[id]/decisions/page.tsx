@@ -1,5 +1,6 @@
 import { getDecisions } from "../../../../../../auth/documents";
 import { getProjectSummary } from "../../../../../../auth/projects";
+import { DecisionsBoard } from "../../../../../../components/project/decisions/DecisionsBoard";
 import { DecisionsEmpty } from "../../../../../../components/project/decisions/DecisionsEmpty";
 import { DecisionsHeader } from "../../../../../../components/project/decisions/DecisionsHeader";
 import { DecisionsKpiStrip } from "../../../../../../components/project/decisions/DecisionsKpiStrip";
@@ -36,11 +37,7 @@ export default async function Page({ params }: PageProps) {
     <div className="mx-auto max-w-6xl space-y-5">
       <DecisionsHeader summary={summary} />
       <DecisionsKpiStrip decisions={sorted} />
-      {/* DecisionsBoard — Part 2 */}
-      <pre className="rounded-xl border border-zinc-800 bg-zinc-900 p-5 text-xs text-zinc-500">
-        Board placeholder — {sorted.length} decisions · supersededBy keys:{" "}
-        {Object.keys(supersededBy).length}
-      </pre>
+      <DecisionsBoard decisions={sorted} supersededBy={supersededBy} />
     </div>
   );
 }
