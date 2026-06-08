@@ -1,5 +1,6 @@
 import { getViolationRules } from "../../../../../../auth/documents";
 import { getProjectSummary } from "../../../../../../auth/projects";
+import { RulesBoard } from "../../../../../../components/project/rules/RulesBoard";
 import { RulesEmpty } from "../../../../../../components/project/rules/RulesEmpty";
 import { RulesHeader } from "../../../../../../components/project/rules/RulesHeader";
 import { RulesKpiStrip } from "../../../../../../components/project/rules/RulesKpiStrip";
@@ -29,7 +30,7 @@ export default async function Page({ params }: PageProps) {
     <div className="mx-auto max-w-6xl space-y-5">
       <RulesHeader summary={summary} />
       <RulesKpiStrip rules={rules} />
-      {/* RulesBoard — Parte 2 */}
+      <RulesBoard rules={rules} />
     </div>
   );
 }
