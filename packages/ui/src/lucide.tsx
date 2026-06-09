@@ -52,5 +52,6 @@ export const DownloadIcon = Lucide.Download;
 export const ActivityIcon = Lucide.Activity;
 export const RouteIcon = Lucide.Route;
 export const FileTextIcon = Lucide.FileText;
+export const FileCode2Icon = Lucide.FileCode2;
 
 export type { LucideIcon } from "lucide-react";
