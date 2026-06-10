@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@repo/ui/button";
-import { GitBranchIcon, TerminalIcon } from "@repo/ui/lucide";
+import { CopyIcon, GitBranchIcon, TerminalIcon } from "@repo/ui/lucide";
 import { toast } from "sonner";
 
 import type { ProjectSummary } from "../../../auth/projects";
@@ -34,6 +34,10 @@ export const SettingsHeader = ({ summary }: Props) => {
   const handleCopy = () => {
     void navigator.clipboard.writeText(SETUP_CMD);
     toast.success("Copied to clipboard");
+  };
+
+  const handleRun = () => {
+    toast.info(`Run '${SETUP_CMD}' in your terminal to configure the AI key.`);
   };
 
   return (
@@ -71,8 +75,10 @@ export const SettingsHeader = ({ summary }: Props) => {
       </div>
       <div className="flex items-center gap-2 shrink-0 pt-1">
         <Button variant="outline" size="sm" onClick={handleCopy}>
-          <TerminalIcon className="size-[13px]" />
-          <span className="font-mono text-xs">{SETUP_CMD}</span>
+          <CopyIcon className="size-3.5" /> Copy command
+        </Button>
+        <Button variant="brand" size="sm" onClick={handleRun}>
+          <TerminalIcon className="size-3.5" /> Run setup
         </Button>
       </div>
     </div>

@@ -31,7 +31,7 @@ export const SettingsCard = ({
         className={`flex flex-row items-start gap-3 border-b px-6 py-5 ${borderCls}`}
       >
         <span
-          className={`size-7 rounded-lg grid place-items-center shrink-0 mt-0.5 ${iconCls}`}
+          className={`size-7 rounded-md grid place-items-center shrink-0 mt-0.5 ${iconCls}`}
         >
           {icon}
         </span>

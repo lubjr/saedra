@@ -1,7 +1,5 @@
-"use client";
-
+import { Button } from "@repo/ui/button";
 import { FileTextIcon, FolderIcon } from "@repo/ui/lucide";
-import * as React from "react";
 
 import { SettingsCard } from "./SettingsCard";
 
@@ -16,8 +14,6 @@ interface Props {
 }
 
 export const GeneralCard = ({ initialName }: Props) => {
-  const [name] = React.useState(initialName);
-
   return (
     <SettingsCard
       icon={<FolderIcon className="size-4" />}
@@ -26,13 +22,9 @@ export const GeneralCard = ({ initialName }: Props) => {
       footer={
         <>
           <span className="text-xs text-zinc-500">Changes require CLI</span>
-          <button
-            type="button"
-            disabled
-            className="inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium h-8 px-3 bg-teal-700 text-white opacity-50 cursor-not-allowed"
-          >
+          <Button variant="brand" size="sm" disabled>
             Save changes
-          </button>
+          </Button>
         </>
       }
     >
@@ -41,7 +33,7 @@ export const GeneralCard = ({ initialName }: Props) => {
           <label className="text-sm font-semibold text-zinc-100 flex items-center gap-1.5">
             <FolderIcon className="size-[14px]" /> Project name
           </label>
-          <input className={inputCls} value={name} readOnly />
+          <input className={inputCls} value={initialName} readOnly />
           <p className="text-xs text-zinc-500">
             Used as the project identifier.
           </p>

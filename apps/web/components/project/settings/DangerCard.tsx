@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@repo/ui/button";
 import { AlertIcon, TrashIcon } from "@repo/ui/lucide";
 import { useRouter } from "next/navigation";
 import * as React from "react";
@@ -50,15 +51,16 @@ export const DangerCard = ({ projectId, projectName }: Props) => {
           </p>
         </div>
         {!confirming && (
-          <button
-            type="button"
+          <Button
+            variant="destructive"
+            size="sm"
+            className="shrink-0"
             onClick={() => {
               setConfirming(true);
             }}
-            className="inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium h-8 px-3 bg-red-900/80 text-red-100 border border-red-500/30 hover:bg-red-800 shrink-0 cursor-pointer transition-colors"
           >
             <TrashIcon className="size-[13px]" /> Delete project
-          </button>
+          </Button>
         )}
       </div>
 
@@ -80,24 +82,25 @@ export const DangerCard = ({ projectId, projectName }: Props) => {
                 setTyped(e.target.value);
               }}
             />
-            <button
-              type="button"
+            <Button
+              variant="destructive"
+              size="sm"
+              className="shrink-0"
               onClick={handleDelete}
               disabled={typed !== projectName || isDeleting}
-              className="inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium h-8 px-3 bg-red-900/80 text-red-100 border border-red-500/30 hover:bg-red-800 shrink-0 disabled:opacity-50 disabled:pointer-events-none cursor-pointer transition-colors"
             >
               {isDeleting ? "Deleting..." : "Delete forever"}
-            </button>
-            <button
-              type="button"
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => {
                 setConfirming(false);
                 setTyped("");
               }}
-              className="inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium h-8 px-3 text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100 cursor-pointer transition-colors"
             >
               Cancel
-            </button>
+            </Button>
           </div>
         </div>
       )}
