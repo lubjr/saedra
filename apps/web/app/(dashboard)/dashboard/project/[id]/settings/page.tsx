@@ -1,6 +1,7 @@
 import { getProjectSummary } from "../../../../../../auth/projects";
 import { getProjectSettings } from "../../../../../../auth/settings";
 import { AiConfigCard } from "../../../../../../components/project/settings/AiConfigCard";
+import { DangerCard } from "../../../../../../components/project/settings/DangerCard";
 import { GeneralCard } from "../../../../../../components/project/settings/GeneralCard";
 import { SettingsHeader } from "../../../../../../components/project/settings/SettingsHeader";
 
@@ -21,7 +22,10 @@ export default async function Page({ params }: PageProps) {
       <SettingsHeader summary={summary} />
       <GeneralCard initialName={summary?.name ?? ""} />
       <AiConfigCard projectId={id} settings={settings} />
-      {/* DangerCard — Parte 3 */}
+      <DangerCard
+        projectId={id}
+        projectName={summary?.name ?? "this project"}
+      />
     </div>
   );
 }
