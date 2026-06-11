@@ -54,5 +54,6 @@ export const RouteIcon = Lucide.Route;
 export const FileTextIcon = Lucide.FileText;
 export const FileCode2Icon = Lucide.FileCode2;
 export const PencilIcon = Lucide.Pencil;
+export const CameraIcon = Lucide.Camera;
 
 export type { LucideIcon } from "lucide-react";
