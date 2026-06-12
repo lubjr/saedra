@@ -9,12 +9,12 @@ import {
   BadgeCheckIcon,
   BellIcon,
   CreditCardIcon,
-  ImageIcon,
   LogOutIcon,
   SettingsIcon,
   UserIcon,
   XIcon,
 } from "@repo/ui/lucide";
+import { AvatarUpload } from "./AvatarUpload";
 import {
   Select,
   SelectContent,
@@ -227,8 +227,6 @@ const ProfilePanel = ({
     }
   };
 
-  const initial = (username || "?").charAt(0).toUpperCase();
-
   return (
     <>
       <div className="px-6 pt-2 pb-6 overflow-y-auto flex-1 space-y-6">
@@ -240,12 +238,12 @@ const ProfilePanel = ({
         </div>
 
         <div className="flex items-center gap-4">
-          <Avatar className="h-16 w-16">
-            <AvatarImage src={avatarUrl} alt={username} />
-            <AvatarFallback className="bg-zinc-800 text-zinc-300 text-xl font-semibold">
-              {initial}
-            </AvatarFallback>
-          </Avatar>
+          <AvatarUpload
+            value={avatarUrl}
+            onChange={setAvatarUrl}
+            username={username}
+            disabled={loading}
+          />
           <div className="min-w-0">
             <div className="text-sm font-medium text-zinc-100 truncate">
               {username || "—"}
@@ -270,29 +268,6 @@ const ProfilePanel = ({
             placeholder="Enter your username"
             disabled={loading}
           />
-        </div>
-
-        <div className="space-y-2">
-          <Label
-            htmlFor="avatarUrl"
-            className="text-sm font-medium text-zinc-200 flex items-center gap-1.5"
-          >
-            <ImageIcon className="size-3.5 text-zinc-500" />
-            Avatar URL
-          </Label>
-          <Input
-            id="avatarUrl"
-            value={avatarUrl}
-            onChange={(e) => {
-              return setAvatarUrl(e.target.value);
-            }}
-            placeholder="https://example.com/avatar.jpg"
-            disabled={loading}
-            className="font-mono text-sm"
-          />
-          <p className="text-xs text-zinc-500">
-            Enter a valid image URL. Leave blank to use your initials.
-          </p>
         </div>
       </div>
 
