@@ -9,12 +9,13 @@ import {
   BadgeCheckIcon,
   BellIcon,
   CreditCardIcon,
+  LockIcon,
   LogOutIcon,
+  MailIcon,
   SettingsIcon,
   UserIcon,
   XIcon,
 } from "@repo/ui/lucide";
-import { AvatarUpload } from "./AvatarUpload";
 import {
   Select,
   SelectContent,
@@ -28,6 +29,7 @@ import { toast } from "sonner";
 import { logout } from "../auth/auth";
 import { updateUserProfile } from "../auth/user";
 import { usePreferences } from "../hooks/usePreferences";
+import { AvatarUpload } from "./AvatarUpload";
 
 export type AccountSettingsSection = "profile" | "preferences";
 
@@ -36,6 +38,7 @@ export type AccountSettingsDialogProps = {
   onOpenChange: (open: boolean) => void;
   currentUsername: string;
   currentAvatarUrl: string;
+  currentEmail: string;
   onProfileUpdated: () => Promise<void>;
   initialSection?: AccountSettingsSection;
 };
@@ -190,11 +193,13 @@ const SaveBar = ({
 const ProfilePanel = ({
   currentUsername,
   currentAvatarUrl,
+  currentEmail,
   onProfileUpdated,
   onClose,
 }: {
   currentUsername: string;
   currentAvatarUrl: string;
+  currentEmail: string;
   onProfileUpdated: () => Promise<void>;
   onClose: () => void;
 }) => {
@@ -267,6 +272,39 @@ const ProfilePanel = ({
             }}
             placeholder="Enter your username"
             disabled={loading}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label
+            htmlFor="email"
+            className="text-sm font-medium text-zinc-200 flex items-center gap-1.5"
+          >
+            <MailIcon className="size-3.5 text-zinc-500" />
+            Email
+          </Label>
+          <Input
+            id="email"
+            value={currentEmail}
+            disabled
+            className="text-zinc-500"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label
+            htmlFor="password"
+            className="text-sm font-medium text-zinc-200 flex items-center gap-1.5"
+          >
+            <LockIcon className="size-3.5 text-zinc-500" />
+            Password
+          </Label>
+          <Input
+            id="password"
+            type="password"
+            value="placeholder"
+            disabled
+            className="text-zinc-500"
           />
         </div>
       </div>
@@ -521,6 +559,7 @@ export const AccountSettingsDialog = ({
   onOpenChange,
   currentUsername,
   currentAvatarUrl,
+  currentEmail,
   onProfileUpdated,
   initialSection = "profile",
 }: AccountSettingsDialogProps) => {
@@ -541,6 +580,7 @@ export const AccountSettingsDialog = ({
         <ProfilePanel
           currentUsername={currentUsername}
           currentAvatarUrl={currentAvatarUrl}
+          currentEmail={currentEmail}
           onProfileUpdated={onProfileUpdated}
           onClose={onClose}
         />
@@ -560,6 +600,7 @@ export const AccountSettingsDialog = ({
       <DialogContent
         className="sm:max-w-2xl p-0 gap-0 overflow-hidden bg-zinc-900 border-zinc-800"
         showCloseButton={false}
+        aria-describedby={undefined}
       >
         <DialogTitle className="sr-only">Account Settings</DialogTitle>
         <div

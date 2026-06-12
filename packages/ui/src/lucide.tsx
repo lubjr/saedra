@@ -55,5 +55,7 @@ export const FileTextIcon = Lucide.FileText;
 export const FileCode2Icon = Lucide.FileCode2;
 export const PencilIcon = Lucide.Pencil;
 export const CameraIcon = Lucide.Camera;
+export const MailIcon = Lucide.Mail;
+export const LockIcon = Lucide.Lock;
 
 export type { LucideIcon } from "lucide-react";
