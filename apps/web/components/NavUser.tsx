@@ -175,6 +175,7 @@ export const NavUser = ({
           onOpenChange={setAccountDialogOpen}
           currentUsername={user.name || ""}
           currentAvatarUrl={user.avatar || ""}
+          currentEmail={user.email || ""}
           onProfileUpdated={refreshUser || (async () => {})}
           initialSection={section}
         />

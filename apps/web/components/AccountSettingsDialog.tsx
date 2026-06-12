@@ -9,8 +9,9 @@ import {
   BadgeCheckIcon,
   BellIcon,
   CreditCardIcon,
-  ImageIcon,
+  LockIcon,
   LogOutIcon,
+  MailIcon,
   SettingsIcon,
   UserIcon,
   XIcon,
@@ -28,6 +29,7 @@ import { toast } from "sonner";
 import { logout } from "../auth/auth";
 import { updateUserProfile } from "../auth/user";
 import { usePreferences } from "../hooks/usePreferences";
+import { AvatarUpload } from "./AvatarUpload";
 
 export type AccountSettingsSection = "profile" | "preferences";
 
@@ -36,6 +38,7 @@ export type AccountSettingsDialogProps = {
   onOpenChange: (open: boolean) => void;
   currentUsername: string;
   currentAvatarUrl: string;
+  currentEmail: string;
   onProfileUpdated: () => Promise<void>;
   initialSection?: AccountSettingsSection;
 };
@@ -190,11 +193,13 @@ const SaveBar = ({
 const ProfilePanel = ({
   currentUsername,
   currentAvatarUrl,
+  currentEmail,
   onProfileUpdated,
   onClose,
 }: {
   currentUsername: string;
   currentAvatarUrl: string;
+  currentEmail: string;
   onProfileUpdated: () => Promise<void>;
   onClose: () => void;
 }) => {
@@ -227,8 +232,6 @@ const ProfilePanel = ({
     }
   };
 
-  const initial = (username || "?").charAt(0).toUpperCase();
-
   return (
     <>
       <div className="px-6 pt-2 pb-6 overflow-y-auto flex-1 space-y-6">
@@ -240,12 +243,12 @@ const ProfilePanel = ({
         </div>
 
         <div className="flex items-center gap-4">
-          <Avatar className="h-16 w-16">
-            <AvatarImage src={avatarUrl} alt={username} />
-            <AvatarFallback className="bg-zinc-800 text-zinc-300 text-xl font-semibold">
-              {initial}
-            </AvatarFallback>
-          </Avatar>
+          <AvatarUpload
+            value={avatarUrl}
+            onChange={setAvatarUrl}
+            username={username}
+            disabled={loading}
+          />
           <div className="min-w-0">
             <div className="text-sm font-medium text-zinc-100 truncate">
               {username || "—"}
@@ -274,25 +277,35 @@ const ProfilePanel = ({
 
         <div className="space-y-2">
           <Label
-            htmlFor="avatarUrl"
+            htmlFor="email"
             className="text-sm font-medium text-zinc-200 flex items-center gap-1.5"
           >
-            <ImageIcon className="size-3.5 text-zinc-500" />
-            Avatar URL
+            <MailIcon className="size-3.5 text-zinc-500" />
+            Email
           </Label>
           <Input
-            id="avatarUrl"
-            value={avatarUrl}
-            onChange={(e) => {
-              return setAvatarUrl(e.target.value);
-            }}
-            placeholder="https://example.com/avatar.jpg"
-            disabled={loading}
-            className="font-mono text-sm"
+            id="email"
+            value={currentEmail}
+            disabled
+            className="text-zinc-500"
           />
-          <p className="text-xs text-zinc-500">
-            Enter a valid image URL. Leave blank to use your initials.
-          </p>
+        </div>
+
+        <div className="space-y-2">
+          <Label
+            htmlFor="password"
+            className="text-sm font-medium text-zinc-200 flex items-center gap-1.5"
+          >
+            <LockIcon className="size-3.5 text-zinc-500" />
+            Password
+          </Label>
+          <Input
+            id="password"
+            type="password"
+            value="placeholder"
+            disabled
+            className="text-zinc-500"
+          />
         </div>
       </div>
 
@@ -546,6 +559,7 @@ export const AccountSettingsDialog = ({
   onOpenChange,
   currentUsername,
   currentAvatarUrl,
+  currentEmail,
   onProfileUpdated,
   initialSection = "profile",
 }: AccountSettingsDialogProps) => {
@@ -566,6 +580,7 @@ export const AccountSettingsDialog = ({
         <ProfilePanel
           currentUsername={currentUsername}
           currentAvatarUrl={currentAvatarUrl}
+          currentEmail={currentEmail}
           onProfileUpdated={onProfileUpdated}
           onClose={onClose}
         />
@@ -585,6 +600,7 @@ export const AccountSettingsDialog = ({
       <DialogContent
         className="sm:max-w-2xl p-0 gap-0 overflow-hidden bg-zinc-900 border-zinc-800"
         showCloseButton={false}
+        aria-describedby={undefined}
       >
         <DialogTitle className="sr-only">Account Settings</DialogTitle>
         <div
