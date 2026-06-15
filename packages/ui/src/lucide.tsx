@@ -27,6 +27,8 @@ export const CommandIcon = Lucide.Command;
 export const FileUpIcon = Lucide.FileUp
 export const SquareSlashIcon = Lucide.SquareSlash;
 export const ArrowUpRightIcon = Lucide.ArrowUpRightIcon;
+export const ArrowRightIcon = Lucide.ArrowRight;
+export const Link2Icon = Lucide.Link2;
 export const IconFolderCode = Lucide.FolderCode;
 export const CheckCircle2Icon = Lucide.CheckCircle2;
 export const ShieldIcon = Lucide.Shield;
@@ -42,5 +44,18 @@ export const ChevronRightIcon = Lucide.ChevronRight;
 export const XIcon = Lucide.X;
 export const GitBranchIcon = Lucide.GitBranch;
 export const ArchiveIcon = Lucide.Archive;
+export const UserIcon = Lucide.User;
+export const ImageIcon = Lucide.Image;
+export const CopyIcon = Lucide.Copy;
+export const TerminalIcon = Lucide.Terminal;
+export const DownloadIcon = Lucide.Download;
+export const ActivityIcon = Lucide.Activity;
+export const RouteIcon = Lucide.Route;
+export const FileTextIcon = Lucide.FileText;
+export const FileCode2Icon = Lucide.FileCode2;
+export const PencilIcon = Lucide.Pencil;
+export const CameraIcon = Lucide.Camera;
+export const MailIcon = Lucide.Mail;
+export const LockIcon = Lucide.Lock;
 
 export type { LucideIcon } from "lucide-react";

@@ -20,6 +20,7 @@ interface Project {
 interface Props {
   project: Project;
   summary?: ProjectSummary;
+  timestamps?: "relative" | "exact";
 }
 
 const formatRelativeDate = (iso: string): string => {
@@ -36,6 +37,14 @@ const formatRelativeDate = (iso: string): string => {
   return `${Math.floor(days / 365)}y ago`;
 };
 
+const formatExactDate = (iso: string): string => {
+  return new Date(iso).toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+};
+
 const healthColor = (h: number) => {
   if (h >= 85) return "text-teal-400";
   if (h >= 70) return "text-yellow-400";
@@ -48,7 +57,11 @@ const healthDot = (h: number) => {
   return "bg-red-400";
 };
 
-export const ProjectCard = ({ project, summary }: Props) => {
+export const ProjectCard = ({
+  project,
+  summary,
+  timestamps = "relative",
+}: Props) => {
   const isArchived = summary?.status === "archived";
   const isSetup = summary?.status === "setup";
   const lastActive = summary?.last_activity_at ?? project.created_at;
@@ -92,7 +105,9 @@ export const ProjectCard = ({ project, summary }: Props) => {
               )}
               <span className="flex items-center gap-1">
                 <ClockIcon className="size-3" />
-                {formatRelativeDate(lastActive)}
+                {timestamps === "exact"
+                  ? formatExactDate(lastActive)
+                  : formatRelativeDate(lastActive)}
               </span>
             </div>
           </div>
@@ -138,7 +153,9 @@ export const ProjectCard = ({ project, summary }: Props) => {
                   <span className="text-foreground">
                     {summary.decisions_count}
                   </span>{" "}
-                  <span className="text-zinc-600">{summary.decisions_count === 1 ? "decision" : "decisions"}</span>
+                  <span className="text-zinc-600">
+                    {summary.decisions_count === 1 ? "decision" : "decisions"}
+                  </span>
                 </span>
               )}
           </div>
