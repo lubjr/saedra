@@ -954,19 +954,25 @@ $ saedra review
      Detail:   Import of @repo/db-connector found on line 3
      Decision: DEC-2026-03-04-use-document-type-fie
 
+  ⚡  WARNING  apps/api/src/routes/teams.ts
+     Import pattern is unusual but no direct rule applies.
+     Relates to: RULE-2026-03-23-controllers-cannot-impor — Controllers cannot import db-connector directly
+     Detail:     Indirect dependency on db-connector via a shared utility — worth reviewing
+
   ✓  OK  packages/db-queries/src/teams.ts
      New module follows the existing db-queries pattern.
-
-  ✓  OK  apps/api/src/routes/teams.ts
-     Route follows the existing controller structure.
 
   ✓  OK  packages/project-service/src/index.ts
      No architectural concerns.
 
   ──────────────────────────────────────────────────
 
-  Result: 1 violation, 3 ok — review before opening PR
+  Result: 1 violation, 1 warning, 2 ok — review before opening PR
 ```
+
+Reviews are capped at **20 files** per run. If the diff exceeds that, only the first 20 files are analyzed and the output notes how many were skipped. Individual file diffs are also truncated if they exceed 3000 characters — the output warns when this happens and results for that file may be incomplete.
+
+After each review, results are saved to the project on the server (branch, file list, violation count). This happens silently and is skipped when using `--offline`.
 
 #### `saedra review --staged`
 
