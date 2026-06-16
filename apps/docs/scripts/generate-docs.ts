@@ -63,10 +63,24 @@ const CLI_GROUPS: SectionGroup[] = [
     h3Prefixes: ["`saedra memory"],
   },
   {
+    output: "cli/context",
+    title: "Context & Analysis",
+    description:
+      "Print and share architecture context for AI prompts and onboarding",
+    h3Prefixes: ["`saedra context`", "`saedra explain`", "`saedra timeline`"],
+  },
+  {
     output: "cli/ai",
     title: "AI Commands",
     description: "Configure and use AI-powered features",
     h3Prefixes: ["`saedra ai", "`saedra --version`", "`saedra --help`"],
+  },
+  {
+    output: "cli/review",
+    title: "Architecture Review",
+    description:
+      "Validate diffs against violation rules and architectural decisions",
+    h3Prefixes: ["`saedra review`"],
   },
   {
     output: "cli/development",
@@ -152,6 +166,22 @@ const processCLI = async (): Promise<OutputFile[]> => {
       description: group.description,
       body: bodyParts.join("\n\n"),
     });
+  }
+
+  const allPrefixes = CLI_GROUPS.flatMap((g) => {
+    return g.h3Prefixes ?? [];
+  });
+  const uncovered = [...h3Sections.keys()].filter((heading) => {
+    return !allPrefixes.some((prefix) => {
+      return heading.startsWith(prefix);
+    });
+  });
+  if (uncovered.length > 0) {
+    console.warn(
+      `\n[warn] ${uncovered.length} command(s) in CLI.md not mapped to any page:`,
+    );
+    for (const h of uncovered) console.warn(`  - \`${h}\``);
+    console.warn(`  Add them to CLI_GROUPS in scripts/generate-docs.ts\n`);
   }
 
   return outputs;
