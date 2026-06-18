@@ -58,6 +58,9 @@ export const OverviewHeader = ({ projectName, summary }: Props) => {
           Project overview
         </p>
         <h1 className="text-3xl font-semibold tracking-tight">Overview</h1>
+        <p className="text-sm text-zinc-400">
+          Project state, decisions, and recent activity at a glance.
+        </p>
         <div className="flex items-center gap-2 flex-wrap">
           {summary && <StatusChip status={summary.status} />}
           {summary?.last_review_branch && (

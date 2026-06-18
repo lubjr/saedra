@@ -43,7 +43,16 @@ export const ReviewsHeader = ({ projectId, reviews }: Props) => {
           Project reviews
         </p>
         <h1 className="text-3xl font-semibold tracking-tight">Reviews</h1>
+        <p className="text-sm text-zinc-400">
+          Architecture validation results from CLI reviews.
+        </p>
         <div className="flex items-center gap-2 flex-wrap">
+          {!verdict && (
+            <span className="flex items-center gap-1.5 rounded-full bg-zinc-950 border border-zinc-800 px-2.5 py-0.5 font-mono text-xs text-zinc-300">
+              <span className="size-1.5 rounded-full bg-yellow-400" />
+              setup
+            </span>
+          )}
           {verdict && (
             <span
               className={`flex items-center gap-1.5 rounded-full bg-zinc-950 border border-zinc-800 px-2.5 py-0.5 font-mono text-xs ${verdict.color}`}
