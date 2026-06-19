@@ -272,12 +272,16 @@ export const NavProjects = ({
               );
             })}
             <SidebarMenuItem>
-              <Link href="/dashboard/new-project">
-                <SidebarMenuButton className="cursor-pointer">
+              <SidebarMenuButton
+                asChild
+                className="cursor-pointer"
+                isActive={pathname === "/dashboard/new-project"}
+              >
+                <Link href="/dashboard/new-project">
                   <PlusIcon />
                   <span>New Project</span>
-                </SidebarMenuButton>
-              </Link>
+                </Link>
+              </SidebarMenuButton>
             </SidebarMenuItem>
           </>
         )}
