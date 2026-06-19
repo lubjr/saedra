@@ -13,6 +13,7 @@ import {
   SidebarMenuItem,
 } from "@repo/ui/sidebar";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 import { useProjects } from "../app/contexts/ProjectsContext";
 import { useUser } from "../app/contexts/UserContext";
@@ -48,6 +49,7 @@ const data = {
 export const AppSidebar = () => {
   const { user: userData, isLoading: isUserLoading, refreshUser } = useUser();
   const { projects, isLoading } = useProjects();
+  const pathname = usePathname();
 
   const user = {
     name: userData?.username || " ",
@@ -94,7 +96,7 @@ export const AppSidebar = () => {
               {items.map((item) => {
                 return (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild>
+                    <SidebarMenuButton asChild isActive={pathname === item.url}>
                       <Link href={item.url}>
                         <item.icon />
                         <span>{item.title}</span>
