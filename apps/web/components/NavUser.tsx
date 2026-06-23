@@ -87,7 +87,7 @@ export const NavUser = ({
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="bg-zinc-800 border-zinc-700 w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+            className="bg-popover border-border w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
             side={isMobile ? "bottom" : "right"}
             align="end"
             sideOffset={4}
@@ -105,23 +105,23 @@ export const NavUser = ({
               </div>
             </DropdownMenuLabel>
 
-            <DropdownMenuSeparator className="bg-zinc-700" />
+            <DropdownMenuSeparator className="bg-border" />
 
             <DropdownMenuGroup>
               <DropdownMenuItem
                 disabled
-                className="hover:bg-zinc-700 focus:bg-zinc-700 cursor-pointer"
+                className="hover:bg-muted focus:bg-muted cursor-pointer"
               >
                 <SparklesIcon />
                 Upgrade to Pro
               </DropdownMenuItem>
             </DropdownMenuGroup>
 
-            <DropdownMenuSeparator className="bg-zinc-700" />
+            <DropdownMenuSeparator className="bg-border" />
 
             <DropdownMenuGroup>
               <DropdownMenuItem
-                className="hover:bg-zinc-700 focus:bg-zinc-700 cursor-pointer"
+                className="hover:bg-muted focus:bg-muted cursor-pointer"
                 onSelect={() => {
                   setSection("profile");
                   setAccountDialogOpen(true);
@@ -132,20 +132,20 @@ export const NavUser = ({
               </DropdownMenuItem>
               <DropdownMenuItem
                 disabled
-                className="hover:bg-zinc-700 focus:bg-zinc-700 cursor-pointer"
+                className="hover:bg-muted focus:bg-muted cursor-pointer"
               >
                 <BellIcon />
                 Notifications
               </DropdownMenuItem>
               <DropdownMenuItem
                 disabled
-                className="hover:bg-zinc-700 focus:bg-zinc-700 cursor-pointer"
+                className="hover:bg-muted focus:bg-muted cursor-pointer"
               >
                 <CreditCardIcon />
                 Billing
               </DropdownMenuItem>
               <DropdownMenuItem
-                className="hover:bg-zinc-700 focus:bg-zinc-700 cursor-pointer"
+                className="hover:bg-muted focus:bg-muted cursor-pointer"
                 onSelect={() => {
                   setSection("preferences");
                   setAccountDialogOpen(true);
@@ -156,10 +156,10 @@ export const NavUser = ({
               </DropdownMenuItem>
             </DropdownMenuGroup>
 
-            <DropdownMenuSeparator className="bg-zinc-700" />
+            <DropdownMenuSeparator className="bg-border" />
 
             <DropdownMenuItem
-              className="hover:bg-zinc-700 focus:bg-zinc-700 cursor-pointer"
+              className="hover:bg-muted focus:bg-muted cursor-pointer"
               onClick={async () => {
                 await logout();
                 window.location.reload();

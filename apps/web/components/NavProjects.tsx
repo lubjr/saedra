@@ -232,27 +232,27 @@ export const NavProjects = ({
                       </SidebarMenuAction>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
-                      className="bg-zinc-800 border-zinc-700 w-48"
+                      className="bg-popover border-border w-48"
                       side={isMobile ? "bottom" : "right"}
                       align={isMobile ? "end" : "start"}
                     >
                       <DropdownMenuItem
                         disabled
-                        className="hover:bg-zinc-700 focus:bg-zinc-700"
+                        className="hover:bg-muted focus:bg-muted"
                       >
                         <FolderIcon className="text-muted-foreground" />
                         <span>View Project</span>
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         disabled
-                        className="hover:bg-zinc-700 focus:bg-zinc-700"
+                        className="hover:bg-muted focus:bg-muted"
                       >
                         <ShareIcon className="text-muted-foreground" />
                         <span>Share Project</span>
                       </DropdownMenuItem>
-                      <DropdownMenuSeparator className="bg-zinc-700" />
+                      <DropdownMenuSeparator className="bg-border" />
                       <DropdownMenuItem
-                        className="hover:bg-zinc-700 focus:bg-zinc-700"
+                        className="hover:bg-muted focus:bg-muted"
                         onClick={async () => {
                           const isCurrentProject =
                             pathname === `/dashboard/project/${item.id}`;
