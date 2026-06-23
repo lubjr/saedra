@@ -72,7 +72,7 @@ export const AppSidebar = () => {
 
   return (
     <Sidebar variant="floating">
-      <SidebarHeader className="bg-zinc-900 rounded-lg">
+      <SidebarHeader className="bg-sidebar rounded-lg">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
@@ -89,7 +89,7 @@ export const AppSidebar = () => {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent className="bg-zinc-900 rounded-lg">
+      <SidebarContent className="bg-sidebar rounded-lg">
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -111,7 +111,7 @@ export const AppSidebar = () => {
         <NavProjects projects={projectsData} isLoading={isLoading} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
-      <SidebarFooter className="bg-zinc-900 rounded-lg">
+      <SidebarFooter className="bg-sidebar rounded-lg">
         <NavUser
           user={user}
           isLoading={isUserLoading}

@@ -8,7 +8,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <main>
       <ClientWrapper>
-        <SidebarProvider className="bg-zinc-950">
+        <SidebarProvider className="bg-background">
           <AppSidebar />
           <SidebarInset className="h-dvh overflow-hidden flex flex-col">
             <HeaderPanel />
