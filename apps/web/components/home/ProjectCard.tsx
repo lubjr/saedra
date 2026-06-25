@@ -46,15 +46,15 @@ const formatExactDate = (iso: string): string => {
 };
 
 const healthColor = (h: number) => {
-  if (h >= 85) return "text-teal-400";
-  if (h >= 70) return "text-yellow-400";
-  return "text-red-400";
+  if (h >= 85) return "text-brand";
+  if (h >= 70) return "text-status-warning";
+  return "text-status-error";
 };
 
 const healthDot = (h: number) => {
-  if (h >= 85) return "bg-teal-400";
-  if (h >= 70) return "bg-yellow-400";
-  return "bg-red-400";
+  if (h >= 85) return "bg-brand";
+  if (h >= 70) return "bg-status-warning";
+  return "bg-status-error";
 };
 
 export const ProjectCard = ({
@@ -69,22 +69,22 @@ export const ProjectCard = ({
   return (
     <Link href={`/dashboard/project/${project.id}`} className="block">
       <Card
-        className={`bg-zinc-900 border border-zinc-800 hover:bg-zinc-800/60 hover:border-zinc-700 hover:-translate-y-px transition rounded-xl cursor-pointer h-full p-0 py-0 gap-0 shadow-none ${isArchived ? "opacity-60" : ""} ${isSetup ? "border-dashed border-zinc-700" : ""}`}
+        className={`bg-card border border-border hover:bg-muted/60 hover:border-border-emphasis hover:-translate-y-px transition rounded-xl cursor-pointer h-full p-0 py-0 gap-0 shadow-none ${isArchived ? "opacity-60" : ""} ${isSetup ? "border-dashed border-border-emphasis" : ""}`}
       >
         <div className="p-[18px] flex flex-col gap-3.5 h-full">
           {/* Top row */}
           <div className="flex items-start justify-between">
-            <div className="size-7 rounded-md bg-teal-500/10 text-teal-400 grid place-items-center shrink-0">
+            <div className="size-7 rounded-md bg-brand-fill text-brand grid place-items-center shrink-0">
               <FolderIcon className="size-4" />
             </div>
             <div className="flex items-center gap-1.5 flex-wrap justify-end">
               {isArchived && (
-                <span className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400 border border-zinc-700">
+                <span className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-muted text-muted-foreground border border-border-emphasis">
                   <ArchiveIcon className="size-3" /> Archived
                 </span>
               )}
               {isSetup && (
-                <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-teal-500/10 text-teal-400 border border-teal-500/20">
+                <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-brand-fill text-brand border border-brand-stroke">
                   Setup pending
                 </span>
               )}
@@ -113,11 +113,11 @@ export const ProjectCard = ({
           </div>
 
           {/* Footer */}
-          <div className="pt-3 border-t border-zinc-800 flex items-center justify-between">
+          <div className="pt-3 border-t border-border flex items-center justify-between">
             {isSetup ? (
-              <span className="flex items-center gap-1 text-[11px] text-teal-400 font-mono">
+              <span className="flex items-center gap-1 text-[11px] text-brand font-mono">
                 Run{" "}
-                <code className="bg-teal-500/10 px-1 rounded">saedra init</code>{" "}
+                <code className="bg-brand-fill px-1 rounded">saedra init</code>{" "}
                 to start
                 <ArrowUpRightIcon className="size-3 shrink-0" />
               </span>
@@ -131,19 +131,19 @@ export const ProjectCard = ({
                 {summary.health}
                 {summary.health_delta !== 0 && (
                   <em
-                    className={`not-italic text-[10px] px-1 rounded ${summary.health_delta > 0 ? "bg-teal-500/10 text-teal-400" : "bg-red-500/10 text-red-400"}`}
+                    className={`not-italic text-[10px] px-1 rounded ${summary.health_delta > 0 ? "bg-brand-fill text-brand" : "bg-status-error-fill text-status-error"}`}
                   >
                     {summary.health_delta > 0 ? "+" : ""}
                     {summary.health_delta}
                   </em>
                 )}
-                <span className="text-zinc-600">health</span>
+                <span className="text-muted-foreground">health</span>
               </span>
             ) : (
-              <span className="flex items-center gap-1.5 text-[11px] text-zinc-500 font-mono">
-                <span className="size-1.5 rounded-full bg-zinc-700" />
+              <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground font-mono">
+                <span className="size-1.5 rounded-full bg-muted-foreground/40" />
                 no review yet
-                <span className="text-zinc-700">health</span>
+                <span className="text-muted-foreground/40">health</span>
               </span>
             )}
             {!isSetup &&
@@ -153,7 +153,7 @@ export const ProjectCard = ({
                   <span className="text-foreground">
                     {summary.decisions_count}
                   </span>{" "}
-                  <span className="text-zinc-600">
+                  <span className="text-muted-foreground">
                     {summary.decisions_count === 1 ? "decision" : "decisions"}
                   </span>
                 </span>
