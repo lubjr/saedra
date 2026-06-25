@@ -6,9 +6,9 @@ interface Props {
 }
 
 const barColor = (score: number) => {
-  if (score >= 85) return "bg-teal-400";
-  if (score >= 70) return "bg-yellow-400";
-  return "bg-red-400";
+  if (score >= 85) return "bg-brand";
+  if (score >= 70) return "bg-status-warning";
+  return "bg-status-error";
 };
 
 export const MetricsPreview = ({ summary }: Props) => {
@@ -23,8 +23,8 @@ export const MetricsPreview = ({ summary }: Props) => {
       {/* Metric cards row */}
       <div className="grid grid-cols-2 gap-2">
         {/* Health card */}
-        <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-3.5 flex flex-col gap-2">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+        <div className="bg-card border border-border rounded-lg p-3.5 flex flex-col gap-2">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
             Health
           </p>
           <div className="flex items-baseline gap-1.5">
@@ -33,7 +33,7 @@ export const MetricsPreview = ({ summary }: Props) => {
             </span>
             {health_delta !== 0 && (
               <span
-                className={`text-xs px-1.5 py-0.5 rounded font-mono ${health_delta > 0 ? "bg-teal-500/10 text-teal-400" : "bg-red-500/10 text-red-400"}`}
+                className={`text-xs px-1.5 py-0.5 rounded font-mono ${health_delta > 0 ? "bg-brand-fill text-brand" : "bg-status-error-fill text-status-error"}`}
               >
                 {health_delta > 0 ? "+" : ""}
                 {health_delta}
@@ -43,25 +43,30 @@ export const MetricsPreview = ({ summary }: Props) => {
           {health_history.length >= 2 ? (
             <Sparkline data={health_history} />
           ) : (
-            <p className="text-[11px] text-zinc-600">Not enough data yet</p>
+            <p className="text-[11px] text-muted-foreground">
+              Not enough data yet
+            </p>
           )}
         </div>
 
         {/* Reviews card */}
-        <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-3.5 flex flex-col gap-2">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+        <div className="bg-card border border-border rounded-lg p-3.5 flex flex-col gap-2">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
             Reviews
           </p>
           <p className="text-sm font-mono">
             <span className="text-foreground font-semibold">
               {cleanReviews}
             </span>
-            <span className="text-zinc-500"> / {totalReviews} clean</span>
+            <span className="text-muted-foreground">
+              {" "}
+              / {totalReviews} clean
+            </span>
           </p>
           {totalReviews > 0 ? (
             cleanReviews === totalReviews ? (
-              <span className="flex items-center gap-1.5 text-[11px] text-teal-400 font-mono">
-                <span className="size-1.5 rounded-full bg-teal-400" />
+              <span className="flex items-center gap-1.5 text-[11px] text-brand font-mono">
+                <span className="size-1.5 rounded-full bg-brand" />
                 All clean
               </span>
             ) : (
@@ -78,20 +83,20 @@ export const MetricsPreview = ({ summary }: Props) => {
               </div>
             )
           ) : (
-            <p className="text-[11px] text-zinc-600">No reviews yet</p>
+            <p className="text-[11px] text-muted-foreground">No reviews yet</p>
           )}
         </div>
       </div>
 
       {/* Quick stats */}
-      <div className="flex items-center gap-6 pt-3 border-t border-zinc-800 text-[11px] font-mono">
+      <div className="flex items-center gap-6 pt-3 border-t border-border text-[11px] font-mono">
         <div>
           <strong className="text-foreground">{decisions_count}</strong>{" "}
-          <span className="text-zinc-500">decisions</span>
+          <span className="text-muted-foreground">decisions</span>
         </div>
         <div>
           <strong className="text-foreground">{totalReviews}</strong>{" "}
-          <span className="text-zinc-500">reviews</span>
+          <span className="text-muted-foreground">reviews</span>
         </div>
       </div>
     </div>

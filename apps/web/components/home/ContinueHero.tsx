@@ -64,9 +64,9 @@ export const ContinueHero = ({ project, summary, decisions }: Props) => {
   const hasDecisions = !!decisions && decisions.length > 0;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-[1.05fr_1fr] rounded-2xl overflow-hidden border border-zinc-800">
+    <div className="grid grid-cols-1 md:grid-cols-[1.05fr_1fr] rounded-2xl overflow-hidden border border-border">
       {/* Hero side */}
-      <div className="relative bg-zinc-900 p-7 md:p-8">
+      <div className="relative bg-card p-7 md:p-8">
         <div
           className="pointer-events-none absolute inset-0"
           style={{
@@ -75,7 +75,7 @@ export const ContinueHero = ({ project, summary, decisions }: Props) => {
           }}
         />
         <div className="relative flex flex-col gap-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
             Continue where you left off
           </p>
 
@@ -84,17 +84,17 @@ export const ContinueHero = ({ project, summary, decisions }: Props) => {
           </h2>
 
           <div className="flex flex-wrap gap-2">
-            <span className="flex items-center gap-1.5 font-mono text-xs px-2.5 py-1 rounded-full text-teal-400 bg-teal-500/10 border border-teal-500/20">
+            <span className="flex items-center gap-1.5 font-mono text-xs px-2.5 py-1 rounded-full text-brand bg-brand-fill border border-brand-stroke">
               <span className="size-1.5 rounded-full bg-teal-400 shadow-[0_0_8px_#2dd4bf] animate-pulse" />
               Active
             </span>
             {summary?.last_review_branch && (
-              <span className="flex items-center gap-1.5 font-mono text-xs px-2.5 py-1 rounded-full bg-zinc-950 border border-zinc-800 text-muted-foreground">
+              <span className="flex items-center gap-1.5 font-mono text-xs px-2.5 py-1 rounded-full bg-background border border-border text-muted-foreground">
                 <GitBranchIcon className="size-3" />
                 {summary.last_review_branch}
               </span>
             )}
-            <span className="flex items-center gap-1.5 font-mono text-xs px-2.5 py-1 rounded-full bg-zinc-950 border border-zinc-800 text-muted-foreground">
+            <span className="flex items-center gap-1.5 font-mono text-xs px-2.5 py-1 rounded-full bg-background border border-border text-muted-foreground">
               <ShieldIcon className="size-3" />
               {summary ? lastReviewLabel(summary) : "No reviews yet"}
             </span>
@@ -106,7 +106,8 @@ export const ContinueHero = ({ project, summary, decisions }: Props) => {
                 <strong className="text-foreground font-semibold">
                   {summary.decisions_count}
                 </strong>{" "}
-                {summary.decisions_count === 1 ? "decision" : "decisions"} logged · architectural health{" "}
+                {summary.decisions_count === 1 ? "decision" : "decisions"}{" "}
+                logged · architectural health{" "}
                 <strong className="text-foreground font-semibold">
                   {summary.health}
                 </strong>
@@ -114,7 +115,7 @@ export const ContinueHero = ({ project, summary, decisions }: Props) => {
             ) : (
               <>
                 Run{" "}
-                <code className="text-teal-400 font-mono text-xs bg-teal-500/10 px-1.5 py-0.5 rounded">
+                <code className="text-brand font-mono text-xs bg-brand-fill px-1.5 py-0.5 rounded">
                   saedra review
                 </code>{" "}
                 to check architectural health and surface pending decisions.
@@ -144,7 +145,7 @@ export const ContinueHero = ({ project, summary, decisions }: Props) => {
       </div>
 
       {/* Preview side */}
-      <div className="bg-zinc-950 p-6 flex flex-col">
+      <div className="bg-background p-6 flex flex-col">
         {/* Preview header with tabs */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex gap-1">
@@ -152,7 +153,7 @@ export const ContinueHero = ({ project, summary, decisions }: Props) => {
               onClick={() => {
                 return setMode("decisions");
               }}
-              className={`text-[11px] px-2.5 py-1 rounded transition-colors cursor-pointer ${mode === "decisions" ? "bg-zinc-800 border border-zinc-700 text-foreground" : "text-zinc-500 hover:text-foreground"}`}
+              className={`text-[11px] px-2.5 py-1 rounded transition-colors cursor-pointer ${mode === "decisions" ? "bg-muted border border-border-emphasis text-foreground" : "text-muted-foreground hover:text-foreground"}`}
             >
               Decisions
             </button>
@@ -161,7 +162,7 @@ export const ContinueHero = ({ project, summary, decisions }: Props) => {
                 onClick={() => {
                   return setMode("metrics");
                 }}
-                className={`text-[11px] px-2.5 py-1 rounded transition-colors cursor-pointer ${mode === "metrics" ? "bg-zinc-800 border border-zinc-700 text-foreground" : "text-zinc-500 hover:text-foreground"}`}
+                className={`text-[11px] px-2.5 py-1 rounded transition-colors cursor-pointer ${mode === "metrics" ? "bg-muted border border-border-emphasis text-foreground" : "text-muted-foreground hover:text-foreground"}`}
               >
                 Metrics
               </button>
@@ -170,13 +171,13 @@ export const ContinueHero = ({ project, summary, decisions }: Props) => {
           {mode === "decisions" && hasDecisions && (
             <Link
               href={`/dashboard/project/${project.id}/decisions`}
-              className="text-xs text-teal-400 hover:text-teal-300 flex items-center gap-1 transition-colors"
+              className="text-xs text-brand hover:text-brand/80 flex items-center gap-1 transition-colors"
             >
               View all <ArrowUpRightIcon className="size-3" />
             </Link>
           )}
           {mode === "metrics" && (
-            <span className="text-[11px] bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded font-mono">
+            <span className="text-[11px] bg-muted text-muted-foreground px-2 py-0.5 rounded font-mono">
               7d
             </span>
           )}
