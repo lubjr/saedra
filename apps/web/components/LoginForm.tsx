@@ -57,12 +57,12 @@ export const LoginForm = ({
 
   return (
     <div className={cn("flex flex-col gap-4", className)} {...props}>
-      <Card className="bg-zinc-800 border-2 border-zinc-700 rounded-2xl shadow-sm hover:shadow-md hover:shadow-teal-500/20 transition-all duration-300">
+      <Card className="bg-muted border-2 border-border-emphasis rounded-2xl shadow-sm hover:shadow-md hover:shadow-brand/20 transition-all duration-300">
         <CardHeader className="text-center pb-0">
           <CardTitle className="text-2xl font-bold text-white">
             Login to your account
           </CardTitle>
-          <CardDescription className="text-zinc-400">
+          <CardDescription className="text-muted-foreground">
             Enter your email below to sign your account
           </CardDescription>
         </CardHeader>
@@ -70,7 +70,7 @@ export const LoginForm = ({
           <form onSubmit={handleLogin} noValidate>
             <FieldGroup>
               <Field>
-                <FieldLabel htmlFor="email" className="text-zinc-300">
+                <FieldLabel htmlFor="email" className="text-foreground/80">
                   Email
                 </FieldLabel>
                 <Input
@@ -83,15 +83,18 @@ export const LoginForm = ({
                   }}
                   required
                   disabled={loading}
-                  className="bg-zinc-700/50 border-zinc-600 focus:border-teal-500 focus:ring-teal-500/20 text-white placeholder:text-zinc-500 transition-all duration-300"
+                  className="bg-muted/50 border-border-emphasis focus:border-brand-stroke focus:ring-brand/20 text-foreground placeholder:text-muted-foreground/50 transition-all duration-300"
                 />
               </Field>
               <Field>
                 <div className="flex items-center justify-between">
-                  <FieldLabel htmlFor="password" className="text-zinc-300">
+                  <FieldLabel htmlFor="password" className="text-foreground/80">
                     Password
                   </FieldLabel>
-                  <a href="#" className="text-sm text-zinc-300 hover:underline">
+                  <a
+                    href="#"
+                    className="text-sm text-foreground/80 hover:underline"
+                  >
                     Forgot your password?
                   </a>
                 </div>
@@ -105,7 +108,7 @@ export const LoginForm = ({
                   }}
                   required
                   disabled={loading}
-                  className="bg-zinc-700/50 border-zinc-600 focus:border-teal-500 focus:ring-teal-500/20 text-white placeholder:text-zinc-500 transition-all duration-300"
+                  className="bg-muted/50 border-border-emphasis focus:border-brand-stroke focus:ring-brand/20 text-foreground placeholder:text-muted-foreground/50 transition-all duration-300"
                 />
               </Field>
               <Field className="mt-1">
@@ -113,21 +116,21 @@ export const LoginForm = ({
                   Login
                 </Button>
               </Field>
-              <div className="text-center text-sm text-zinc-500 -mt-1">
+              <div className="text-center text-sm text-muted-foreground -mt-1">
                 Don&apos;t have an account?{" "}
                 <a
                   href="/signup"
-                  className="text-zinc-500 hover:text-white underline transition-colors"
+                  className="text-muted-foreground hover:text-foreground underline transition-colors"
                 >
                   Sign up
                 </a>
               </div>
               <div className="relative my-2">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-zinc-700"></div>
+                  <div className="w-full border-t border-border-emphasis"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="bg-zinc-800 px-2 text-zinc-500">
+                  <span className="bg-muted px-2 text-muted-foreground">
                     Or continue with
                   </span>
                 </div>
@@ -159,23 +162,23 @@ export const LoginForm = ({
       <FieldDescription className="px-6 text-center">
         <Link
           href="/"
-          className="text-zinc-400 hover:text-white underline transition-colors"
+          className="text-muted-foreground hover:text-foreground underline transition-colors"
         >
           ← Back to Home
         </Link>
       </FieldDescription>
-      <FieldDescription className="px-6 text-center text-zinc-500">
+      <FieldDescription className="px-6 text-center text-muted-foreground">
         By clicking continue, you agree to our{" "}
         <a
           href="#"
-          className="text-zinc-400 hover:text-white underline transition-colors"
+          className="text-muted-foreground hover:text-foreground underline transition-colors"
         >
           Terms of Service
         </a>{" "}
         and{" "}
         <a
           href="#"
-          className="text-zinc-400 hover:text-white underline transition-colors"
+          className="text-muted-foreground hover:text-foreground underline transition-colors"
         >
           Privacy Policy
         </a>

@@ -69,12 +69,12 @@ export const SignUpForm = ({
 
   return (
     <div className={cn("flex flex-col gap-4", className)} {...props}>
-      <Card className="bg-zinc-800 border-2 border-zinc-700 rounded-2xl shadow-sm hover:shadow-md hover:shadow-teal-500/20 transition-all duration-300">
+      <Card className="bg-muted border-2 border-border-emphasis rounded-2xl shadow-sm hover:shadow-md hover:shadow-brand/20 transition-all duration-300">
         <CardHeader className="text-center pb-0">
           <CardTitle className="text-2xl font-bold text-white">
             Create an account
           </CardTitle>
-          <CardDescription className="text-zinc-400">
+          <CardDescription className="text-muted-foreground">
             Enter your information below to create your account
           </CardDescription>
         </CardHeader>
@@ -82,7 +82,7 @@ export const SignUpForm = ({
           <form onSubmit={handleSignUp} noValidate>
             <FieldGroup>
               <Field>
-                <FieldLabel htmlFor="email" className="text-zinc-300">
+                <FieldLabel htmlFor="email" className="text-foreground/80">
                   Email
                 </FieldLabel>
                 <Input
@@ -95,15 +95,15 @@ export const SignUpForm = ({
                   }}
                   required
                   disabled={loading}
-                  className="bg-zinc-700/50 border-zinc-600 focus:border-teal-500 focus:ring-teal-500/20 text-white placeholder:text-zinc-500 transition-all duration-300"
+                  className="bg-muted/50 border-border-emphasis focus:border-brand-stroke focus:ring-brand/20 text-foreground placeholder:text-muted-foreground/50 transition-all duration-300"
                 />
-                <FieldDescription className="text-zinc-500">
+                <FieldDescription className="text-muted-foreground">
                   We&apos;ll use this to contact you. We will not share your
                   email with anyone else.
                 </FieldDescription>
               </Field>
               <Field>
-                <FieldLabel htmlFor="password" className="text-zinc-300">
+                <FieldLabel htmlFor="password" className="text-foreground/80">
                   Password
                 </FieldLabel>
                 <Input
@@ -116,14 +116,17 @@ export const SignUpForm = ({
                   }}
                   required
                   disabled={loading}
-                  className="bg-zinc-700/50 border-zinc-600 focus:border-teal-500 focus:ring-teal-500/20 text-white placeholder:text-zinc-500 transition-all duration-300"
+                  className="bg-muted/50 border-border-emphasis focus:border-brand-stroke focus:ring-brand/20 text-foreground placeholder:text-muted-foreground/50 transition-all duration-300"
                 />
-                <FieldDescription className="text-zinc-500">
+                <FieldDescription className="text-muted-foreground">
                   Must be at least 8 characters long.
                 </FieldDescription>
               </Field>
               <Field>
-                <FieldLabel htmlFor="confirmPassword" className="text-zinc-300">
+                <FieldLabel
+                  htmlFor="confirmPassword"
+                  className="text-foreground/80"
+                >
                   Confirm Password
                 </FieldLabel>
                 <Input
@@ -136,9 +139,9 @@ export const SignUpForm = ({
                   }}
                   required
                   disabled={loading}
-                  className="bg-zinc-700/50 border-zinc-600 focus:border-teal-500 focus:ring-teal-500/20 text-white placeholder:text-zinc-500 transition-all duration-300"
+                  className="bg-muted/50 border-border-emphasis focus:border-brand-stroke focus:ring-brand/20 text-foreground placeholder:text-muted-foreground/50 transition-all duration-300"
                 />
-                <FieldDescription className="text-zinc-500">
+                <FieldDescription className="text-muted-foreground">
                   Please confirm your password.
                 </FieldDescription>
               </Field>
@@ -147,11 +150,11 @@ export const SignUpForm = ({
                   Create Account
                 </Button>
               </Field>
-              <div className="text-center text-sm text-zinc-500 -mt-1">
+              <div className="text-center text-sm text-muted-foreground -mt-1">
                 Already have an account?{" "}
                 <Link
                   href="/login"
-                  className="text-zinc-500 hover:text-white underline transition-colors"
+                  className="text-muted-foreground hover:text-foreground underline transition-colors"
                 >
                   Sign in
                 </Link>
