@@ -2,7 +2,7 @@
 import * as React from "react";
 
 export type Preferences = {
-  theme: "system" | "dark";
+  theme: "system" | "dark" | "light";
   density: "comfortable" | "compact";
   reduceMotion: boolean;
   language: "en" | "pt-BR" | "es";
