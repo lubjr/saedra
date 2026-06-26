@@ -42,10 +42,10 @@ export const DangerCard = ({ projectId, projectName }: Props) => {
     >
       <div className="flex items-start justify-between gap-6">
         <div>
-          <div className="text-sm font-semibold text-zinc-100">
+          <div className="text-sm font-semibold text-foreground">
             Delete this project
           </div>
-          <p className="text-sm text-zinc-400 mt-1 max-w-md leading-relaxed">
+          <p className="text-sm text-muted-foreground mt-1 max-w-md leading-relaxed">
             Permanently removes the project, its decisions, reviews and memory.
             Your repository is not touched.
           </p>
@@ -65,17 +65,17 @@ export const DangerCard = ({ projectId, projectName }: Props) => {
       </div>
 
       {confirming && (
-        <div className="mt-5 rounded-lg border border-red-500/20 bg-red-500/[0.04] p-4 space-y-3">
-          <p className="text-sm text-zinc-300">
+        <div className="mt-5 rounded-lg border border-status-error-stroke bg-status-error-fill/40 p-4 space-y-3">
+          <p className="text-sm text-foreground/80">
             Type{" "}
-            <code className="font-mono text-xs bg-red-500/10 text-red-400 px-1.5 py-0.5 rounded">
+            <code className="font-mono text-xs bg-status-error-fill text-status-error px-1.5 py-0.5 rounded">
               {projectName}
             </code>{" "}
             to confirm.
           </p>
           <div className="flex items-center gap-2 max-w-md">
             <input
-              className="font-mono text-sm flex h-9 w-full rounded-md border border-red-500/30 bg-zinc-800/30 px-3 py-1 text-zinc-100 placeholder:text-zinc-500 outline-none focus:border-red-500/50 focus:ring-[3px] focus:ring-red-500/20 transition"
+              className="font-mono text-sm flex h-9 w-full rounded-md border border-status-error-stroke bg-muted/30 px-3 py-1 text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-status-error-stroke/80 focus:ring-[3px] focus:ring-status-error/20 transition"
               placeholder={projectName}
               value={typed}
               onChange={(e) => {

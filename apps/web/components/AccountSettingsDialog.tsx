@@ -56,7 +56,7 @@ const Segmented = ({
 }) => {
   return (
     <div
-      className={`inline-flex rounded-md border border-zinc-800 bg-zinc-950 p-0.5 ${disabled ? "opacity-50" : ""}`}
+      className={`inline-flex rounded-md border border-border bg-background p-0.5 ${disabled ? "opacity-50" : ""}`}
     >
       {options.map((o) => {
         return (
@@ -69,8 +69,8 @@ const Segmented = ({
             disabled={disabled}
             className={`px-2.5 py-1 rounded text-xs font-medium transition ${
               o.value === value
-                ? "bg-zinc-800 text-zinc-100"
-                : "text-zinc-500 hover:text-zinc-300"
+                ? "bg-muted text-foreground"
+                : "text-muted-foreground hover:text-foreground/80"
             } ${disabled ? "cursor-not-allowed" : ""}`}
           >
             {o.label}
@@ -98,7 +98,7 @@ const Switch = ({
       }}
       disabled={disabled}
       className={`relative w-9 h-5 rounded-full transition-colors ${
-        checked ? "bg-teal-600" : "bg-zinc-700"
+        checked ? "bg-brand-solid" : "bg-muted"
       } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
     >
       <span
@@ -120,10 +120,12 @@ const SettingRow = ({
   children: React.ReactNode;
 }) => {
   return (
-    <div className="flex items-center justify-between gap-5 py-3.5 border-b border-zinc-800/70 last:border-0">
+    <div className="flex items-center justify-between gap-5 py-3.5 border-b border-border/70 last:border-0">
       <div className="min-w-0">
-        <div className="text-sm font-medium text-zinc-200">{title}</div>
-        {desc && <div className="text-xs text-zinc-500 mt-0.5">{desc}</div>}
+        <div className="text-sm font-medium text-foreground">{title}</div>
+        {desc && (
+          <div className="text-xs text-muted-foreground mt-0.5">{desc}</div>
+        )}
       </div>
       <div className="shrink-0">{children}</div>
     </div>
@@ -132,7 +134,7 @@ const SettingRow = ({
 
 const GroupHeader = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-500 mb-1">
+    <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground mb-1">
       {children}
     </div>
   );
@@ -146,7 +148,7 @@ const LogoutButton = () => {
         await logout();
         window.location.reload();
       }}
-      className="inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-red-400 transition cursor-pointer"
+      className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-status-error transition cursor-pointer"
     >
       <LogOutIcon className="size-4" />
       Log out
@@ -166,7 +168,7 @@ const SaveBar = ({
   saveDisabled?: boolean;
 }) => {
   return (
-    <div className="flex items-center justify-between border-t border-zinc-800 bg-zinc-950/40 px-6 py-3.5 shrink-0">
+    <div className="flex items-center justify-between border-t border-border bg-background/40 px-6 py-3.5 shrink-0">
       <LogoutButton />
       <div className="flex gap-2">
         <Button
@@ -237,7 +239,7 @@ const ProfilePanel = ({
       <div className="px-6 pt-2 pb-6 overflow-y-auto flex-1 space-y-6">
         <div>
           <h3 className="text-base font-semibold">Profile</h3>
-          <p className="text-sm text-zinc-400 mt-0.5">
+          <p className="text-sm text-muted-foreground mt-0.5">
             Update how you appear across Saedra.
           </p>
         </div>
@@ -250,7 +252,7 @@ const ProfilePanel = ({
             disabled={loading}
           />
           <div className="min-w-0">
-            <div className="text-sm font-medium text-zinc-100 truncate">
+            <div className="text-sm font-medium text-foreground truncate">
               {username || "—"}
             </div>
           </div>
@@ -259,9 +261,9 @@ const ProfilePanel = ({
         <div className="space-y-2">
           <Label
             htmlFor="username"
-            className="text-sm font-medium text-zinc-200 flex items-center gap-1.5"
+            className="text-sm font-medium text-foreground flex items-center gap-1.5"
           >
-            <UserIcon className="size-3.5 text-zinc-500" />
+            <UserIcon className="size-3.5 text-muted-foreground" />
             Username
           </Label>
           <Input
@@ -278,25 +280,25 @@ const ProfilePanel = ({
         <div className="space-y-2">
           <Label
             htmlFor="email"
-            className="text-sm font-medium text-zinc-200 flex items-center gap-1.5"
+            className="text-sm font-medium text-foreground flex items-center gap-1.5"
           >
-            <MailIcon className="size-3.5 text-zinc-500" />
+            <MailIcon className="size-3.5 text-muted-foreground" />
             Email
           </Label>
           <Input
             id="email"
             value={currentEmail}
             disabled
-            className="text-zinc-500"
+            className="text-muted-foreground"
           />
         </div>
 
         <div className="space-y-2">
           <Label
             htmlFor="password"
-            className="text-sm font-medium text-zinc-200 flex items-center gap-1.5"
+            className="text-sm font-medium text-foreground flex items-center gap-1.5"
           >
-            <LockIcon className="size-3.5 text-zinc-500" />
+            <LockIcon className="size-3.5 text-muted-foreground" />
             Password
           </Label>
           <Input
@@ -304,7 +306,7 @@ const ProfilePanel = ({
             type="password"
             value="placeholder"
             disabled
-            className="text-zinc-500"
+            className="text-muted-foreground"
           />
         </div>
       </div>
@@ -339,7 +341,7 @@ const PreferencesPanel = ({ onClose }: { onClose: () => void }) => {
       <div className="px-6 pt-2 pb-6 overflow-y-auto flex-1 space-y-6">
         <div>
           <h3 className="text-base font-semibold">Preferences</h3>
-          <p className="text-sm text-zinc-400 mt-0.5">
+          <p className="text-sm text-muted-foreground mt-0.5">
             Control how the Saedra dashboard looks and behaves.
           </p>
         </div>
@@ -509,17 +511,19 @@ const ComingSoonPanel = ({
   return (
     <>
       <div className="flex flex-col items-center justify-center text-center flex-1 py-16 gap-3">
-        <span className="size-11 rounded-lg bg-zinc-800 text-zinc-500 grid place-items-center">
+        <span className="size-11 rounded-lg bg-muted text-muted-foreground grid place-items-center">
           <Icon className="size-5" />
         </span>
         <div>
           <h3 className="text-base font-semibold">{label}</h3>
-          <p className="text-sm text-zinc-500 mt-1">Coming soon.</p>
+          <p className="text-sm text-muted-foreground mt-1">Coming soon.</p>
         </div>
       </div>
-      <div className="border-t border-zinc-800 bg-zinc-950/40 px-6 py-3.5 flex items-center justify-between">
+      <div className="border-t border-border bg-background/40 px-6 py-3.5 flex items-center justify-between">
         <LogoutButton />
-        <span className="text-xs text-zinc-600">Nothing to save here yet</span>
+        <span className="text-xs text-muted-foreground">
+          Nothing to save here yet
+        </span>
       </div>
     </>
   );
@@ -598,7 +602,7 @@ export const AccountSettingsDialog = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="sm:max-w-2xl p-0 gap-0 overflow-hidden bg-zinc-900 border-zinc-800"
+        className="sm:max-w-2xl p-0 gap-0 overflow-hidden bg-card border-border"
         showCloseButton={false}
         aria-describedby={undefined}
       >
@@ -608,16 +612,16 @@ export const AccountSettingsDialog = ({
           style={{ height: "min(86vh, 500px)" }}
         >
           {/* Left rail */}
-          <nav className="bg-zinc-950 border-r border-zinc-800 p-3 flex flex-col gap-0.5">
+          <nav className="bg-background border-r border-border p-3 flex flex-col gap-0.5">
             <div className="flex items-center gap-2 px-2 pt-1 pb-3">
               <Avatar className="size-7 shrink-0">
                 <AvatarImage src={currentAvatarUrl} alt={currentUsername} />
-                <AvatarFallback className="bg-zinc-800 text-zinc-300 text-xs font-semibold">
+                <AvatarFallback className="bg-muted text-foreground/80 text-xs font-semibold">
                   {initial}
                 </AvatarFallback>
               </Avatar>
               <div className="min-w-0">
-                <div className="text-xs font-medium text-zinc-200 truncate">
+                <div className="text-xs font-medium text-foreground truncate">
                   {currentUsername}
                 </div>
               </div>
@@ -635,18 +639,18 @@ export const AccountSettingsDialog = ({
                   disabled={s.soon}
                   className={`group flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm text-left transition w-full ${
                     on
-                      ? "bg-teal-500/10 text-teal-400"
+                      ? "bg-brand-fill text-brand"
                       : s.soon
-                        ? "text-zinc-600 cursor-not-allowed"
-                        : "text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100 cursor-pointer"
+                        ? "text-muted-foreground cursor-not-allowed"
+                        : "text-muted-foreground hover:bg-card hover:text-foreground cursor-pointer"
                   }`}
                 >
                   <s.Icon
-                    className={`size-4 shrink-0 ${on ? "text-teal-400" : "text-zinc-500"}`}
+                    className={`size-4 shrink-0 ${on ? "text-brand" : "text-muted-foreground"}`}
                   />
                   <span className="flex-1">{s.label}</span>
                   {s.soon && (
-                    <span className="text-[9px] uppercase tracking-wider text-zinc-600">
+                    <span className="text-[9px] uppercase tracking-wider text-muted-foreground">
                       soon
                     </span>
                   )}
@@ -661,7 +665,7 @@ export const AccountSettingsDialog = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800 rounded-md p-1.5 transition cursor-pointer"
+                className="text-muted-foreground hover:text-foreground hover:bg-muted rounded-md p-1.5 transition cursor-pointer"
               >
                 <XIcon className="size-4" />
               </button>
