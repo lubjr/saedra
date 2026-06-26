@@ -7,10 +7,10 @@ export default function SiteLayout({
   children: React.ReactNode;
 }) {
   return (
-    <>
+    <div className="dark bg-card text-foreground min-h-dvh flex flex-col">
       <Header />
-      <main className="flex-grow">{children}</main>
+      <main className="grow">{children}</main>
       <Footer />
-    </>
+    </div>
   );
 }

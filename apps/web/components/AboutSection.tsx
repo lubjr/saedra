@@ -7,7 +7,7 @@ export const AboutSection = () => {
   return (
     <section
       id="about"
-      className="flex flex-col items-center text-center py-20 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto min-h-screen bg-zinc-900/50 scroll-mt-20"
+      className="flex flex-col items-center text-center py-20 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto min-h-screen scroll-mt-20"
     >
       <h2 className="text-4xl font-bold text-white mb-4">About Saedra</h2>
       <p className="text-zinc-400 text-sm mb-12 text-center max-w-2xl">
@@ -33,8 +33,8 @@ export const AboutSection = () => {
               Our Mission
             </h3>
             <p className="text-zinc-400 text-sm">
-              To make architecture decisions permanent. Not just documented,
-              but actively enforced on every PR and always available to your AI
+              To make architecture decisions permanent. Not just documented, but
+              actively enforced on every PR and always available to your AI
               tools. Great decisions should outlive the sprint they were made
               in.
             </p>
@@ -59,9 +59,9 @@ export const AboutSection = () => {
             </h3>
             <p className="text-zinc-400 text-sm">
               Your code and architecture decisions stay on your infrastructure
-              never sent to third-party SaaS. Saedra is open source, built
-              by developers who got tired of watching good decisions disappear
-              two sprints later.
+              never sent to third-party SaaS. Saedra is open source, built by
+              developers who got tired of watching good decisions disappear two
+              sprints later.
             </p>
           </CardContent>
         </Card>

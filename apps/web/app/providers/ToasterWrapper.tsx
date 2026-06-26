@@ -9,6 +9,13 @@ export const ToasterWrapper = () => {
     <Toaster
       theme={resolvedTheme === "light" ? "light" : "dark"}
       position="top-right"
+      toastOptions={{
+        classNames: {
+          toast: "!bg-card !border-border !text-foreground !shadow-lg",
+          title: "!text-foreground",
+          description: "!text-muted-foreground",
+        },
+      }}
     />
   );
 };
