@@ -7,8 +7,8 @@ const PathFlow = ({ text }: { text: string }) => {
       {parts.map((seg, i) => {
         return (
           <span key={i}>
-            {i > 0 && <span className="text-zinc-600 px-1.5">→</span>}
-            <span className="text-zinc-300">{seg.trim()}</span>
+            {i > 0 && <span className="text-muted-foreground px-1.5">→</span>}
+            <span className="text-foreground/80">{seg.trim()}</span>
           </span>
         );
       })}
@@ -19,11 +19,11 @@ const PathFlow = ({ text }: { text: string }) => {
 export const CriticalPathsCard = ({ items }: { items: string[] }) => {
   if (items.length === 0) return null;
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-900 overflow-hidden">
-      <div className="flex items-center gap-2 px-5 py-4 border-b border-zinc-800">
-        <RouteIcon className="size-4 text-zinc-400" />
+    <div className="rounded-xl border border-border bg-card overflow-hidden">
+      <div className="flex items-center gap-2 px-5 py-4 border-b border-border">
+        <RouteIcon className="size-4 text-muted-foreground" />
         <p className="text-sm font-medium">Critical paths</p>
-        <span className="font-mono text-[11px] text-zinc-500">
+        <span className="font-mono text-[11px] text-muted-foreground">
           {items.length}
         </span>
       </div>
@@ -31,7 +31,7 @@ export const CriticalPathsCard = ({ items }: { items: string[] }) => {
         {items.map((p, i) => {
           return (
             <li key={i} className="flex items-baseline gap-3">
-              <span className="font-mono text-[11px] text-zinc-600 shrink-0 w-5">
+              <span className="font-mono text-[11px] text-muted-foreground shrink-0 w-5">
                 {String(i + 1).padStart(2, "0")}
               </span>
               <PathFlow text={p} />

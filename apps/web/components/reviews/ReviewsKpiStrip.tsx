@@ -5,9 +5,9 @@ interface Props {
 }
 
 const passRateColor = (rate: number) => {
-  if (rate >= 85) return "text-teal-400";
-  if (rate >= 70) return "text-yellow-400";
-  return "text-red-400";
+  if (rate >= 85) return "text-brand";
+  if (rate >= 70) return "text-status-warning";
+  return "text-status-error";
 };
 
 const StatTile = ({
@@ -22,8 +22,8 @@ const StatTile = ({
   sub?: string;
 }) => {
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-4 flex flex-col gap-2">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
+    <div className="rounded-xl border border-border bg-card p-4 flex flex-col gap-2">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
         {label}
       </p>
       <p
@@ -31,7 +31,9 @@ const StatTile = ({
       >
         {value}
       </p>
-      {sub && <p className="text-[11px] font-mono text-zinc-500">{sub}</p>}
+      {sub && (
+        <p className="text-[11px] font-mono text-muted-foreground">{sub}</p>
+      )}
     </div>
   );
 };
@@ -55,17 +57,23 @@ export const ReviewsKpiStrip = ({ reviews }: Props) => {
       <StatTile
         label="Violations"
         value={totalViolations}
-        valueColor={totalViolations > 0 ? "text-red-400" : "text-zinc-500"}
+        valueColor={
+          totalViolations > 0 ? "text-status-error" : "text-muted-foreground"
+        }
       />
       <StatTile
         label="Warnings"
         value={totalWarnings}
-        valueColor={totalWarnings > 0 ? "text-yellow-400" : "text-zinc-500"}
+        valueColor={
+          totalWarnings > 0 ? "text-status-warning" : "text-muted-foreground"
+        }
       />
       <StatTile
         label="Pass rate"
         value={total > 0 ? `${passRate}%` : "—"}
-        valueColor={total > 0 ? passRateColor(passRate) : "text-zinc-500"}
+        valueColor={
+          total > 0 ? passRateColor(passRate) : "text-muted-foreground"
+        }
         sub={total > 0 ? `${clean}/${total} clean` : undefined}
       />
     </div>
