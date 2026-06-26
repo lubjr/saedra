@@ -1,9 +1,9 @@
 import "@repo/ui/styles.css";
 
 import type { Metadata } from "next";
-import { Toaster } from "sonner";
 
 import { ThemeProviderWrapper } from "./providers/ThemeProviderWrapper";
+import { ToasterWrapper } from "./providers/ToasterWrapper";
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const metadata: Metadata = {
@@ -20,7 +20,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className="bg-background text-foreground min-h-screen flex flex-col font-inter">
         <ThemeProviderWrapper>
-          <Toaster theme="system" position="top-right" />
+          <ToasterWrapper />
           {children}
         </ThemeProviderWrapper>
       </body>

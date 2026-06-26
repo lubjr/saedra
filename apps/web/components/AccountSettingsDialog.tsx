@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@repo/ui/select";
+import { useTheme } from "next-themes";
 import * as React from "react";
 import { toast } from "sonner";
 
@@ -71,7 +72,7 @@ const Segmented = ({
               o.value === value
                 ? "bg-muted text-foreground"
                 : "text-muted-foreground hover:text-foreground/80"
-            } ${disabled ? "cursor-not-allowed" : ""}`}
+            } ${disabled ? "cursor-not-allowed" : "cursor-pointer"}`}
           >
             {o.label}
           </button>
@@ -318,6 +319,7 @@ const ProfilePanel = ({
 
 const PreferencesPanel = ({ onClose }: { onClose: () => void }) => {
   const { prefs, save } = usePreferences();
+  const { setTheme } = useTheme();
   const [local, setLocal] = React.useState(prefs);
 
   React.useEffect(() => {
@@ -332,6 +334,7 @@ const PreferencesPanel = ({ onClose }: { onClose: () => void }) => {
 
   const handleSave = () => {
     save(local);
+    setTheme(local.theme);
     toast.success("Preferences saved");
     onClose();
   };
@@ -350,7 +353,7 @@ const PreferencesPanel = ({ onClose }: { onClose: () => void }) => {
           <GroupHeader>Appearance</GroupHeader>
           <SettingRow
             title="Theme"
-            desc="Saedra is tuned for dark. System follows your OS."
+            desc="Choose how the dashboard looks. System follows your OS."
           >
             <Segmented
               value={local.theme}
@@ -360,8 +363,8 @@ const PreferencesPanel = ({ onClose }: { onClose: () => void }) => {
               options={[
                 { value: "system", label: "System" },
                 { value: "dark", label: "Dark" },
+                { value: "light", label: "Light" },
               ]}
-              disabled
             />
           </SettingRow>
           <SettingRow
@@ -496,7 +499,7 @@ const PreferencesPanel = ({ onClose }: { onClose: () => void }) => {
         </div>
       </div>
 
-      <SaveBar onClose={onClose} onSave={handleSave} saveDisabled />
+      <SaveBar onClose={onClose} onSave={handleSave} />
     </>
   );
 };
