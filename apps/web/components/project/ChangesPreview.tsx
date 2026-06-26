@@ -21,15 +21,15 @@ const formatRelativeDate = (iso: string): string => {
 
 export const ChangesPreview = ({ projectId, changes }: Props) => {
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-900 flex flex-col overflow-hidden">
-      <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-zinc-800">
+    <div className="rounded-xl border border-border bg-card flex flex-col overflow-hidden">
+      <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-border">
         <div className="flex items-center gap-2">
-          <ClockIcon className="size-4 text-zinc-400" />
+          <ClockIcon className="size-4 text-muted-foreground" />
           <p className="text-sm font-medium">Recent changes</p>
         </div>
         <Link
           href={`/dashboard/project/${projectId}/changes`}
-          className="text-[11px] font-mono text-zinc-500 hover:text-zinc-300 transition-colors"
+          className="text-[11px] font-mono text-muted-foreground hover:text-foreground/80 transition-colors"
         >
           view all →
         </Link>
@@ -42,16 +42,16 @@ export const ChangesPreview = ({ projectId, changes }: Props) => {
               return (
                 <div key={chg.id} className="flex gap-3">
                   <div className="flex flex-col items-center shrink-0">
-                    <div className="size-2 rounded-full bg-teal-400 mt-3" />
+                    <div className="size-2 rounded-full bg-brand mt-3" />
                     {i < changes.length - 1 && (
-                      <div className="w-px flex-1 bg-zinc-800 mt-1" />
+                      <div className="w-px flex-1 bg-border mt-1" />
                     )}
                   </div>
                   <div className="pb-4 min-w-0">
                     <p className="text-sm font-medium leading-snug pt-2">
                       {chg.summary}
                     </p>
-                    <p className="text-[11px] font-mono text-zinc-500 mt-0.5">
+                    <p className="text-[11px] font-mono text-muted-foreground mt-0.5">
                       {formatRelativeDate(chg.created_at)}
                       {chg.files_changed.length > 0 && (
                         <>
@@ -69,8 +69,10 @@ export const ChangesPreview = ({ projectId, changes }: Props) => {
           </div>
         ) : (
           <div className="flex flex-col gap-3 py-4">
-            <p className="text-sm text-zinc-500">No changes logged yet.</p>
-            <code className="text-teal-400 font-mono text-xs bg-teal-500/10 px-2 py-1.5 rounded self-start">
+            <p className="text-sm text-muted-foreground">
+              No changes logged yet.
+            </p>
+            <code className="text-brand font-mono text-xs bg-brand-fill px-2 py-1.5 rounded self-start">
               saedra memory change log --from-git
             </code>
           </div>
