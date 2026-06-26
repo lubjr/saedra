@@ -5,9 +5,9 @@ interface Props {
 }
 
 const resultLabel = (violations: number, warnings: number) => {
-  if (violations > 0) return { text: "Failing", color: "text-red-400" };
-  if (warnings > 0) return { text: "Warning", color: "text-yellow-400" };
-  return { text: "Clean", color: "text-teal-400" };
+  if (violations > 0) return { text: "Failing", color: "text-status-error" };
+  if (warnings > 0) return { text: "Warning", color: "text-status-warning" };
+  return { text: "Clean", color: "text-brand" };
 };
 
 const StatTile = ({
@@ -22,8 +22,8 @@ const StatTile = ({
   sub?: string;
 }) => {
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-4 flex flex-col gap-2">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
+    <div className="rounded-xl border border-border bg-card p-4 flex flex-col gap-2">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
         {label}
       </p>
       <p
@@ -31,7 +31,9 @@ const StatTile = ({
       >
         {value}
       </p>
-      {sub && <p className="text-[11px] font-mono text-zinc-500">{sub}</p>}
+      {sub && (
+        <p className="text-[11px] font-mono text-muted-foreground">{sub}</p>
+      )}
     </div>
   );
 };
@@ -45,12 +47,16 @@ export const ReviewKpiStrip = ({ review }: Props) => {
       <StatTile
         label="Violations"
         value={review.violations}
-        valueColor={review.violations > 0 ? "text-red-400" : "text-zinc-500"}
+        valueColor={
+          review.violations > 0 ? "text-status-error" : "text-muted-foreground"
+        }
       />
       <StatTile
         label="Warnings"
         value={review.warnings}
-        valueColor={review.warnings > 0 ? "text-yellow-400" : "text-zinc-500"}
+        valueColor={
+          review.warnings > 0 ? "text-status-warning" : "text-muted-foreground"
+        }
       />
       <StatTile
         label="Files"

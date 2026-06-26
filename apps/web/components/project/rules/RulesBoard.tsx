@@ -57,13 +57,13 @@ export const RulesBoard = ({ rules }: Props) => {
               }}
               className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium border transition-colors ${
                 on
-                  ? "bg-teal-500/10 border-teal-500/20 text-teal-400"
-                  : "bg-zinc-950 border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700"
+                  ? "bg-brand-fill border-brand-stroke text-brand"
+                  : "bg-background border-border text-muted-foreground hover:text-foreground hover:border-border-emphasis"
               }`}
             >
               {label}
               <span
-                className={`font-mono ${on ? "text-teal-400/70" : "text-zinc-600"}`}
+                className={`font-mono ${on ? "text-brand/70" : "text-muted-foreground"}`}
               >
                 {counts[key]}
               </span>

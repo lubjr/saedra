@@ -7,9 +7,9 @@ import { countFilesTouched, inferRisk } from "./helpers";
 type Tone = "default" | "accent" | "danger";
 
 const TONE_CLASS: Record<Tone, string> = {
-  default: "text-zinc-100",
-  accent: "text-teal-400",
-  danger: "text-red-400",
+  default: "text-foreground",
+  accent: "text-brand",
+  danger: "text-status-error",
 };
 
 interface TileProps {
@@ -21,14 +21,14 @@ interface TileProps {
 
 const Tile = ({ label, value, sub, tone = "default" }: TileProps) => {
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-4 flex flex-col gap-2">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
+    <div className="rounded-xl border border-border bg-card p-4 flex flex-col gap-2">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
         {label}
       </p>
       <p className={`text-3xl font-mono font-semibold ${TONE_CLASS[tone]}`}>
         {value}
       </p>
-      <p className="text-[11px] font-mono text-zinc-500">{sub}</p>
+      <p className="text-[11px] font-mono text-muted-foreground">{sub}</p>
     </div>
   );
 };

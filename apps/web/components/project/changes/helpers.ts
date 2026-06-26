@@ -10,15 +10,16 @@ export const inferRisk = (assessment: string): Risk => {
 };
 
 export const RISK_CLASSES: Record<Risk, string> = {
-  low: "bg-teal-500/10 text-teal-400 border-teal-500/20",
-  medium: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
-  high: "bg-red-500/10 text-red-400 border-red-500/20",
+  low: "bg-brand-fill text-brand border-brand-stroke",
+  medium:
+    "bg-status-warning-fill text-status-warning border-status-warning-stroke",
+  high: "bg-status-error-fill text-status-error border-status-error-stroke",
 };
 
 export const RISK_DOT: Record<Risk, string> = {
-  low: "bg-teal-400",
-  medium: "bg-yellow-400",
-  high: "bg-red-400",
+  low: "bg-brand",
+  medium: "bg-status-warning",
+  high: "bg-status-error",
 };
 
 export const countFilesTouched = (changes: ChangeEvent[]): number => {
