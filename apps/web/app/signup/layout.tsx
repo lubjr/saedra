@@ -3,5 +3,5 @@ export default function SignUpLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  return <div className="dark">{children}</div>;
 }
