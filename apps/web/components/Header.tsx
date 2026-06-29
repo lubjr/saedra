@@ -15,7 +15,7 @@ export const Header = () => {
           >
             Saedra
           </Link>
-          <Badge variant="outline">v2.1</Badge>
+          <Badge variant="outline">v2.3</Badge>
         </div>
 
         <Menu />

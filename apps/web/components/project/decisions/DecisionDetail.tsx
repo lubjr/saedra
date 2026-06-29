@@ -16,44 +16,44 @@ export const DecisionDetail = ({ decision, supersededBy }: Props) => {
       <div className="space-y-2">
         <div className="flex flex-wrap items-center gap-2">
           <span
-            className={`text-xs px-2 py-0.5 rounded border font-medium ${STATUS_CLASSES[decision.status] ?? "bg-zinc-700 text-zinc-400"}`}
+            className={`text-xs px-2 py-0.5 rounded border font-medium ${STATUS_CLASSES[decision.status] ?? "bg-muted text-muted-foreground"}`}
           >
             {decision.status}
           </span>
           <span
-            className={`text-xs px-2 py-0.5 rounded border font-medium ${RISK_CLASSES[decision.risk_level] ?? "bg-zinc-700 text-zinc-400"}`}
+            className={`text-xs px-2 py-0.5 rounded border font-medium ${RISK_CLASSES[decision.risk_level] ?? "bg-muted text-muted-foreground"}`}
           >
             {decision.risk_level} risk
           </span>
         </div>
         <div className="flex items-baseline gap-3">
-          <span className="font-mono text-[11px] text-zinc-500">
+          <span className="font-mono text-[11px] text-muted-foreground">
             {decision.id}
           </span>
-          <span className="text-[11px] text-zinc-600">
+          <span className="text-[11px] text-muted-foreground">
             {formatFullDate(decision.created_at)}
           </span>
         </div>
-        <h2 className="text-base font-semibold text-zinc-100 leading-snug">
+        <h2 className="text-base font-semibold text-foreground leading-snug">
           {decision.title}
         </h2>
       </div>
 
       <div className="space-y-1.5">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
           Context
         </p>
-        <p className="text-sm text-zinc-300 leading-relaxed">
+        <p className="text-sm text-foreground/80 leading-relaxed">
           {decision.context}
         </p>
       </div>
 
       <div className="space-y-1.5">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
           Decision
         </p>
-        <div className="rounded-lg bg-zinc-800/40 p-4">
-          <p className="text-sm text-zinc-200 leading-relaxed">
+        <div className="rounded-lg bg-muted/40 p-4">
+          <p className="text-sm text-foreground leading-relaxed">
             {decision.decision}
           </p>
         </div>
@@ -61,7 +61,7 @@ export const DecisionDetail = ({ decision, supersededBy }: Props) => {
 
       {decision.impact.length > 0 && (
         <div className="space-y-1.5">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
             Impact
           </p>
           <ul className="space-y-1.5">
@@ -69,9 +69,9 @@ export const DecisionDetail = ({ decision, supersededBy }: Props) => {
               return (
                 <li
                   key={i}
-                  className="flex items-start gap-2 text-sm text-zinc-300"
+                  className="flex items-start gap-2 text-sm text-foreground/80"
                 >
-                  <ChevronRightIcon className="size-3.5 text-teal-400 mt-0.5 shrink-0" />
+                  <ChevronRightIcon className="size-3.5 text-brand mt-0.5 shrink-0" />
                   <span>{item}</span>
                 </li>
               );
@@ -82,7 +82,7 @@ export const DecisionDetail = ({ decision, supersededBy }: Props) => {
 
       {decision.affects.length > 0 && (
         <div className="space-y-1.5">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
             Affects
           </p>
           <div className="flex flex-wrap gap-1.5">
@@ -90,7 +90,7 @@ export const DecisionDetail = ({ decision, supersededBy }: Props) => {
               return (
                 <span
                   key={a}
-                  className="font-mono text-xs bg-zinc-800 border border-zinc-700 text-zinc-400 px-2 py-0.5 rounded"
+                  className="font-mono text-xs bg-muted border border-border-emphasis text-muted-foreground px-2 py-0.5 rounded"
                 >
                   {a}
                 </span>
@@ -102,7 +102,7 @@ export const DecisionDetail = ({ decision, supersededBy }: Props) => {
 
       {decision.constraints_introduced.length > 0 && (
         <div className="space-y-1.5">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
             Constraints introduced
           </p>
           <div className="flex flex-wrap gap-1.5">
@@ -110,7 +110,7 @@ export const DecisionDetail = ({ decision, supersededBy }: Props) => {
               return (
                 <span
                   key={c}
-                  className="text-xs bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 px-2 py-0.5 rounded"
+                  className="text-xs bg-status-warning-fill text-status-warning border border-status-warning-stroke px-2 py-0.5 rounded"
                 >
                   {c}
                 </span>
@@ -120,18 +120,18 @@ export const DecisionDetail = ({ decision, supersededBy }: Props) => {
         </div>
       )}
 
-      <div className="border-t border-zinc-800 pt-4 flex flex-wrap items-center gap-3">
+      <div className="border-t border-border pt-4 flex flex-wrap items-center gap-3">
         {decision.supersedes && (
-          <span className="font-mono text-[11px] text-zinc-500">
+          <span className="font-mono text-[11px] text-muted-foreground">
             supersedes {decision.supersedes}
           </span>
         )}
         {supersededById ? (
-          <span className="text-xs px-2 py-0.5 rounded border font-medium bg-yellow-500/10 text-yellow-400 border-yellow-500/20">
+          <span className="text-xs px-2 py-0.5 rounded border font-medium bg-status-warning-fill text-status-warning border-status-warning-stroke">
             superseded by {supersededById}
           </span>
         ) : (
-          <span className="text-xs px-2 py-0.5 rounded border font-medium bg-teal-500/10 text-teal-400 border-teal-500/20">
+          <span className="text-xs px-2 py-0.5 rounded border font-medium bg-brand-fill text-brand border-brand-stroke">
             in effect
           </span>
         )}

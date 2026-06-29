@@ -1,15 +1,17 @@
 import type { Decision } from "../../../auth/documents";
 
 export const STATUS_CLASSES: Record<string, string> = {
-  active: "bg-teal-500/10 text-teal-400 border-teal-500/20",
-  deprecated: "bg-zinc-700/40 text-zinc-400 border-zinc-600/30",
-  superseded: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
+  active: "bg-brand-fill text-brand border-brand-stroke",
+  deprecated: "bg-muted/40 text-muted-foreground border-border/30",
+  superseded:
+    "bg-status-warning-fill text-status-warning border-status-warning-stroke",
 };
 
 export const RISK_CLASSES: Record<string, string> = {
-  low: "bg-teal-500/10 text-teal-400 border-teal-500/20",
-  medium: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
-  high: "bg-red-500/10 text-red-400 border-red-500/20",
+  low: "bg-brand-fill text-brand border-brand-stroke",
+  medium:
+    "bg-status-warning-fill text-status-warning border-status-warning-stroke",
+  high: "bg-status-error-fill text-status-error border-status-error-stroke",
 };
 
 export const formatRelativeDate = (iso: string): string => {

@@ -21,9 +21,9 @@ const formatRelativeDate = (iso: string): string => {
 };
 
 const statusDot = (violations: number, warnings: number) => {
-  if (violations > 0) return "bg-red-400";
-  if (warnings > 0) return "bg-yellow-400";
-  return "bg-teal-400";
+  if (violations > 0) return "bg-status-error";
+  if (warnings > 0) return "bg-status-warning";
+  return "bg-brand";
 };
 
 const CountPill = ({ value, color }: { value: number; color: string }) => {
@@ -39,9 +39,9 @@ const CountPill = ({ value, color }: { value: number; color: string }) => {
 export const ReviewsListCard = ({ projectId, reviews }: Props) => {
   if (reviews.length === 0) {
     return (
-      <div className="rounded-xl border border-zinc-800 bg-zinc-900 flex flex-col items-center justify-center gap-3 py-16">
-        <p className="text-sm text-zinc-500">No reviews yet.</p>
-        <code className="text-teal-400 font-mono text-xs bg-teal-500/10 px-2 py-1.5 rounded">
+      <div className="rounded-xl border border-border bg-card flex flex-col items-center justify-center gap-3 py-16">
+        <p className="text-sm text-muted-foreground">No reviews yet.</p>
+        <code className="text-brand font-mono text-xs bg-brand-fill px-2 py-1.5 rounded">
           saedra review
         </code>
       </div>
@@ -49,22 +49,22 @@ export const ReviewsListCard = ({ projectId, reviews }: Props) => {
   }
 
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-900 flex flex-col overflow-hidden">
-      <div className="px-5 py-4 border-b border-zinc-800">
+    <div className="rounded-xl border border-border bg-card flex flex-col overflow-hidden">
+      <div className="px-5 py-4 border-b border-border">
         <p className="text-sm font-medium">
           All reviews{" "}
-          <span className="font-mono text-zinc-500 text-[11px]">
+          <span className="font-mono text-muted-foreground text-[11px]">
             {reviews.length}
           </span>
         </p>
       </div>
-      <ul className="divide-y divide-dashed divide-zinc-800">
+      <ul className="divide-y divide-dashed divide-border">
         {reviews.map((review) => {
           return (
             <li key={review.id}>
               <Link
                 href={`/dashboard/project/${projectId}/reviews/${review.id}`}
-                className="flex items-center gap-3 px-5 py-3.5 hover:bg-zinc-800/50 transition-colors"
+                className="flex items-center gap-3 px-5 py-3.5 hover:bg-muted/50 transition-colors"
               >
                 <span
                   className={`size-1.5 rounded-full shrink-0 ${statusDot(review.violations, review.warnings)}`}
@@ -74,7 +74,7 @@ export const ReviewsListCard = ({ projectId, reviews }: Props) => {
                     {review.branch}
                   </span>
                   {review.base && (
-                    <span className="font-mono text-xs text-zinc-500 ml-1.5">
+                    <span className="font-mono text-xs text-muted-foreground ml-1.5">
                       ← {review.base}
                     </span>
                   )}
@@ -83,20 +83,20 @@ export const ReviewsListCard = ({ projectId, reviews }: Props) => {
                   {review.violations > 0 && (
                     <CountPill
                       value={review.violations}
-                      color="bg-red-500/10 text-red-400 border-red-500/20"
+                      color="bg-status-error-fill text-status-error border-status-error-stroke"
                     />
                   )}
                   {review.warnings > 0 && (
                     <CountPill
                       value={review.warnings}
-                      color="bg-yellow-500/10 text-yellow-400 border-yellow-500/20"
+                      color="bg-status-warning-fill text-status-warning border-status-warning-stroke"
                     />
                   )}
                   <CountPill
                     value={review.ok}
-                    color="bg-teal-500/10 text-teal-400 border-teal-500/20"
+                    color="bg-brand-fill text-brand border-brand-stroke"
                   />
-                  <span className="text-[11px] font-mono text-zinc-600 ml-1">
+                  <span className="text-[11px] font-mono text-muted-foreground ml-1">
                     {formatRelativeDate(review.created_at)}
                   </span>
                 </div>

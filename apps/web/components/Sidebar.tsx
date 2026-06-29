@@ -13,6 +13,7 @@ import {
   SidebarMenuItem,
 } from "@repo/ui/sidebar";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 import { useProjects } from "../app/contexts/ProjectsContext";
 import { useUser } from "../app/contexts/UserContext";
@@ -48,6 +49,7 @@ const data = {
 export const AppSidebar = () => {
   const { user: userData, isLoading: isUserLoading, refreshUser } = useUser();
   const { projects, isLoading } = useProjects();
+  const pathname = usePathname();
 
   const user = {
     name: userData?.username || " ",
@@ -70,7 +72,7 @@ export const AppSidebar = () => {
 
   return (
     <Sidebar variant="floating">
-      <SidebarHeader className="bg-zinc-900 rounded-lg">
+      <SidebarHeader className="bg-sidebar rounded-lg">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
@@ -87,14 +89,14 @@ export const AppSidebar = () => {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent className="bg-zinc-900 rounded-lg">
+      <SidebarContent className="bg-sidebar rounded-lg">
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => {
                 return (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild>
+                    <SidebarMenuButton asChild isActive={pathname === item.url}>
                       <Link href={item.url}>
                         <item.icon />
                         <span>{item.title}</span>
@@ -109,7 +111,7 @@ export const AppSidebar = () => {
         <NavProjects projects={projectsData} isLoading={isLoading} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
-      <SidebarFooter className="bg-zinc-900 rounded-lg">
+      <SidebarFooter className="bg-sidebar rounded-lg">
         <NavUser
           user={user}
           isLoading={isUserLoading}

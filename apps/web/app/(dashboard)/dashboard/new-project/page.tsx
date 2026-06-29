@@ -67,7 +67,7 @@ export default function Page() {
   return (
     <div className="mx-auto max-w-6xl space-y-6">
       <header>
-        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-teal-400">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-brand">
           Get started
         </p>
         <h1 className="text-3xl font-semibold tracking-tight">
@@ -80,9 +80,9 @@ export default function Page() {
       </header>
 
       <form onSubmit={handleSubmit}>
-        <Card className="bg-zinc-900 border-zinc-800 overflow-hidden p-0 gap-0">
-          <CardHeader className="flex flex-row items-start gap-3 space-y-0 border-b border-zinc-800 px-6 py-5">
-            <span className="size-7 rounded-lg bg-teal-400/10 text-teal-400 grid place-items-center shrink-0 mt-0.5">
+        <Card className="bg-card border-border overflow-hidden p-0 gap-0">
+          <CardHeader className="flex flex-row items-start gap-3 space-y-0 border-b border-border px-6 py-5">
+            <span className="size-7 rounded-lg bg-brand-fill text-brand grid place-items-center shrink-0 mt-0.5">
               <SparklesIcon className="size-4" />
             </span>
             <div className="space-y-1">
@@ -118,12 +118,12 @@ export default function Page() {
               />
               <p className="text-xs text-muted-foreground">
                 Used as the project identifier.{" "}
-                <code className="font-mono text-xs bg-teal-500/10 text-teal-400 px-1.5 py-0.5 rounded">
+                <code className="font-mono text-xs bg-brand-fill text-brand px-1.5 py-0.5 rounded">
                   lowercase-with-dashes
                 </code>{" "}
                 works best.
                 {nameValid && (
-                  <span className="ml-1.5 text-teal-400">
+                  <span className="ml-1.5 text-brand">
                     <CheckCircle2Icon className="inline size-3 mb-0.5" />
                   </span>
                 )}
@@ -140,7 +140,7 @@ export default function Page() {
                 Description
                 <Badge
                   variant="outline"
-                  className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground border-zinc-700 bg-zinc-950 px-1.5 py-0.5 ml-0.5"
+                  className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground border-border-emphasis bg-background px-1.5 py-0.5 ml-0.5"
                 >
                   Optional
                 </Badge>
@@ -168,7 +168,7 @@ export default function Page() {
                 Linked repository
                 <Badge
                   variant="outline"
-                  className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground border-zinc-700 bg-zinc-950 px-1.5 py-0.5 ml-0.5"
+                  className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground border-border-emphasis bg-background px-1.5 py-0.5 ml-0.5"
                 >
                   Optional
                 </Badge>
@@ -184,7 +184,7 @@ export default function Page() {
                 disabled
               />
               {repoWarning ? (
-                <p className="text-xs text-yellow-400">
+                <p className="text-xs text-status-warning">
                   Use a github.com or gitlab.com URL.
                 </p>
               ) : (
@@ -196,10 +196,10 @@ export default function Page() {
             </div>
           </CardContent>
 
-          <CardFooter className="flex items-center justify-between border-t border-zinc-800 bg-zinc-950/40 px-6 py-3.5">
+          <CardFooter className="flex items-center justify-between border-t border-border bg-background/40 px-6 py-3.5">
             <span className="text-sm text-muted-foreground">
               Will appear in your home as{" "}
-              <code className="font-mono text-xs bg-teal-400/10 text-teal-400 px-1.5 py-0.5 rounded">
+              <code className="font-mono text-xs bg-brand-fill text-brand px-1.5 py-0.5 rounded">
                 {name || "—"}
               </code>
             </span>

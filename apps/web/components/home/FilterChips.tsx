@@ -31,8 +31,8 @@ export const FilterChips = ({ active, onChange, counts }: Props) => {
               }}
               className={`border rounded-full px-2.5 py-1 font-mono text-xs transition-colors cursor-pointer ${
                 active === chip.value
-                  ? "bg-zinc-900 border-zinc-700 text-foreground"
-                  : "border-zinc-800 text-muted-foreground hover:border-zinc-700 hover:text-foreground"
+                  ? "bg-card border-border-emphasis text-foreground"
+                  : "border-border text-muted-foreground hover:border-border-emphasis hover:text-foreground"
               }`}
             >
               {chip.label} · {counts[chip.value]}

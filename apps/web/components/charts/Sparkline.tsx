@@ -27,12 +27,12 @@ export const Sparkline = ({ data }: { data: number[] }) => {
       <polyline
         points={pts}
         fill="none"
-        stroke="#2dd4bf"
+        stroke="var(--brand)"
         strokeWidth="1.5"
         strokeLinejoin="round"
         strokeLinecap="round"
       />
-      <circle cx={lastX} cy={lastY} r="2.5" fill="#2dd4bf" />
+      <circle cx={lastX} cy={lastY} r="2.5" fill="var(--brand)" />
     </svg>
   );
 };

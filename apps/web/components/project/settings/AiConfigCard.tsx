@@ -155,11 +155,11 @@ export const AiConfigCard = ({ projectId, settings }: Props) => {
       desc={
         <>
           Provider and model used by all team members when running{" "}
-          <code className="font-mono text-xs bg-teal-500/10 text-teal-400 px-1.5 py-0.5 rounded">
+          <code className="font-mono text-xs bg-brand-fill text-brand px-1.5 py-0.5 rounded">
             saedra review
           </code>
           . The API key stays local — configure it via{" "}
-          <code className="font-mono text-xs bg-teal-500/10 text-teal-400 px-1.5 py-0.5 rounded">
+          <code className="font-mono text-xs bg-brand-fill text-brand px-1.5 py-0.5 rounded">
             saedra ai setup
           </code>
           .
@@ -168,7 +168,7 @@ export const AiConfigCard = ({ projectId, settings }: Props) => {
       footer={
         showForm ? (
           <>
-            <span className="text-xs text-zinc-500">
+            <span className="text-xs text-muted-foreground">
               Applies to every member of this project.
             </span>
             <div className="flex items-center gap-2">
@@ -194,15 +194,16 @@ export const AiConfigCard = ({ projectId, settings }: Props) => {
           </>
         ) : (
           <>
-            <span className="text-xs text-zinc-500">
-              Saved by <span className="font-mono text-zinc-400">you</span>
+            <span className="text-xs text-muted-foreground">
+              Saved by{" "}
+              <span className="font-mono text-muted-foreground">you</span>
             </span>
             <Button
               variant="ghost"
               size="sm"
               onClick={handleRemove}
               disabled={isRemoving}
-              className="text-zinc-500 hover:text-red-400 hover:bg-red-500/10"
+              className="text-muted-foreground hover:text-status-error hover:bg-status-error-fill"
             >
               <TrashIcon className="size-[13px]" />
               {isRemoving ? "Removing..." : "Remove configuration"}
@@ -214,9 +215,9 @@ export const AiConfigCard = ({ projectId, settings }: Props) => {
       {showForm ? (
         <div className="space-y-5">
           {!isConfigured && (
-            <div className="flex items-center gap-3 rounded-md border border-zinc-700 bg-zinc-800/40 px-4 py-3">
-              <span className="size-1.5 rounded-full bg-yellow-400 shrink-0" />
-              <p className="text-sm text-zinc-400">
+            <div className="flex items-center gap-3 rounded-md border border-border-emphasis bg-muted/40 px-4 py-3">
+              <span className="size-1.5 rounded-full bg-status-warning shrink-0" />
+              <p className="text-sm text-muted-foreground">
                 No configuration set. Choose a provider and model to get
                 started.
               </p>
@@ -224,14 +225,14 @@ export const AiConfigCard = ({ projectId, settings }: Props) => {
           )}
           <div className="grid grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-zinc-100 flex items-center gap-1.5">
+              <label className="text-sm font-semibold text-foreground flex items-center gap-1.5">
                 <SparklesIcon className="size-[14px]" /> AI Provider
               </label>
               <Select value={provider} onValueChange={handleProviderChange}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-zinc-800">
+                <SelectContent className="bg-muted">
                   {PROVIDERS.map((p) => {
                     return (
                       <SelectItem key={p.value} value={p.value}>
@@ -243,14 +244,14 @@ export const AiConfigCard = ({ projectId, settings }: Props) => {
               </Select>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-zinc-100 flex items-center gap-1.5">
+              <label className="text-sm font-semibold text-foreground flex items-center gap-1.5">
                 <TerminalIcon className="size-[14px]" /> Model
               </label>
               <Select value={model} onValueChange={setModel}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-zinc-800">
+                <SelectContent className="bg-muted">
                   {availableModels.map((m) => {
                     return (
                       <SelectItem key={m.value} value={m.value}>
@@ -260,28 +261,28 @@ export const AiConfigCard = ({ projectId, settings }: Props) => {
                   })}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-zinc-500">
+              <p className="text-xs text-muted-foreground">
                 {getModelNote(provider, model)}
               </p>
             </div>
           </div>
         </div>
       ) : (
-        <div className="flex items-center justify-between gap-4 rounded-lg border border-teal-500/20 bg-teal-500/[0.06] px-4 py-3.5">
+        <div className="flex items-center justify-between gap-4 rounded-lg border border-brand-stroke bg-brand-fill/60 px-4 py-3.5">
           <div className="flex items-center gap-3.5 min-w-0">
-            <span className="size-9 rounded-lg bg-teal-500/10 text-teal-400 grid place-items-center shrink-0">
+            <span className="size-9 rounded-lg bg-brand-fill text-brand grid place-items-center shrink-0">
               <SparklesIcon className="size-[17px]" />
             </span>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-zinc-100">
+                <span className="text-sm font-semibold text-foreground">
                   {getProviderLabel(savedProvider)}
                 </span>
-                <span className="inline-flex items-center gap-1.5 rounded-md border border-teal-500/20 bg-teal-500/10 text-teal-400 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider">
-                  <span className="size-1 rounded-full bg-teal-400" /> Active
+                <span className="inline-flex items-center gap-1.5 rounded-md border border-brand-stroke bg-brand-fill text-brand px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider">
+                  <span className="size-1 rounded-full bg-brand" /> Active
                 </span>
               </div>
-              <div className="font-mono text-xs text-zinc-400 mt-1 truncate">
+              <div className="font-mono text-xs text-muted-foreground mt-1 truncate">
                 {savedModel}
               </div>
             </div>

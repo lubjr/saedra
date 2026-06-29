@@ -168,7 +168,7 @@ export default function Page() {
 
       {/* Search empty state */}
       {query && filtered.length === 0 && (
-        <p className="text-sm text-zinc-500 py-8 text-center">
+        <p className="text-sm text-muted-foreground py-8 text-center">
           No projects match &ldquo;{query}&rdquo;
         </p>
       )}
@@ -177,7 +177,7 @@ export default function Page() {
       {filtered.length > 0 && (
         <section className="space-y-4">
           <div className="flex items-center justify-between">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
               {query ? "Results" : "All projects"}
             </p>
             <FilterChips active={filter} onChange={setFilter} counts={counts} />

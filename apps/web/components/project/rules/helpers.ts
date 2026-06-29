@@ -3,15 +3,16 @@ import type { ViolationRule } from "../../../auth/documents";
 type Severity = ViolationRule["severity"];
 
 export const SEVERITY_CLASSES: Record<Severity, string> = {
-  high: "bg-red-500/10 text-red-400 border-red-500/20",
-  medium: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
-  low: "bg-teal-500/10 text-teal-400 border-teal-500/20",
+  high: "bg-status-error-fill text-status-error border-status-error-stroke",
+  medium:
+    "bg-status-warning-fill text-status-warning border-status-warning-stroke",
+  low: "bg-brand-fill text-brand border-brand-stroke",
 };
 
 export const SEVERITY_DOT: Record<Severity, string> = {
-  high: "bg-red-400",
-  medium: "bg-yellow-400",
-  low: "bg-teal-400",
+  high: "bg-status-error",
+  medium: "bg-status-warning",
+  low: "bg-brand",
 };
 
 export const SEVERITY_LABEL: Record<Severity, string> = {

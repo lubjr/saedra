@@ -95,7 +95,7 @@ export const AvatarUpload = ({
     >
       <Avatar className="h-16 w-16">
         <AvatarImage src={value} alt={username} />
-        <AvatarFallback className="bg-zinc-800 text-zinc-300 text-xl font-semibold">
+        <AvatarFallback className="bg-muted text-foreground/80 text-xl font-semibold">
           {initial}
         </AvatarFallback>
       </Avatar>

@@ -10,20 +10,20 @@ interface Props {
 
 export const ArchitectureStateCard = ({ projectId, state }: Props) => {
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-900 flex flex-col overflow-hidden">
-      <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-zinc-800">
+    <div className="rounded-xl border border-border bg-card flex flex-col overflow-hidden">
+      <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-border">
         <div className="flex items-center gap-2">
-          <SparklesIcon className="size-4 text-zinc-400" />
+          <SparklesIcon className="size-4 text-muted-foreground" />
           <p className="text-sm font-medium">Architecture State</p>
           {state && (
-            <span className="font-mono text-[11px] text-zinc-500">
+            <span className="font-mono text-[11px] text-muted-foreground">
               v{state.version}
             </span>
           )}
         </div>
         <Link
           href={`/dashboard/project/${projectId}/memory`}
-          className="flex items-center gap-1 text-[11px] font-mono text-zinc-500 hover:text-zinc-300 transition-colors"
+          className="flex items-center gap-1 text-[11px] font-mono text-muted-foreground hover:text-foreground/80 transition-colors"
         >
           <BookOpenIcon className="size-3" />
           Open memory
@@ -33,20 +33,20 @@ export const ArchitectureStateCard = ({ projectId, state }: Props) => {
       <div className="px-5 py-4 flex flex-col gap-4 flex-1">
         {state ? (
           <>
-            <p className="text-sm text-zinc-300 leading-relaxed">
+            <p className="text-sm text-foreground/80 leading-relaxed">
               {state.summary}
             </p>
 
             {state.core_principles.length > 0 && (
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-zinc-500 mb-2">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground mb-2">
                   Core principles
                 </p>
                 <ul className="space-y-1.5">
                   {state.core_principles.map((p) => {
                     return (
                       <li key={p} className="flex items-start gap-2 text-sm">
-                        <span className="size-1.5 rounded-full bg-teal-400 mt-1.5 shrink-0" />
+                        <span className="size-1.5 rounded-full bg-brand mt-1.5 shrink-0" />
                         {p}
                       </li>
                     );
@@ -57,14 +57,14 @@ export const ArchitectureStateCard = ({ projectId, state }: Props) => {
 
             {state.constraints.length > 0 && (
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-zinc-500 mb-2">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground mb-2">
                   Constraints
                 </p>
                 <ul className="space-y-1.5">
                   {state.constraints.map((c) => {
                     return (
                       <li key={c} className="flex items-start gap-2 text-sm">
-                        <span className="size-1.5 rounded-full bg-yellow-400 mt-1.5 shrink-0" />
+                        <span className="size-1.5 rounded-full bg-status-warning mt-1.5 shrink-0" />
                         {c}
                       </li>
                     );
@@ -75,8 +75,10 @@ export const ArchitectureStateCard = ({ projectId, state }: Props) => {
           </>
         ) : (
           <div className="flex flex-col gap-3">
-            <p className="text-sm text-zinc-500">No architecture state yet.</p>
-            <code className="text-teal-400 font-mono text-xs bg-teal-500/10 px-2 py-1.5 rounded self-start">
+            <p className="text-sm text-muted-foreground">
+              No architecture state yet.
+            </p>
+            <code className="text-brand font-mono text-xs bg-brand-fill px-2 py-1.5 rounded self-start">
               saedra memory state update --ai
             </code>
           </div>
