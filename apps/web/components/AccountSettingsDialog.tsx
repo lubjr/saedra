@@ -52,7 +52,7 @@ const Segmented = ({
 }: {
   value: string;
   onChange: (v: string) => void;
-  options: { value: string; label: string }[];
+  options: { value: string; label: string; beta?: boolean }[];
   disabled?: boolean;
 }) => {
   return (
@@ -68,13 +68,18 @@ const Segmented = ({
               return onChange(o.value);
             }}
             disabled={disabled}
-            className={`px-2.5 py-1 rounded text-xs font-medium transition ${
+            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium transition ${
               o.value === value
                 ? "bg-muted text-foreground"
                 : "text-muted-foreground hover:text-foreground/80"
             } ${disabled ? "cursor-not-allowed" : "cursor-pointer"}`}
           >
             {o.label}
+            {o.beta && (
+              <span className="text-[9px] font-semibold uppercase tracking-wider text-brand leading-none px-1 py-0.5 rounded bg-brand-fill text-brand">
+                beta
+              </span>
+            )}
           </button>
         );
       })}
@@ -363,7 +368,7 @@ const PreferencesPanel = ({ onClose }: { onClose: () => void }) => {
               options={[
                 { value: "system", label: "System" },
                 { value: "dark", label: "Dark" },
-                { value: "light", label: "Light" },
+                { value: "light", label: "Light", beta: true },
               ]}
             />
           </SettingRow>
