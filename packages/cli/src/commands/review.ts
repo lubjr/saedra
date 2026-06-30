@@ -27,6 +27,15 @@ function getChangedFiles(staged: boolean, base?: string): string[] {
   }
 }
 
+function getCurrentBranch(): string {
+  if (process.env.GITHUB_HEAD_REF) return process.env.GITHUB_HEAD_REF;
+  try {
+    const branch = execSync("git rev-parse --abbrev-ref HEAD", { encoding: "utf-8" }).trim();
+    if (branch && branch !== "HEAD") return branch;
+  } catch {}
+  return process.env.GITHUB_REF_NAME ?? "unknown";
+}
+
 function getFileDiff(file: string, staged: boolean, base?: string): string {
   try {
     let cmd: string;
@@ -177,10 +186,7 @@ export async function reviewCommand(opts: { staged?: boolean; json?: boolean; ba
 
     if (!opts.offline) {
       try {
-        let branch = "unknown";
-        try {
-          branch = execSync("git rev-parse --abbrev-ref HEAD", { encoding: "utf-8" }).trim();
-        } catch {}
+        const branch = getCurrentBranch();
 
         await fetch(`${config.apiUrl}/projects/${project.id}/reviews`, {
           method: "POST",
