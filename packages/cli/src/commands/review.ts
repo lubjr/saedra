@@ -27,6 +27,15 @@ function getChangedFiles(staged: boolean, base?: string): string[] {
   }
 }
 
+function getCurrentBranch(): string {
+  if (process.env.GITHUB_HEAD_REF) return process.env.GITHUB_HEAD_REF;
+  try {
+    const branch = execSync("git rev-parse --abbrev-ref HEAD", { encoding: "utf-8" }).trim();
+    if (branch && branch !== "HEAD") return branch;
+  } catch {}
+  return process.env.GITHUB_REF_NAME ?? "unknown";
+}
+
 function getFileDiff(file: string, staged: boolean, base?: string): string {
   try {
     let cmd: string;
@@ -175,6 +184,29 @@ export async function reviewCommand(opts: { staged?: boolean; json?: boolean; ba
       ok: okFiles.length,
     };
 
+    if (!opts.offline) {
+      try {
+        const branch = getCurrentBranch();
+
+        await fetch(`${config.apiUrl}/projects/${project.id}/reviews`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${config.token}`,
+          },
+          body: JSON.stringify({
+            branch,
+            base: opts.base ?? null,
+            total_files: result.files.length,
+            violations: summary.violations,
+            warnings: summary.warnings,
+            ok: summary.ok,
+            files: result.files,
+          }),
+        });
+      } catch {}
+    }
+
     if (opts.json) {
       console.log(JSON.stringify({
         project: project.name,
@@ -235,32 +267,6 @@ export async function reviewCommand(opts: { staged?: boolean; json?: boolean; ba
       console.log(`\n  Result: ${parts.join(", ")} — no blocking violations\n`);
     } else {
       console.log("\n  Result: no violations found\n");
-    }
-
-    if (!opts.offline) {
-      try {
-        let branch = "unknown";
-        try {
-          branch = execSync("git rev-parse --abbrev-ref HEAD", { encoding: "utf-8" }).trim();
-        } catch {}
-
-        await fetch(`${config.apiUrl}/projects/${project.id}/reviews`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${config.token}`,
-          },
-          body: JSON.stringify({
-            branch,
-            base: opts.base ?? null,
-            total_files: result.files.length,
-            violations: summary.violations,
-            warnings: summary.warnings,
-            ok: summary.ok,
-            files: result.files,
-          }),
-        });
-      } catch {}
     }
   } catch (err) {
     aiSpinner?.fail((err as Error).message);
