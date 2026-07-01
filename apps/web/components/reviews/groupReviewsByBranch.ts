@@ -23,8 +23,8 @@ export const groupReviewsByBranch = (
     return { branch, runs };
   }).sort((a, b) => {
     return (
-      new Date(b.runs[0].created_at).getTime() -
-      new Date(a.runs[0].created_at).getTime()
+      new Date(b.runs[0]?.created_at ?? 0).getTime() -
+      new Date(a.runs[0]?.created_at ?? 0).getTime()
     );
   });
 };
