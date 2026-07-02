@@ -17,11 +17,16 @@ export const ReviewPassedCard = ({ files }: Props) => {
       <ul className="divide-y divide-dashed divide-border">
         {files.map((f) => {
           return (
-            <li key={f.file} className="px-5 py-3 flex items-center gap-2">
-              <span className="size-1.5 rounded-full bg-brand shrink-0" />
-              <code className="font-mono text-xs text-muted-foreground break-all">
-                {f.file}
-              </code>
+            <li key={f.file} className="px-5 py-3 flex flex-col gap-1.5">
+              <div className="flex items-start gap-2">
+                <span className="size-1.5 rounded-full bg-brand mt-1.5 shrink-0" />
+                <code className="font-mono text-xs text-muted-foreground break-all">
+                  {f.file}
+                </code>
+              </div>
+              {f.note && (
+                <p className="text-xs text-muted-foreground pl-3.5">{f.note}</p>
+              )}
             </li>
           );
         })}
