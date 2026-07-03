@@ -29,6 +29,22 @@ export const ReviewWarningsCard = ({ files }: Props) => {
               {f.note && (
                 <p className="text-xs text-muted-foreground pl-3.5">{f.note}</p>
               )}
+              {f.violations.length > 0 && (
+                <ul className="pl-3.5 flex flex-col gap-1.5">
+                  {f.violations.map((v, i) => {
+                    return (
+                      <li key={i} className="flex flex-col gap-0.5">
+                        <span className="text-[10px] font-mono bg-status-warning-fill text-status-warning border border-status-warning-stroke rounded-md px-1.5 py-0.5 self-start">
+                          {v.rule_id}
+                        </span>
+                        <p className="text-xs text-muted-foreground">
+                          {v.detail}
+                        </p>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
             </li>
           );
         })}
