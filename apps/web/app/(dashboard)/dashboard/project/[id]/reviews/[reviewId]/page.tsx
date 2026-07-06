@@ -1,5 +1,3 @@
-import { ChevronRightIcon } from "@repo/ui/lucide";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { getProjectReview } from "../../../../../../../auth/reviews";
@@ -8,6 +6,7 @@ import { ReviewKpiStrip } from "../../../../../../../components/reviews/ReviewKp
 import { ReviewPassedCard } from "../../../../../../../components/reviews/ReviewPassedCard";
 import { ReviewViolationsCard } from "../../../../../../../components/reviews/ReviewViolationsCard";
 import { ReviewWarningsCard } from "../../../../../../../components/reviews/ReviewWarningsCard";
+import { SetReviewBreadcrumb } from "../../../../../../../components/reviews/SetReviewBreadcrumb";
 
 interface PageProps {
   params: Promise<{ id: string; reviewId: string }>;
@@ -31,13 +30,7 @@ export default async function Page({ params }: PageProps) {
 
   return (
     <div className="mx-auto max-w-6xl space-y-5">
-      <Link
-        href={`/dashboard/project/${id}/reviews`}
-        className="flex items-center gap-1 text-xs font-mono text-zinc-500 hover:text-zinc-300 transition-colors w-fit"
-      >
-        <ChevronRightIcon className="size-3 rotate-180" />
-        Reviews
-      </Link>
+      <SetReviewBreadcrumb label={review.branch} />
 
       <ReviewDetailHeader review={review} />
       <ReviewKpiStrip review={review} />

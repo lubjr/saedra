@@ -1,5 +1,6 @@
 "use client";
 
+import { BreadcrumbProvider } from "../../contexts/BreadcrumbContext";
 import { ProjectsProvider } from "../../contexts/ProjectsContext";
 import { UserProvider } from "../../contexts/UserContext";
 
@@ -10,7 +11,9 @@ export default function ClientWrapper({
 }) {
   return (
     <UserProvider>
-      <ProjectsProvider>{children}</ProjectsProvider>
+      <ProjectsProvider>
+        <BreadcrumbProvider>{children}</BreadcrumbProvider>
+      </ProjectsProvider>
     </UserProvider>
   );
 }

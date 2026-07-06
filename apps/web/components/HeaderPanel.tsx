@@ -13,11 +13,21 @@ import { SidebarTrigger } from "@repo/ui/sidebar";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { useBreadcrumbLabel } from "../app/contexts/BreadcrumbContext";
 import { useProjects } from "../app/contexts/ProjectsContext";
+
+const humanize = (segment: string): string => {
+  return decodeURIComponent(segment)
+    .replace(/-/g, " ")
+    .replace(/\b\w/g, (c: string) => {
+      return c.toUpperCase();
+    });
+};
 
 export const HeaderPanel = () => {
   const pathname = usePathname();
   const { projects } = useProjects();
+  const { label: detailLabel } = useBreadcrumbLabel();
 
   const segments = pathname.split("/").filter(Boolean);
   const projectIdx = segments.indexOf("project");
@@ -26,6 +36,8 @@ export const HeaderPanel = () => {
 
   let projectName: string | null = null;
   let subPage: string | null = null;
+  let subPageSegment: string | null = null;
+  let detailSegment: string | null = null;
 
   if (isProjectPage && projects) {
     const projectId = segments[projectIdx + 1] ?? "";
@@ -36,12 +48,9 @@ export const HeaderPanel = () => {
     if (project) {
       projectName = project.name;
     }
-    const sub = segments[projectIdx + 2];
-    subPage = sub
-      ? sub.replace(/-/g, " ").replace(/\b\w/g, (c: string) => {
-          return c.toUpperCase();
-        })
-      : "Overview";
+    subPageSegment = segments[projectIdx + 2] ?? null;
+    subPage = subPageSegment ? humanize(subPageSegment) : "Overview";
+    detailSegment = segments[projectIdx + 3] ?? null;
   }
 
   const lastSegment = segments[segments.length - 1] ?? "";
@@ -87,9 +96,29 @@ export const HeaderPanel = () => {
                   </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>{subPage}</BreadcrumbPage>
-                </BreadcrumbItem>
+                {detailSegment ? (
+                  <>
+                    <BreadcrumbItem>
+                      <BreadcrumbLink asChild>
+                        <Link
+                          href={`/dashboard/project/${segments[projectIdx + 1]}/${subPageSegment}`}
+                        >
+                          {subPage}
+                        </Link>
+                      </BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                      <BreadcrumbPage>
+                        {detailLabel ?? humanize(detailSegment)}
+                      </BreadcrumbPage>
+                    </BreadcrumbItem>
+                  </>
+                ) : (
+                  <BreadcrumbItem>
+                    <BreadcrumbPage>{subPage}</BreadcrumbPage>
+                  </BreadcrumbItem>
+                )}
               </>
             ) : (
               <BreadcrumbItem>
