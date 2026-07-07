@@ -26,6 +26,14 @@ const MOCK_RESPONSES = {
     data: { user: MOCK_USER },
     error: null,
   },
+  resetEmailSuccess: {
+    data: {},
+    error: null,
+  },
+  updateUserSuccess: {
+    data: { user: MOCK_USER },
+    error: null,
+  },
 }
 
 const MOCK_ERRORS = {
@@ -38,24 +46,30 @@ vi.mock('@repo/db-connector/db', () => {
   const mockSignUp = vi.fn()
   const mockSignInWithPassword = vi.fn()
   const mockGetUser = vi.fn()
+  const mockResetPasswordForEmail = vi.fn()
+  const mockUpdateUserById = vi.fn()
 
   return {
     supabase: {
       auth: {
         signUp: mockSignUp,
         signInWithPassword: mockSignInWithPassword,
+        resetPasswordForEmail: mockResetPasswordForEmail,
       },
     },
     serviceClient: {
       auth: {
         getUser: mockGetUser,
+        admin: {
+          updateUserById: mockUpdateUserById,
+        },
       },
     },
-    __mocks: { mockSignUp, mockSignInWithPassword, mockGetUser },
+    __mocks: { mockSignUp, mockSignInWithPassword, mockGetUser, mockResetPasswordForEmail, mockUpdateUserById },
   }
 })
 
-const { mockSignUp, mockSignInWithPassword, mockGetUser } = (
+const { mockSignUp, mockSignInWithPassword, mockGetUser, mockResetPasswordForEmail, mockUpdateUserById } = (
   await vi.importMock('@repo/db-connector/db') as any
 ).__mocks
 
@@ -133,6 +147,53 @@ describe('LoginDB', () => {
 
       expect(mockGetUser).toHaveBeenCalledWith(token)
       expect(result).toEqual(expected)
+    })
+  })
+
+  describe('sendPasswordResetEmail', () => {
+    test.each([
+      {
+        scenario: 'sends reset email successfully',
+        input: { email: 'test@example.com', redirectTo: 'https://www.saedra.pro/reset-password' },
+        mockResponse: MOCK_RESPONSES.resetEmailSuccess,
+        expected: MOCK_RESPONSES.resetEmailSuccess,
+      },
+      {
+        scenario: 'returns error when email is invalid',
+        input: { email: 'not-an-email', redirectTo: 'https://www.saedra.pro/reset-password' },
+        mockResponse: { data: null, error: { message: 'Invalid email', code: 'invalid_email' } },
+        expected: { data: null, error: { message: 'Invalid email', code: 'invalid_email' } },
+      },
+    ])('$scenario', async ({ input, mockResponse, expected }) => {
+      mockResetPasswordForEmail.mockResolvedValue(mockResponse)
+
+      const result = await LoginDB.sendPasswordResetEmail(input.email, input.redirectTo)
+
+      expect(mockResetPasswordForEmail).toHaveBeenCalledWith(input.email, { redirectTo: input.redirectTo })
+      expect(result).toEqual(expected)
+    })
+  })
+
+  describe('updatePasswordWithToken', () => {
+    test('updates password successfully when token is valid', async () => {
+      mockGetUser.mockResolvedValue(MOCK_RESPONSES.validateSuccess)
+      mockUpdateUserById.mockResolvedValue(MOCK_RESPONSES.updateUserSuccess)
+
+      const result = await LoginDB.updatePasswordWithToken('valid-token', 'new-password123')
+
+      expect(mockGetUser).toHaveBeenCalledWith('valid-token')
+      expect(mockUpdateUserById).toHaveBeenCalledWith(MOCK_USER.id, { password: 'new-password123' })
+      expect(result).toEqual(MOCK_RESPONSES.updateUserSuccess)
+    })
+
+    test('returns error without calling admin API when token is invalid', async () => {
+      mockGetUser.mockResolvedValue({ data: { user: null }, error: MOCK_ERRORS.invalidToken })
+
+      const result = await LoginDB.updatePasswordWithToken('invalid-token', 'new-password123')
+
+      expect(mockGetUser).toHaveBeenCalledWith('invalid-token')
+      expect(mockUpdateUserById).not.toHaveBeenCalled()
+      expect(result).toEqual({ data: null, error: MOCK_ERRORS.invalidToken })
     })
   })
 })

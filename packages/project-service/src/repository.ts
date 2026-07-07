@@ -23,6 +23,22 @@ export const signInUser = async (email: string, password: string): Promise<{ use
   return { userId: data.session };
 };
 
+export const requestPasswordReset = async (email: string, redirectTo: string): Promise<{ message: string }> => {
+  await LoginDB.sendPasswordResetEmail(email, redirectTo);
+
+  return { message: "If this email exists, a password reset link was sent." };
+};
+
+export const resetPassword = async (token: string, newPassword: string): Promise<{ message: string } | { error: string }> => {
+  const { error } = await LoginDB.updatePasswordWithToken(token, newPassword);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return { message: "Password updated successfully." };
+};
+
 export const getProfileById = async (userId: string): Promise<{ user: any } | { error: string }> => {
   const { data, error } = await ProfileDB.getProfileByUser(userId);
 
