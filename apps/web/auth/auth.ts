@@ -64,3 +64,46 @@ export const signup = async (
 
   return data;
 };
+
+export const requestPasswordReset = async (
+  email: string,
+): Promise<{ message: string }> => {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/projects/forgot-password`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    },
+  );
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error || "Failed to request password reset");
+  }
+
+  return data;
+};
+
+export const resetPassword = async (
+  token: string,
+  password: string,
+): Promise<{ message: string }> => {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/projects/reset-password`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token, password }),
+    },
+  );
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error || "Failed to reset password");
+  }
+
+  return data;
+};
