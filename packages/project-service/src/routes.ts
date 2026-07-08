@@ -46,6 +46,10 @@ routes.post("/forgot-password", passwordResetLimiter, async (req, res) => {
       return res.status(400).json({ error: "email required" });
     }
 
+    if (!process.env.WEB_APP_URL) {
+      return res.status(500).json({ error: "server misconfigured: WEB_APP_URL not set" });
+    }
+
     const redirectTo = `${process.env.WEB_APP_URL}/reset-password`;
     const result = await repo.requestPasswordReset(email, redirectTo);
 
