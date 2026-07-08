@@ -91,12 +91,12 @@ export const LoginForm = ({
                   <FieldLabel htmlFor="password" className="text-foreground/80">
                     Password
                   </FieldLabel>
-                  <a
-                    href="#"
+                  <Link
+                    href="/forgot-password"
                     className="text-sm text-foreground/80 hover:underline"
                   >
                     Forgot your password?
-                  </a>
+                  </Link>
                 </div>
                 <Input
                   id="password"
