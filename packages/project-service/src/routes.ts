@@ -1,9 +1,21 @@
 import { Router } from "express";
+import { rateLimit } from "express-rate-limit";
 import { authenticate } from "./middleware/authenticate.js";
 
 import * as repo from "./repository.js";
 
 const routes: Router = Router();
+
+const passwordResetLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 5,
+  message: {
+    error: "Too many requests from this IP, please try again later.",
+    retryAfter: "1 hour",
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 routes.post("/signup", async (req, res) => {
     const { email, password } = req.body;
@@ -25,6 +37,43 @@ routes.post("/login", async (req, res) => {
     }
 
     res.json({ session });
+});
+
+routes.post("/forgot-password", passwordResetLimiter, async (req, res) => {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: "email required" });
+    }
+
+    if (!process.env.WEB_APP_URL) {
+      return res.status(500).json({ error: "server misconfigured: WEB_APP_URL not set" });
+    }
+
+    const redirectTo = `${process.env.WEB_APP_URL}/reset-password`;
+    const result = await repo.requestPasswordReset(email, redirectTo);
+
+    res.json(result);
+});
+
+routes.post("/reset-password", passwordResetLimiter, async (req, res) => {
+    const { token, password } = req.body;
+
+    if (!token || !password) {
+      return res.status(400).json({ error: "token and password required" });
+    }
+
+    if (password.length < 8) {
+      return res.status(400).json({ error: "password must be at least 8 characters" });
+    }
+
+    const result = await repo.resetPassword(token, password);
+
+    if ('error' in result) {
+      return res.status(400).json({ error: result.error });
+    }
+
+    res.json(result);
 });
 
 routes.get('/profile/:userId', authenticate, async (req, res) => {
