@@ -14,7 +14,7 @@
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
-    "typescript": "latest"
+    "typescript": "5.8.3"
   },
   "dependencies": {
     "@aws-sdk/client-ec2": "^3.901.0",
