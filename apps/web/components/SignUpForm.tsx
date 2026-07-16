@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/ui/card";
+import { Checkbox } from "@repo/ui/checkbox";
 import {
   Field,
   FieldDescription,
@@ -30,8 +31,15 @@ export const SignUpForm = ({
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [confirmPassword, setConfirmPassword] = React.useState("");
+  const [agreedToTerms, setAgreedToTerms] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
   const router = useRouter();
+
+  const isFormValid =
+    email !== "" &&
+    password.length >= 8 &&
+    confirmPassword !== "" &&
+    password === confirmPassword;
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,6 +56,11 @@ export const SignUpForm = ({
 
     if (password !== confirmPassword) {
       toast.error("Passwords do not match");
+      return;
+    }
+
+    if (!agreedToTerms) {
+      toast.error("Please agree to the Terms of Service and Privacy Policy");
       return;
     }
 
@@ -145,8 +158,47 @@ export const SignUpForm = ({
                   Please confirm your password.
                 </FieldDescription>
               </Field>
+              {isFormValid && (
+                <Field orientation="horizontal">
+                  <Checkbox
+                    id="agreedToTerms"
+                    checked={agreedToTerms}
+                    onCheckedChange={(checked) => {
+                      return setAgreedToTerms(checked === true);
+                    }}
+                    disabled={loading}
+                    className="border-border-emphasis"
+                  />
+                  <FieldLabel
+                    htmlFor="agreedToTerms"
+                    className="text-muted-foreground font-normal"
+                  >
+                    <span>
+                      I agree to the{" "}
+                      <Link
+                        href="/terms"
+                        target="_blank"
+                        className="text-foreground underline transition-colors hover:text-brand"
+                      >
+                        Terms of Service
+                      </Link>{" "}
+                      and{" "}
+                      <Link
+                        href="/privacy"
+                        target="_blank"
+                        className="text-foreground underline transition-colors hover:text-brand"
+                      >
+                        Privacy Policy
+                      </Link>
+                    </span>
+                  </FieldLabel>
+                </Field>
+              )}
               <Field className="mt-1">
-                <Button type="submit" disabled={loading}>
+                <Button
+                  type="submit"
+                  disabled={loading || !isFormValid || !agreedToTerms}
+                >
                   Create Account
                 </Button>
               </Field>
