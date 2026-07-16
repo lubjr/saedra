@@ -167,23 +167,6 @@ export const LoginForm = ({
           ← Back to Home
         </Link>
       </FieldDescription>
-      <FieldDescription className="px-6 text-center text-muted-foreground">
-        By clicking continue, you agree to our{" "}
-        <a
-          href="#"
-          className="text-muted-foreground hover:text-foreground underline transition-colors"
-        >
-          Terms of Service
-        </a>{" "}
-        and{" "}
-        <a
-          href="#"
-          className="text-muted-foreground hover:text-foreground underline transition-colors"
-        >
-          Privacy Policy
-        </a>
-        .
-      </FieldDescription>
     </div>
   );
 };
