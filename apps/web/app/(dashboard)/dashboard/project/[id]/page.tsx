@@ -54,11 +54,10 @@ export default async function Page({ params }: PageProps) {
   const setupComplete = checklist.every((item) => {
     return item.done;
   });
-  const projectName = summary?.name ?? "Project";
 
   return (
     <div className="mx-auto max-w-6xl space-y-5">
-      <OverviewHeader projectName={projectName} summary={summary} />
+      <OverviewHeader summary={summary} />
 
       {!setupComplete && (
         <ProjectSetupBanner projectId={id} checklist={checklist} />

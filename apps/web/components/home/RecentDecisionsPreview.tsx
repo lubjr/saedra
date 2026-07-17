@@ -61,7 +61,7 @@ export const RecentDecisionsPreview = ({ hasMemory, decisions }: Props) => {
   return (
     <div className="flex flex-col flex-1">
       <ul className="flex flex-col divide-y divide-dashed divide-border">
-        {decisions!.map((dec) => {
+        {(decisions ?? []).map((dec) => {
           return (
             <li key={dec.id} className="flex items-start gap-3 py-3 first:pt-0">
               <span
