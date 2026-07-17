@@ -20,7 +20,9 @@ export default async function Page({ params }: PageProps) {
   const seen = new Set<string>();
   const sorted = [...changes]
     .sort((a, b) => {
-      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      return (
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
     })
     .filter((c) => {
       if (seen.has(c.id)) return false;
