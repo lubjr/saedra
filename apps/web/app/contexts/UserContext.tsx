@@ -9,6 +9,7 @@ type UserContextType = {
   email: string;
   username: string;
   avatar_url: string;
+  plan: string;
   updated_at: string;
 } | null;
 

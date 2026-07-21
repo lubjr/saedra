@@ -17,8 +17,12 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
     const token = authHeader.split(" ")[1];
     if (!token) return res.status(401).json({ error: "missing token" });
 
-    const user = await LoginDB.validateToken(token);
-    req.user = user;
+    const { data, error } = await LoginDB.validateToken(token);
+    if (error || !data.user) {
+      return res.status(401).json({ error: error?.message || "invalid token" });
+    }
+
+    req.user = data.user;
     next();
   } catch (err: any) {
     return res.status(401).json({ error: err.message || "unauthorized" });

@@ -25,6 +25,7 @@ import { useRouter } from "next/navigation";
 import * as React from "react";
 import { toast } from "sonner";
 
+import { useProjectLimit } from "../../../../hooks/useProjectLimit";
 import { useProjects } from "../../../contexts/ProjectsContext";
 
 const NAME_REGEX = /^[a-z0-9][a-z0-9-]*$/;
@@ -32,6 +33,7 @@ const REPO_REGEX = /^(https?:\/\/)?(github\.com|gitlab\.com)\//;
 
 export default function Page() {
   const { create } = useProjects();
+  const { isAtLimit } = useProjectLimit();
   const router = useRouter();
   const [name, setName] = React.useState("");
   const [description, setDescription] = React.useState("");
@@ -42,6 +44,13 @@ export default function Page() {
   const repoWarning =
     linkedRepository.length > 0 && !REPO_REGEX.test(linkedRepository);
 
+  React.useEffect(() => {
+    if (isAtLimit) {
+      toast.error("Standard plan limit reached — upgrade to add more projects");
+      router.replace("/dashboard");
+    }
+  }, [isAtLimit, router]);
+
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!name.trim()) return;
@@ -49,9 +58,14 @@ export default function Page() {
     setIsLoading(true);
     try {
       const result = await create({ name });
+
+      if ("error" in result) {
+        toast.error(result.error);
+        return;
+      }
+
       toast.success("Project created");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const id = (result as any)?.data?.id;
+      const id = result.data?.id;
       if (id) {
         router.push(`/dashboard/project/${id}`);
       } else {
@@ -63,6 +77,10 @@ export default function Page() {
       setIsLoading(false);
     }
   };
+
+  if (isAtLimit) {
+    return null;
+  }
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">

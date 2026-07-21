@@ -40,6 +40,7 @@ import { usePathname, useRouter } from "next/navigation";
 import * as React from "react";
 
 import { useProjects } from "../app/contexts/ProjectsContext";
+import { useProjectLimit } from "../hooks/useProjectLimit";
 
 export const NavProjects = ({
   projects,
@@ -56,6 +57,7 @@ export const NavProjects = ({
 }) => {
   const { isMobile } = useSidebar();
   const { delete: deleteProject } = useProjects();
+  const { isAtLimit } = useProjectLimit();
   const router = useRouter();
   const pathname = usePathname();
   const [collapsedIds, setCollapsedIds] = React.useState<Set<string>>(
@@ -273,14 +275,27 @@ export const NavProjects = ({
             })}
             <SidebarMenuItem>
               <SidebarMenuButton
-                asChild
-                className="cursor-pointer"
+                asChild={!isAtLimit}
+                disabled={isAtLimit}
+                className={isAtLimit ? "" : "cursor-pointer"}
                 isActive={pathname === "/dashboard/new-project"}
+                title={
+                  isAtLimit
+                    ? "Standard plan limit reached — upgrade to add more projects"
+                    : undefined
+                }
               >
-                <Link href="/dashboard/new-project">
-                  <PlusIcon />
-                  <span>New Project</span>
-                </Link>
+                {isAtLimit ? (
+                  <span className="flex items-center gap-2">
+                    <PlusIcon />
+                    <span>New Project</span>
+                  </span>
+                ) : (
+                  <Link href="/dashboard/new-project">
+                    <PlusIcon />
+                    <span>New Project</span>
+                  </Link>
+                )}
               </SidebarMenuButton>
             </SidebarMenuItem>
           </>

@@ -57,13 +57,13 @@ export const createProject = async ({
 }: {
   name: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-}): Promise<{ data: any } | undefined> => {
+}): Promise<{ data: any } | { error: string; code?: string }> => {
   const cookieStore = await cookies();
   const token = cookieStore.get("access_token")?.value;
   const userId = cookieStore.get("user_id")?.value;
 
   if (!token || !userId) {
-    return undefined;
+    return { error: "Not authenticated" };
   }
 
   const res = await fetch(
@@ -81,7 +81,7 @@ export const createProject = async ({
   const data = await res.json();
 
   if (!res.ok) {
-    return undefined;
+    return { error: data.error ?? "Failed to create project", code: data.code };
   }
 
   return { data };

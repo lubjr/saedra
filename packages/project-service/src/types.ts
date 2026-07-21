@@ -8,6 +8,7 @@ export type CreateProjectResponse = {
   };
 } | {
   error: string;
+  code?: string;
 };
 
 export type CreateCredentialsResponse = {
