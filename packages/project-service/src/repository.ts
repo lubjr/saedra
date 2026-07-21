@@ -60,6 +60,27 @@ export const updateProfileById = async (userId: string, username: string, avatar
 };
 
 export const createProject = async (name: string, userId: string): Promise<CreateProjectResponse> => {
+  const { data: profile, error: profileError } = await ProfileDB.getProfileByUser(userId);
+
+  if (profileError) {
+    return { error: profileError.message };
+  }
+
+  if (profile.plan === "standard") {
+    const { count, error: countError } = await ProjectDB.countProjectsByUser(userId);
+
+    if (countError) {
+      return { error: countError.message };
+    }
+
+    if ((count ?? 0) >= 1) {
+      return {
+        error: "Your standard plan allows only 1 project.",
+        code: "PROJECT_LIMIT_REACHED",
+      };
+    }
+  }
+
   const { data, error } = await ProjectDB.insertProject(userId, name);
 
   if (error) {

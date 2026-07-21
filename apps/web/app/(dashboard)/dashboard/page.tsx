@@ -18,6 +18,7 @@ import { ProjectCard } from "../../../components/home/ProjectCard";
 import { SearchInput } from "../../../components/home/SearchInput";
 import { SetupBanner } from "../../../components/home/SetupBanner";
 import { usePreferences } from "../../../hooks/usePreferences";
+import { useProjectLimit } from "../../../hooks/useProjectLimit";
 import { useProjects } from "../../contexts/ProjectsContext";
 
 type Filter = "all" | "active" | "setup" | "archived";
@@ -28,6 +29,7 @@ export default function Page() {
   }, []);
 
   const { projects, isLoading } = useProjects();
+  const { isAtLimit } = useProjectLimit();
   const { prefs } = usePreferences();
   const [filter, setFilter] = React.useState<Filter>("all");
   const [query, setQuery] = React.useState("");
@@ -149,11 +151,29 @@ export default function Page() {
         </div>
         <div className="flex-1" />
         <SearchInput value={query} onChange={setQuery} />
-        <Button variant="brand" size="sm" asChild className="shrink-0">
-          <Link href="/dashboard/new-project">
-            <PlusIcon className="h-4 w-4" />
-            New Project
-          </Link>
+        <Button
+          variant="brand"
+          size="sm"
+          asChild={!isAtLimit}
+          disabled={isAtLimit}
+          className="shrink-0"
+          title={
+            isAtLimit
+              ? "Standard plan limit reached — upgrade to add more projects"
+              : undefined
+          }
+        >
+          {isAtLimit ? (
+            <span className="flex items-center gap-2">
+              <PlusIcon className="h-4 w-4" />
+              New Project
+            </span>
+          ) : (
+            <Link href="/dashboard/new-project">
+              <PlusIcon className="h-4 w-4" />
+              New Project
+            </Link>
+          )}
         </Button>
       </div>
 

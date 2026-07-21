@@ -1,5 +1,12 @@
 import { supabase } from "@repo/db-connector/db";
 
+export type Profile = {
+  id: string;
+  username: string;
+  avatar_url: string;
+  plan: string;
+};
+
 type ProfileDBType = {
   getProfileByUser(userId: string): Promise<any>;
   updateProfileByUser(userId: string, username: string, avatar_url: string): Promise<any>;
