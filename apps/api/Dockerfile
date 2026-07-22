@@ -1,5 +1,5 @@
-FROM node:18-alpine AS base
-RUN corepack enable && corepack prepare pnpm@10.28.2 --activate
+FROM node:22-alpine AS base
+RUN corepack enable && corepack prepare pnpm@10.33.0 --activate
 
 FROM base AS deps
 WORKDIR /app
@@ -23,7 +23,7 @@ RUN rm -rf packages/vitest-config && \
 RUN pnpm run build --filter=api...
 RUN pnpm deploy --filter=api --prod --legacy /prod/api
 
-FROM node:18-alpine AS runner
+FROM node:22-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 
