@@ -18,14 +18,28 @@
     "test": "turbo run test"
   },
   "devDependencies": {
-    "concurrently": "^9.2.1",
-    "dotenv-cli": "^7.3.0",
-    "prettier": "^3.6.2",
-    "turbo": "^2.8.3",
+    "concurrently": "^9.2.4",
+    "dotenv-cli": "^7.4.4",
+    "prettier": "^3.9.5",
+    "turbo": "^2.10.5",
     "typescript": "5.8.3"
   },
   "packageManager": "pnpm@10.33.0",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
+  },
+  "pnpm": {
+    "overrides": {
+      "@types/express-serve-static-core": "5.0.7",
+      "@types/qs": "6.14.0",
+      "@ttoss/eslint-config": "1.26.4",
+      "@supabase/supabase-js": "2.110.6",
+      "@aws-sdk/client-s3": "3.901.0",
+      "@aws-sdk/client-ec2": "3.901.0",
+      "@aws-sdk/client-rds": "3.901.0",
+      "@aws-sdk/client-bedrock": "3.947.0",
+      "@aws-sdk/client-bedrock-runtime": "3.947.0",
+      "aws-sdk": "2.1692.0"
+    }
   }
 }

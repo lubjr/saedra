@@ -110,13 +110,19 @@ routes.put('/profile/:userId', authenticate, async (req, res) => {
 });
 
 routes.post('/create', authenticate, async (req, res) => {
-  const { name, userId } = req.body;
+  const { name } = req.body;
+  const userId = req.user.id;
 
-  if (!name || !userId) {
-    return res.status(400).json({ error: 'name and userId required' });
+  if (!name) {
+    return res.status(400).json({ error: 'name required' });
   }
 
   const project = await repo.createProject(name, userId);
+
+  if ('error' in project) {
+    const status = project.code === 'PROJECT_LIMIT_REACHED' ? 403 : 400;
+    return res.status(status).json(project);
+  }
 
   res.status(201).json(project);
 });

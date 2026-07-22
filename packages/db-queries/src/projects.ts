@@ -3,6 +3,7 @@ import { serviceClient } from "@repo/db-connector/db";
 type ProjectDBType = {
   insertProject(userId: string, name: string): Promise<any>;
   getProjectsByUser(userId: string): Promise<any>;
+  countProjectsByUser(userId: string): Promise<any>;
   getProjectById(projectId: string): Promise<any>;
   deleteProjectById(projectId: string): Promise<any>;
   getProjectSummaryData(userId: string): Promise<{ projects: any[]; reviews: any[]; docs: any[] }>;
@@ -15,6 +16,10 @@ export const ProjectDB: ProjectDBType = {
 
   async getProjectsByUser(userId: string) {
     return serviceClient.from('projects').select('*, documents(count)').eq('user_id', userId);
+  },
+
+  async countProjectsByUser(userId: string) {
+    return serviceClient.from('projects').select('id', { count: 'exact', head: true }).eq('user_id', userId);
   },
 
   async getProjectById(projectId: string) {

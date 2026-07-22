@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import type { ProjectSummary } from "../../auth/projects";
 
 interface Props {
-  projectName: string;
   summary: ProjectSummary | null;
 }
 
@@ -41,7 +40,7 @@ const StatusChip = ({ status }: { status: ProjectSummary["status"] }) => {
   );
 };
 
-export const OverviewHeader = ({ projectName, summary }: Props) => {
+export const OverviewHeader = ({ summary }: Props) => {
   const handleCopyCli = () => {
     void navigator.clipboard.writeText("saedra review");
     toast.success("Copied to clipboard");

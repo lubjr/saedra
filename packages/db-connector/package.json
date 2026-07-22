@@ -17,10 +17,10 @@
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
     "@repo/vitest-config": "workspace:*",
-    "typescript": "latest",
-    "vitest": "^3.1.4"
+    "typescript": "5.8.3",
+    "vitest": "^3.2.7"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.57.4"
+    "@supabase/supabase-js": "^2.110.6"
   }
 }
