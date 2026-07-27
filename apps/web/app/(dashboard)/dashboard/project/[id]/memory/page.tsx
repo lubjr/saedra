@@ -41,13 +41,30 @@ export default async function Page({ params, searchParams }: PageProps) {
   const { id } = await params;
   const { folder, itemId } = await searchParams;
 
-  const [state, decisions, changes, rules, summary] = await Promise.all([
+  const [state, rawDecisions, rawChanges, rules, summary] = await Promise.all([
     getArchitectureState(id),
     getDecisions(id),
     getRecentChanges(id, 50),
     getViolationRules(id),
     getProjectSummary(id),
   ]);
+
+  const decisions = [...rawDecisions].sort((a, b) => {
+    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+  });
+
+  const seenChangeIds = new Set<string>();
+  const changes = [...rawChanges]
+    .sort((a, b) => {
+      return (
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+    })
+    .filter((c) => {
+      if (seenChangeIds.has(c.id)) return false;
+      seenChangeIds.add(c.id);
+      return true;
+    });
 
   const hasState = !!state;
   const activeFolder: FolderKey | null =
