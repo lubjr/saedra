@@ -60,7 +60,8 @@ export const MemoryHeader = ({ summary, hasState }: Props) => {
         </p>
         <h1 className="text-3xl font-semibold tracking-tight">Memory</h1>
         <p className="text-sm text-muted-foreground">
-          Architecture state recorded by the CLI.
+          Architecture state, decisions, changes and rules recorded by the CLI —
+          unified in one place.
         </p>
         <div className="flex items-center gap-2 flex-wrap pt-1">
           {!hasState ? (

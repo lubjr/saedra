@@ -10,11 +10,12 @@ import { inferRisk, RISK_CLASSES, RISK_DOT } from "./helpers";
 
 interface Props {
   changes: ChangeEvent[];
+  initialSelectedId?: string | null;
 }
 
-export const ChangesBoard = ({ changes }: Props) => {
+export const ChangesBoard = ({ changes, initialSelectedId }: Props) => {
   const [selected, setSelected] = React.useState<string | null>(
-    changes[0]?.id ?? null,
+    initialSelectedId ?? changes[0]?.id ?? null,
   );
   const [query, setQuery] = React.useState("");
 

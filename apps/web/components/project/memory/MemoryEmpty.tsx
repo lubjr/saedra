@@ -5,12 +5,6 @@ import { CopyIcon, SparklesIcon } from "@repo/ui/lucide";
 import { toast } from "sonner";
 
 const UPDATE_CMD = "saedra memory state update --ai";
-const KPI_LABELS = [
-  "State version",
-  "Core principles",
-  "Critical paths",
-  "Constraints",
-];
 
 export const MemoryEmpty = () => {
   const handleCopy = () => {
@@ -23,27 +17,6 @@ export const MemoryEmpty = () => {
 
   return (
     <>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {KPI_LABELS.map((label) => {
-          return (
-            <div
-              key={label}
-              className="rounded-xl border border-border bg-card p-4 flex flex-col gap-2"
-            >
-              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                {label}
-              </p>
-              <p className="text-3xl font-mono font-semibold text-muted-foreground">
-                —
-              </p>
-              <p className="text-[11px] font-mono text-muted-foreground">
-                no snapshot
-              </p>
-            </div>
-          );
-        })}
-      </div>
-
       <div className="rounded-xl border border-border bg-card px-6 py-14 flex flex-col items-center text-center">
         <span className="size-11 rounded-lg bg-brand-fill text-brand grid place-items-center mb-4">
           <SparklesIcon className="size-5" />
