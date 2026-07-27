@@ -1,6 +1,8 @@
 import {
   getArchitectureState,
   getDecisions,
+  getRecentChanges,
+  getViolationRules,
 } from "../../../../../../auth/documents";
 import { getProjectSummary } from "../../../../../../auth/projects";
 import { ActiveDecisionsCard } from "../../../../../../components/project/memory/ActiveDecisionsCard";
@@ -19,9 +21,11 @@ interface PageProps {
 export default async function Page({ params }: PageProps) {
   const { id } = await params;
 
-  const [state, decisions, summary] = await Promise.all([
+  const [state, decisions, changes, rules, summary] = await Promise.all([
     getArchitectureState(id),
     getDecisions(id),
+    getRecentChanges(id, 50),
+    getViolationRules(id),
     getProjectSummary(id),
   ]);
 
@@ -47,7 +51,12 @@ export default async function Page({ params }: PageProps) {
   return (
     <div className="mx-auto max-w-6xl space-y-5">
       <MemoryHeader summary={summary} hasState />
-      <MemoryKpiStrip state={state} />
+      <MemoryKpiStrip
+        summary={summary}
+        decisions={decisions}
+        changes={changes}
+        rules={rules}
+      />
       <SummaryCard state={state} />
 
       <div className="grid grid-cols-1 lg:grid-cols-[1.55fr_1fr] gap-5 items-start">
