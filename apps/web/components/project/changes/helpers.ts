@@ -1,6 +1,7 @@
 import type { ChangeEvent } from "../../../auth/documents";
+import { type Tier, TIER_CLASSES, TIER_DOT } from "../decisions/helpers";
 
-export type Risk = "low" | "medium" | "high";
+export type Risk = Tier;
 
 export const inferRisk = (assessment: string): Risk => {
   const lower = (assessment ?? "").toLowerCase();
@@ -9,18 +10,8 @@ export const inferRisk = (assessment: string): Risk => {
   return "low";
 };
 
-export const RISK_CLASSES: Record<Risk, string> = {
-  low: "bg-brand-fill text-brand border-brand-stroke",
-  medium:
-    "bg-status-warning-fill text-status-warning border-status-warning-stroke",
-  high: "bg-status-error-fill text-status-error border-status-error-stroke",
-};
-
-export const RISK_DOT: Record<Risk, string> = {
-  low: "bg-brand",
-  medium: "bg-status-warning",
-  high: "bg-status-error",
-};
+export const RISK_CLASSES = TIER_CLASSES;
+export const RISK_DOT = TIER_DOT;
 
 export const countFilesTouched = (changes: ChangeEvent[]): number => {
   const set = new Set<string>();
