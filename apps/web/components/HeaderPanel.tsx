@@ -96,7 +96,7 @@ export const HeaderPanel = () => {
                   </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
-                {detailSegment ? (
+                {detailSegment || detailLabel ? (
                   <>
                     <BreadcrumbItem>
                       <BreadcrumbLink asChild>
@@ -110,7 +110,8 @@ export const HeaderPanel = () => {
                     <BreadcrumbSeparator />
                     <BreadcrumbItem>
                       <BreadcrumbPage>
-                        {detailLabel ?? humanize(detailSegment)}
+                        {detailLabel ??
+                          (detailSegment ? humanize(detailSegment) : "")}
                       </BreadcrumbPage>
                     </BreadcrumbItem>
                   </>

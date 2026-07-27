@@ -16,8 +16,15 @@ import { MemoryEmpty } from "../../../../../../components/project/memory/MemoryE
 import { MemoryHeader } from "../../../../../../components/project/memory/MemoryHeader";
 import { MemoryShell } from "../../../../../../components/project/memory/MemoryShell";
 import { PrinciplesCard } from "../../../../../../components/project/memory/PrinciplesCard";
+import { SetMemoryBreadcrumb } from "../../../../../../components/project/memory/SetMemoryBreadcrumb";
 import { SummaryCard } from "../../../../../../components/project/memory/SummaryCard";
 import { RulesBoard } from "../../../../../../components/project/rules/RulesBoard";
+
+const FOLDER_LABEL: Record<FolderKey, string> = {
+  decisions: "Decisions",
+  changes: "Changes",
+  rules: "Rules",
+};
 
 const FOLDER_KEYS: FolderKey[] = ["decisions", "changes", "rules"];
 
@@ -94,6 +101,9 @@ export default async function Page({ params, searchParams }: PageProps) {
 
   return (
     <div className="mx-auto max-w-6xl space-y-5">
+      <SetMemoryBreadcrumb
+        label={activeFolder ? FOLDER_LABEL[activeFolder] : null}
+      />
       <MemoryHeader summary={summary} hasState={hasState} />
       <MemoryShell
         projectId={id}
