@@ -24,7 +24,7 @@ export const ActiveDecisionsCard = ({ projectId, decisions }: Props) => {
           </span>
         </div>
         <Link
-          href={`/dashboard/project/${projectId}/decisions`}
+          href={`/dashboard/project/${projectId}/memory?folder=decisions`}
           className="text-[11px] font-mono text-muted-foreground hover:text-foreground/80 transition-colors"
         >
           view all →
@@ -36,7 +36,7 @@ export const ActiveDecisionsCard = ({ projectId, decisions }: Props) => {
           return (
             <li key={d.id}>
               <Link
-                href={`/dashboard/project/${projectId}/decisions`}
+                href={`/dashboard/project/${projectId}/memory?folder=decisions&itemId=${d.id}`}
                 className="group flex items-center gap-3 py-3 transition-colors"
               >
                 <span className="size-1.5 rounded-full bg-brand shrink-0" />

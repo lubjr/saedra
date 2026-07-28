@@ -7,12 +7,24 @@ export const STATUS_CLASSES: Record<string, string> = {
     "bg-status-warning-fill text-status-warning border-status-warning-stroke",
 };
 
-export const RISK_CLASSES: Record<string, string> = {
+// Shared low/medium/high tier classes — reused by decisions (risk),
+// changes (risk) and rules (severity), which all use the same 3 tiers.
+export type Tier = "low" | "medium" | "high";
+
+export const TIER_CLASSES: Record<Tier, string> = {
   low: "bg-brand-fill text-brand border-brand-stroke",
   medium:
     "bg-status-warning-fill text-status-warning border-status-warning-stroke",
   high: "bg-status-error-fill text-status-error border-status-error-stroke",
 };
+
+export const TIER_DOT: Record<Tier, string> = {
+  low: "bg-brand",
+  medium: "bg-status-warning",
+  high: "bg-status-error",
+};
+
+export const RISK_CLASSES = TIER_CLASSES;
 
 export const formatRelativeDate = (iso: string): string => {
   const diff = Date.now() - new Date(iso).getTime();

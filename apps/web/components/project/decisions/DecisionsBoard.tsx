@@ -16,11 +16,16 @@ const STATUS_DOT: Record<string, string> = {
 interface Props {
   decisions: Decision[];
   supersededBy: Record<string, string>;
+  initialSelectedId?: string | null;
 }
 
-export const DecisionsBoard = ({ decisions, supersededBy }: Props) => {
+export const DecisionsBoard = ({
+  decisions,
+  supersededBy,
+  initialSelectedId,
+}: Props) => {
   const [selected, setSelected] = React.useState<string | null>(
-    decisions[0]?.id ?? null,
+    initialSelectedId ?? decisions[0]?.id ?? null,
   );
   const [query, setQuery] = React.useState("");
 

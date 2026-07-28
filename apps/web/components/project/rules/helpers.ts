@@ -1,19 +1,10 @@
 import type { ViolationRule } from "../../../auth/documents";
+import { TIER_CLASSES, TIER_DOT } from "../decisions/helpers";
 
 type Severity = ViolationRule["severity"];
 
-export const SEVERITY_CLASSES: Record<Severity, string> = {
-  high: "bg-status-error-fill text-status-error border-status-error-stroke",
-  medium:
-    "bg-status-warning-fill text-status-warning border-status-warning-stroke",
-  low: "bg-brand-fill text-brand border-brand-stroke",
-};
-
-export const SEVERITY_DOT: Record<Severity, string> = {
-  high: "bg-status-error",
-  medium: "bg-status-warning",
-  low: "bg-brand",
-};
+export const SEVERITY_CLASSES: Record<Severity, string> = TIER_CLASSES;
+export const SEVERITY_DOT: Record<Severity, string> = TIER_DOT;
 
 export const SEVERITY_LABEL: Record<Severity, string> = {
   high: "High",

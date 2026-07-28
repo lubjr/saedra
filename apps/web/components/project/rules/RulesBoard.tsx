@@ -1,81 +1,112 @@
 "use client";
 
+import { SearchIcon } from "@repo/ui/lucide";
 import * as React from "react";
 
 import type { ViolationRule } from "../../../auth/documents";
-import { sortBySeverity } from "./helpers";
-import { RuleCard } from "./RuleCard";
-
-type Filter = "all" | ViolationRule["severity"];
-
-const FILTERS: { key: Filter; label: string }[] = [
-  { key: "all", label: "All" },
-  { key: "high", label: "High" },
-  { key: "medium", label: "Medium" },
-  { key: "low", label: "Low" },
-];
+import { formatRelativeDate } from "../decisions/helpers";
+import { SEVERITY_CLASSES, SEVERITY_DOT, sortBySeverity } from "./helpers";
+import { RuleDetail } from "./RuleDetail";
 
 interface Props {
   rules: ViolationRule[];
+  initialSelectedId?: string | null;
 }
 
-export const RulesBoard = ({ rules }: Props) => {
-  const [filter, setFilter] = React.useState<Filter>("all");
-
-  const counts: Record<Filter, number> = {
-    all: rules.length,
-    high: rules.filter((r) => {
-      return r.severity === "high";
-    }).length,
-    medium: rules.filter((r) => {
-      return r.severity === "medium";
-    }).length,
-    low: rules.filter((r) => {
-      return r.severity === "low";
-    }).length,
-  };
-
-  const visible = sortBySeverity(
-    filter === "all"
-      ? rules
-      : rules.filter((r) => {
-          return r.severity === filter;
-        }),
+export const RulesBoard = ({ rules, initialSelectedId }: Props) => {
+  const sorted = sortBySeverity(rules);
+  const [selected, setSelected] = React.useState<string | null>(
+    initialSelectedId ?? sorted[0]?.id ?? null,
   );
+  const [query, setQuery] = React.useState("");
+
+  const filtered = sorted.filter((r) => {
+    if (!query) return true;
+    const q = query.toLowerCase();
+    return (
+      r.description.toLowerCase().includes(q) || r.id.toLowerCase().includes(q)
+    );
+  });
+
+  const effectiveSelected = filtered.find((r) => {
+    return r.id === selected;
+  })
+    ? selected
+    : (filtered[0]?.id ?? null);
+
+  const selectedRule =
+    filtered.find((r) => {
+      return r.id === effectiveSelected;
+    }) ?? null;
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2 flex-wrap">
-        {FILTERS.map(({ key, label }) => {
-          const on = key === filter;
-          return (
-            <button
-              key={key}
-              type="button"
-              onClick={() => {
-                setFilter(key);
-              }}
-              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium border transition-colors ${
-                on
-                  ? "bg-brand-fill border-brand-stroke text-brand"
-                  : "bg-background border-border text-muted-foreground hover:text-foreground hover:border-border-emphasis"
-              }`}
-            >
-              {label}
-              <span
-                className={`font-mono ${on ? "text-brand/70" : "text-muted-foreground"}`}
-              >
-                {counts[key]}
-              </span>
-            </button>
-          );
-        })}
+    <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] rounded-xl border border-border overflow-hidden">
+      <div className="flex flex-col border-b border-border lg:border-b-0 lg:border-r lg:border-border">
+        <div className="flex items-center gap-2.5 border-b border-border bg-card px-4 py-3">
+          <SearchIcon className="size-4 shrink-0 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder="Search rules..."
+            value={query}
+            onChange={(e) => {
+              setQuery(e.target.value);
+            }}
+            className="w-full bg-transparent font-mono text-xs text-foreground/80 placeholder:text-muted-foreground/50 outline-none"
+          />
+        </div>
+        <div className="overflow-y-auto">
+          {filtered.length === 0 ? (
+            <p className="px-4 py-8 text-center text-xs text-muted-foreground">
+              No rules match
+            </p>
+          ) : (
+            <ul>
+              {filtered.map((r) => {
+                const isSelected = r.id === effectiveSelected;
+                return (
+                  <li key={r.id}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelected(r.id);
+                      }}
+                      className={`w-full text-left px-4 py-3.5 border-l-2 transition-colors ${isSelected ? "border-brand bg-brand-fill/50" : "border-transparent hover:bg-muted/50"}`}
+                    >
+                      <div className="flex items-start justify-between gap-2 min-w-0">
+                        <div className="flex items-start gap-2.5 min-w-0">
+                          <span
+                            className={`size-1.5 rounded-full shrink-0 mt-1.5 ${SEVERITY_DOT[r.severity]}`}
+                          />
+                          <div className="min-w-0">
+                            <p className="text-xs font-medium text-foreground leading-snug line-clamp-2">
+                              {r.description}
+                            </p>
+                            <p className="mt-0.5 font-mono text-[10px] text-muted-foreground">
+                              {r.id} · {formatRelativeDate(r.created_at)}
+                            </p>
+                          </div>
+                        </div>
+                        <span
+                          className={`shrink-0 text-[10px] px-1.5 py-0.5 rounded border font-medium ${SEVERITY_CLASSES[r.severity]}`}
+                        >
+                          {r.severity}
+                        </span>
+                      </div>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
       </div>
 
-      <div className="space-y-3">
-        {visible.map((rule) => {
-          return <RuleCard key={rule.id} rule={rule} />;
-        })}
+      <div className="bg-card overflow-y-auto">
+        {selectedRule ? (
+          <RuleDetail rule={selectedRule} />
+        ) : (
+          <p className="p-6 text-sm text-muted-foreground">No rule selected.</p>
+        )}
       </div>
     </div>
   );
