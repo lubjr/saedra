@@ -215,11 +215,7 @@ state
   );
 
 const decision = memory.command("decision").description("Manage architectural decisions");
-decision
-  .command("add")
-  .description("Record a new architectural decision")
-  .option("--file <path>", "Load decision from a JSON file instead of interactive prompts (non-interactive, for scripting/AI use)")
-  .action((opts: { file?: string }) => memoryDecisionAddCommand(opts.file));
+decision.command("add").description("Record a new architectural decision").action(memoryDecisionAddCommand);
 decision.command("list").description("List all decisions").action(memoryDecisionListCommand);
 
 const change = memory.command("change").description("Manage change events");
@@ -237,11 +233,7 @@ change
   .action((id?: string) => memoryChangeAnalyzeCommand(id));
 
 const rule = memory.command("rule").description("Manage architectural violation rules");
-rule
-  .command("add")
-  .description("Add a new violation rule")
-  .option("--file <path>", "Load rule from a JSON file instead of interactive prompts (non-interactive, for scripting/AI use)")
-  .action((opts: { file?: string }) => memoryRuleAddCommand(opts.file));
+rule.command("add").description("Add a new violation rule").action(memoryRuleAddCommand);
 rule.command("list").description("List all violation rules").action(memoryRuleListCommand);
 
 memory
