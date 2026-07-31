@@ -45,9 +45,6 @@ jobs:
       - name: Build CLI
         run: pnpm --filter @saedra/cli build
 
-      - name: Link CLI globally
-        run: npm link --prefix /usr/local packages/cli/dist 2>/dev/null || pnpm --filter @saedra/cli exec node dist/index.js --version || true
-
       - name: Run Architecture Review
         id: arch_review
         run: |
