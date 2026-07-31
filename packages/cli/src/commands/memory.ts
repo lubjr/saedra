@@ -1,5 +1,4 @@
 import { execSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
 import { input, select, confirm } from "@inquirer/prompts";
 import ora from "ora";
 import { getAiConfig } from "./ai.js";
@@ -20,22 +19,6 @@ function slugify(text: string): string {
 function today(): string {
   return new Date().toISOString().slice(0, 10);
 }
-
-function readJsonFile<T>(filePath: string): T {
-  if (!existsSync(filePath)) {
-    console.error(`File not found: ${filePath}`);
-    process.exit(1);
-  }
-  try {
-    return JSON.parse(readFileSync(filePath, "utf-8")) as T;
-  } catch {
-    console.error(`Failed to parse JSON: ${filePath}`);
-    process.exit(1);
-  }
-}
-
-const RISK_LEVELS = ["low", "medium", "high"] as const;
-const SEVERITIES = ["low", "medium", "high"] as const;
 
 async function promptList(message: string): Promise<string[]> {
   console.log(`  ${message} (enter each item, empty line to finish)`);
@@ -222,114 +205,61 @@ async function upsertArchitectureState(
   }
 }
 
-interface DecisionInput {
-  title?: string;
-  context?: string;
-  decision?: string;
-  risk_level?: string;
-  impact?: string[];
-  affects?: string[];
-  constraints_introduced?: string[];
-  supersedes?: string | null;
-}
-
-export async function memoryDecisionAddCommand(filePath?: string) {
+export async function memoryDecisionAddCommand() {
   const config = requireAuth();
   const project = await selectProject(config);
 
-  let title: string;
-  let context: string;
-  let decisionText: string;
-  let risk_level: Decision["risk_level"];
-  let impact: string[];
-  let affects: string[];
-  let constraints_introduced: string[];
-  let supersedes: string | null;
+  console.log("\n  New Decision\n");
 
-  if (filePath) {
-    const parsed = readJsonFile<DecisionInput>(filePath);
-
-    if (!parsed.title?.trim()) {
-      console.error("Missing required field: title");
-      process.exit(1);
-    }
-    if (!parsed.context?.trim()) {
-      console.error("Missing required field: context");
-      process.exit(1);
-    }
-    if (!parsed.decision?.trim()) {
-      console.error("Missing required field: decision");
-      process.exit(1);
-    }
-    if (!parsed.risk_level || !RISK_LEVELS.includes(parsed.risk_level as (typeof RISK_LEVELS)[number])) {
-      console.error("Missing or invalid field: risk_level (must be low, medium, or high)");
-      process.exit(1);
-    }
-
-    title = parsed.title.trim();
-    context = parsed.context.trim();
-    decisionText = parsed.decision.trim();
-    risk_level = parsed.risk_level as Decision["risk_level"];
-    impact = parsed.impact ?? [];
-    affects = parsed.affects ?? [];
-    constraints_introduced = parsed.constraints_introduced ?? [];
-    supersedes = parsed.supersedes?.trim() || null;
-  } else {
-    console.log("\n  New Decision\n");
-
-    title = await input({ message: "Title:" });
-    if (!title.trim()) {
-      console.error("Title cannot be empty.");
-      process.exit(1);
-    }
-
-    context = await input({ message: "Context (why was this decision needed?):" });
-    decisionText = await input({ message: "Decision (what was decided?):" });
-    risk_level = (await select({
-      message: "Risk level:",
-      choices: [
-        { name: "low", value: "low" },
-        { name: "medium", value: "medium" },
-        { name: "high", value: "high" },
-      ],
-    })) as Decision["risk_level"];
-
-    impact = await promptList("Impact:");
-    affects = await promptList("Affected modules/domains:");
-    constraints_introduced = await promptList("Constraints introduced:");
-
-    const supersedesInput = await input({
-      message: "Supersedes (decision ID, leave empty if none):",
-    });
-    supersedes = supersedesInput.trim() || null;
+  const title = await input({ message: "Title:" });
+  if (!title.trim()) {
+    console.error("Title cannot be empty.");
+    process.exit(1);
   }
+
+  const context = await input({ message: "Context (why was this decision needed?):" });
+  const decision = await input({ message: "Decision (what was decided?):" });
+  const risk_level = await select({
+    message: "Risk level:",
+    choices: [
+      { name: "low", value: "low" },
+      { name: "medium", value: "medium" },
+      { name: "high", value: "high" },
+    ],
+  });
+
+  const impact = await promptList("Impact:");
+  const affects = await promptList("Affected modules/domains:");
+  const constraints_introduced = await promptList("Constraints introduced:");
+
+  const supersedes = await input({
+    message: "Supersedes (decision ID, leave empty if none):",
+  });
 
   const id = `DEC-${today()}-${slugify(title)}`;
 
   const dec: Decision = {
     id,
-    title,
+    title: title.trim(),
     status: "active",
-    context,
-    decision: decisionText,
+    context: context.trim(),
+    decision: decision.trim(),
     impact,
     affects,
     constraints_introduced,
-    supersedes,
-    risk_level,
+    supersedes: supersedes.trim() || null,
+    risk_level: risk_level as Decision["risk_level"],
     created_at: new Date().toISOString(),
   };
 
-  if (!filePath) {
-    const confirmed = await confirm({
-      message: `Save decision "${id}"?`,
-      default: true,
-    });
+  const confirmed = await confirm({
+    message: `Save decision "${id}"?`,
+    default: true,
+  });
 
-    if (!confirmed) {
-      console.log("\nAborted.\n");
-      return;
-    }
+  if (!confirmed) {
+    console.log("\nAborted.\n");
+    return;
   }
 
   try {
@@ -352,7 +282,7 @@ export async function memoryDecisionAddCommand(filePath?: string) {
       process.exit(1);
     }
 
-    console.log(filePath ? `Decision "${id}" saved.` : `\nDecision "${id}" saved successfully.\n`);
+    console.log(`\nDecision "${id}" saved successfully.\n`);
   } catch (err) {
     handleFetchError(err);
   }
@@ -573,79 +503,49 @@ export async function memoryChangeListCommand() {
   }
 }
 
-interface RuleInput {
-  description?: string;
-  severity?: string;
-  related_decision?: string | null;
-}
-
-export async function memoryRuleAddCommand(filePath?: string) {
+export async function memoryRuleAddCommand() {
   const config = requireAuth();
   const project = await selectProject(config);
 
-  let description: string;
-  let severity: ViolationRule["severity"];
-  let related_decision: string | null;
+  console.log("\n  New Violation Rule\n");
 
-  if (filePath) {
-    const parsed = readJsonFile<RuleInput>(filePath);
-
-    if (!parsed.description?.trim()) {
-      console.error("Missing required field: description");
-      process.exit(1);
-    }
-    if (!parsed.severity || !SEVERITIES.includes(parsed.severity as (typeof SEVERITIES)[number])) {
-      console.error("Missing or invalid field: severity (must be low, medium, or high)");
-      process.exit(1);
-    }
-
-    description = parsed.description.trim();
-    severity = parsed.severity as ViolationRule["severity"];
-    related_decision = parsed.related_decision?.trim() || null;
-  } else {
-    console.log("\n  New Violation Rule\n");
-
-    description = await input({ message: "Description (what must not happen?):" });
-    if (!description.trim()) {
-      console.error("Description cannot be empty.");
-      process.exit(1);
-    }
-
-    severity = (await select({
-      message: "Severity:",
-      choices: [
-        { name: "high", value: "high" },
-        { name: "medium", value: "medium" },
-        { name: "low", value: "low" },
-      ],
-    })) as ViolationRule["severity"];
-
-    const related_decision_input = await input({
-      message: "Related decision (ID, leave empty if none):",
-    });
-    related_decision = related_decision_input.trim() || null;
+  const description = await input({ message: "Description (what must not happen?):" });
+  if (!description.trim()) {
+    console.error("Description cannot be empty.");
+    process.exit(1);
   }
+
+  const severity = await select({
+    message: "Severity:",
+    choices: [
+      { name: "high", value: "high" },
+      { name: "medium", value: "medium" },
+      { name: "low", value: "low" },
+    ],
+  });
+
+  const related_decision = await input({
+    message: "Related decision (ID, leave empty if none):",
+  });
 
   const id = `RULE-${today()}-${slugify(description)}`;
 
   const rule: ViolationRule = {
     id,
-    description,
-    severity,
-    related_decision,
+    description: description.trim(),
+    severity: severity as ViolationRule["severity"],
+    related_decision: related_decision.trim() || null,
     created_at: new Date().toISOString(),
   };
 
-  if (!filePath) {
-    const confirmed = await confirm({
-      message: `Save rule "${id}"?`,
-      default: true,
-    });
+  const confirmed = await confirm({
+    message: `Save rule "${id}"?`,
+    default: true,
+  });
 
-    if (!confirmed) {
-      console.log("\nAborted.\n");
-      return;
-    }
+  if (!confirmed) {
+    console.log("\nAborted.\n");
+    return;
   }
 
   try {
@@ -668,7 +568,7 @@ export async function memoryRuleAddCommand(filePath?: string) {
       process.exit(1);
     }
 
-    console.log(filePath ? `Rule "${id}" saved.` : `\nRule "${id}" saved successfully.\n`);
+    console.log(`\nRule "${id}" saved successfully.\n`);
   } catch (err) {
     handleFetchError(err);
   }
