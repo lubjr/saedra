@@ -1,4 +1,4 @@
-import { selectProject, requireAuth, handleFetchError } from "./helpers.js";
+import { selectProject, requireAuth, handleFetchError, parseError } from "./helpers.js";
 import { input } from "@inquirer/prompts";
 
 export async function projectCreateCommand() {
@@ -22,8 +22,7 @@ export async function projectCreateCommand() {
     });
 
     if (!res.ok) {
-      const body = (await res.json()) as { error?: string };
-      console.error(`\nFailed to create project: ${body.error ?? "unknown error"}`);
+      console.error(`\nFailed to create project: ${await parseError(res)}`);
       process.exit(1);
     }
 
@@ -47,8 +46,7 @@ export async function projectListCommand() {
     });
 
     if (!res.ok) {
-      const body = (await res.json()) as { error?: string };
-      console.error(`\nFailed to list projects: ${body.error ?? "unknown error"}`);
+      console.error(`\nFailed to list projects: ${await parseError(res)}`);
       process.exit(1);
     }
 
@@ -84,8 +82,7 @@ export async function projectDeleteCommand() {
     });
 
     if (!res.ok) {
-      const body = (await res.json()) as { error?: string };
-      console.error(`\nFailed to delete project: ${body.error ?? "unknown error"}`);
+      console.error(`\nFailed to delete project: ${await parseError(res)}`);
       process.exit(1);
     }
 

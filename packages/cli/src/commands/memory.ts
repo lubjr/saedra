@@ -1,4 +1,4 @@
-import { execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { input, select, confirm } from "@inquirer/prompts";
 import ora from "ora";
@@ -372,8 +372,8 @@ export async function memoryChangeLogCommand(fromGit = false, noPrompt = false) 
     let files_changed: string[] = [];
 
     try {
-      summary = execSync("git log -1 --pretty=%s").toString().trim();
-      const diff = execSync("git diff --name-only HEAD~1 HEAD").toString().trim();
+      summary = execFileSync("git", ["log", "-1", "--pretty=%s"]).toString().trim();
+      const diff = execFileSync("git", ["diff", "--name-only", "HEAD~1", "HEAD"]).toString().trim();
       files_changed = diff.split("\n").filter(Boolean);
     } catch {
       console.error("\nFailed to read git context. Skipping change event.\n");
@@ -431,8 +431,8 @@ export async function memoryChangeLogCommand(fromGit = false, noPrompt = false) 
 
   if (fromGit) {
     try {
-      summary = execSync("git log -1 --pretty=%s").toString().trim();
-      const diff = execSync("git diff --name-only HEAD~1 HEAD").toString().trim();
+      summary = execFileSync("git", ["log", "-1", "--pretty=%s"]).toString().trim();
+      const diff = execFileSync("git", ["diff", "--name-only", "HEAD~1", "HEAD"]).toString().trim();
       prefillFiles = diff.split("\n").filter(Boolean);
     } catch {
       console.error(
