@@ -109,7 +109,7 @@ export async function docReadCommand(docName?: string) {
     });
 
     if (!res.ok) {
-      console.error("\nFailed to fetch documents.");
+      console.error(`\nFailed to fetch documents: ${await parseError(res)}`);
       process.exit(1);
     }
 
