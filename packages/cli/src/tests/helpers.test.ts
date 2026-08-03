@@ -70,7 +70,7 @@ describe("helpers", () => {
 
     test("exits with 1 when projects fetch fails", async () => {
       mockFindSaedraContext.mockReturnValue(null);
-      mockFetch.mockResolvedValue({ ok: false });
+      mockFetch.mockResolvedValue({ ok: false, status: 500, text: async () => "" });
 
       await expect(selectProject(MOCK_CONFIG)).rejects.toThrow();
 
@@ -98,7 +98,7 @@ describe("helpers", () => {
     });
 
     test("exits with 1 when documents fetch fails", async () => {
-      mockFetch.mockResolvedValue({ ok: false });
+      mockFetch.mockResolvedValue({ ok: false, status: 500, text: async () => "" });
 
       await expect(selectDocument(MOCK_CONFIG, "proj-1")).rejects.toThrow();
 

@@ -1,4 +1,4 @@
-import { execSync } from "child_process";
+import { execFileSync } from "child_process";
 import ora from "ora";
 import { getAiConfig } from "./ai.js";
 import { callAI } from "./ai-client.js";
@@ -11,15 +11,15 @@ const MAX_FILES = 20;
 
 function getChangedFiles(staged: boolean, base?: string): string[] {
   try {
-    let cmd: string;
+    let args: string[];
     if (base) {
-      cmd = `git diff --name-only ${base}...HEAD`;
+      args = ["diff", "--name-only", `${base}...HEAD`];
     } else if (staged) {
-      cmd = "git diff --staged --name-only";
+      args = ["diff", "--staged", "--name-only"];
     } else {
-      cmd = "git diff HEAD --name-only";
+      args = ["diff", "HEAD", "--name-only"];
     }
-    const output = execSync(cmd, { encoding: "utf-8" }).trim();
+    const output = execFileSync("git", args, { encoding: "utf-8" }).trim();
     if (!output) return [];
     return output.split("\n").filter(Boolean);
   } catch {
@@ -30,7 +30,7 @@ function getChangedFiles(staged: boolean, base?: string): string[] {
 function getCurrentBranch(): string {
   if (process.env.GITHUB_HEAD_REF) return process.env.GITHUB_HEAD_REF;
   try {
-    const branch = execSync("git rev-parse --abbrev-ref HEAD", { encoding: "utf-8" }).trim();
+    const branch = execFileSync("git", ["rev-parse", "--abbrev-ref", "HEAD"], { encoding: "utf-8" }).trim();
     if (branch && branch !== "HEAD") return branch;
   } catch {}
   return process.env.GITHUB_REF_NAME ?? "unknown";
@@ -38,15 +38,15 @@ function getCurrentBranch(): string {
 
 function getFileDiff(file: string, staged: boolean, base?: string): string {
   try {
-    let cmd: string;
+    let args: string[];
     if (base) {
-      cmd = `git diff ${base}...HEAD -- "${file}"`;
+      args = ["diff", `${base}...HEAD`, "--", file];
     } else if (staged) {
-      cmd = `git diff --staged -- "${file}"`;
+      args = ["diff", "--staged", "--", file];
     } else {
-      cmd = `git diff HEAD -- "${file}"`;
+      args = ["diff", "HEAD", "--", file];
     }
-    return execSync(cmd, { encoding: "utf-8" }).trim();
+    return execFileSync("git", args, { encoding: "utf-8" }).trim();
   } catch {
     return "";
   }

@@ -43,6 +43,8 @@ node packages/cli/dist/index.js <command>
 |---|---|---|
 | `SAEDRA_API_URL` | API server URL | `https://saedra-api.onrender.com` |
 
+`SAEDRA_API_URL` must be `https://`, or `http://` pointing at `localhost`/`127.0.0.1`/`::1`. Any other `http://` host is rejected — this stops your session token and code diffs from being sent unencrypted to a wrong or tampered-with URL.
+
 In development, point the CLI to your local API:
 
 ```bash
@@ -61,7 +63,7 @@ SAEDRA_API_URL=http://localhost:3002 saedra login
 
 Log in to your Saedra account. Prompts for email and password, then authenticates against the API.
 
-Credentials are saved to `~/.saedra/config.json`.
+Credentials are saved to `~/.saedra/config.json` with restricted permissions (`0600`).
 
 ```bash
 $ saedra login

@@ -50,6 +50,9 @@ export function requireAuth(): SaedraConfig {
 }
 
 export async function parseError(res: Response): Promise<string> {
+  if (res.status === 401) {
+    return "Your session has expired or is invalid. Run: saedra login";
+  }
   const text = await res.text();
   try {
     const body = JSON.parse(text) as { error?: string };
@@ -77,7 +80,7 @@ export async function selectProject(config: SaedraConfig): Promise<{ id: string;
   });
 
   if (!res.ok) {
-    console.error("\nFailed to fetch projects.");
+    console.error(`\nFailed to fetch projects: ${await parseError(res)}`);
     process.exit(1);
   }
 
@@ -127,7 +130,7 @@ export async function selectDocument(
   });
 
   if (!res.ok) {
-    console.error("\nFailed to fetch documents.");
+    console.error(`\nFailed to fetch documents: ${await parseError(res)}`);
     process.exit(1);
   }
 
