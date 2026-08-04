@@ -43,7 +43,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build CLI
-        run: pnpm --filter @saedra/cli build
+        run: pnpm --filter @usesaedra/cli build
 
       - name: Run Architecture Review
         id: arch_review

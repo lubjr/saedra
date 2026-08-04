@@ -1,10 +1,30 @@
 {
-  "name": "@saedra/cli",
+  "name": "@usesaedra/cli",
   "version": "1.0.0",
-  "description": "CLI do Saedra",
+  "description": "CLI-first architectural memory and AI-powered code review for your codebase",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lubjr/seadra.git",
+    "directory": "packages/cli"
+  },
+  "homepage": "https://github.com/lubjr/seadra/tree/main/packages/cli#readme",
+  "bugs": {
+    "url": "https://github.com/lubjr/seadra/issues"
+  },
+  "keywords": [
+    "cli",
+    "architecture",
+    "code-review",
+    "ai",
+    "architectural-decisions"
+  ],
   "type": "module",
   "bin": {
-    "saedra": "./dist/index.js"
+    "saedra": "dist/index.js"
   },
   "files": [
     "dist"
