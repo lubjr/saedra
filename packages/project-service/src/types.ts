@@ -84,6 +84,25 @@ export type ProjectSummary = {
   health_history: number[];
 };
 
+export type CreateApiTokenResponse = {
+  id: string;
+  name: string;
+  token_prefix: string;
+  created_at: string;
+  token: string;
+} | {
+  error: string;
+};
+
+export type ApiTokenListItem = {
+  id: string;
+  name: string;
+  token_prefix: string;
+  created_at: string;
+  last_used_at: string | null;
+  expires_at: string | null;
+};
+
 export type DocumentResponse = {
   id: string;
   project_id: string;
