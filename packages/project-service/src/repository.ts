@@ -1,7 +1,7 @@
-import { type CreateProjectResponse, type CreateCredentialsResponse, type CreateDiagramResponse, type DocumentResponse, type DocumentType, type ReviewData, type ProjectSettings, type ProjectSummary } from "./types.js";
+import { type CreateProjectResponse, type CreateCredentialsResponse, type CreateDiagramResponse, type DocumentResponse, type DocumentType, type ReviewData, type ProjectSettings, type ProjectSummary, type CreateApiTokenResponse, type ApiTokenListItem } from "./types.js";
 import { collectResources, type AwsCredentials } from "@repo/aws-connector/aws";
 import { generateDiagramFromResources } from "@repo/diagram-service/diagram";
-import { ProjectDB, AwsCredentialsDB, DiagramDB, LoginDB, ProfileDB, DocumentDB, ReviewDB, SettingsDB } from "@repo/db-queries/queries";
+import { ProjectDB, AwsCredentialsDB, DiagramDB, LoginDB, ProfileDB, DocumentDB, ReviewDB, SettingsDB, ApiTokenDB } from "@repo/db-queries/queries";
 
 export const signUpUser = async (email: string, password: string): Promise<{ userId: string } | { error: string }> => {
   const { data, error } = await LoginDB.signUpUser(email, password);
@@ -417,4 +417,35 @@ export const upsertSettings = async (projectId: string, data: { ai_provider: str
   }
 
   return settings;
+}
+
+export const createApiToken = async (userId: string, name: string): Promise<CreateApiTokenResponse> => {
+  const { data, error } = await ApiTokenDB.createApiToken(userId, name);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return data;
+}
+
+export const listApiTokens = async (userId: string): Promise<ApiTokenListItem[] | { error: string }> => {
+  const { data, error } = await ApiTokenDB.listApiTokensByUser(userId);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return data || [];
+}
+
+export const revokeApiToken = async (id: string, userId: string): Promise<boolean> => {
+  const { error } = await ApiTokenDB.revokeApiToken(id, userId);
+
+  if (error) {
+    console.error("error revoking api token:", error.message);
+    return false;
+  }
+
+  return true;
 }

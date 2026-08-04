@@ -435,6 +435,53 @@ routes.put('/:projectId/settings', authenticate, async (req, res) => {
   res.json(settings);
 });
 
+routes.post('/tokens', authenticate, async (req, res) => {
+  const { name } = req.body;
+  const userId = req.user.id;
+
+  if (req.user.authType === 'api_token') {
+    return res.status(403).json({ error: 'an api token cannot create another api token' });
+  }
+
+  if (!name) {
+    return res.status(400).json({ error: 'name required' });
+  }
+
+  const token = await repo.createApiToken(userId, name);
+
+  if ('error' in token) {
+    return res.status(400).json({ error: token.error });
+  }
+
+  res.status(201).json(token);
+});
+
+routes.get('/tokens', authenticate, async (req, res) => {
+  const tokens = await repo.listApiTokens(req.user.id);
+
+  if ('error' in tokens) {
+    return res.status(400).json({ error: tokens.error });
+  }
+
+  res.json(tokens);
+});
+
+routes.delete('/tokens/:id', authenticate, async (req, res) => {
+  const { id } = req.params;
+
+  if (!id) {
+    return res.status(400).json({ error: 'id required' });
+  }
+
+  const success = await repo.revokeApiToken(id, req.user.id);
+
+  if (!success) {
+    return res.status(404).json({ error: 'error revoking token' });
+  }
+
+  res.status(204).json({ message: 'token revoked' });
+});
+
 routes.get('/:id', authenticate, async (req, res) => {
   const { id } = req.params;
 

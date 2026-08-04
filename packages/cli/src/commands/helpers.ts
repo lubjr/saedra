@@ -100,6 +100,34 @@ export async function selectProject(config: SaedraConfig): Promise<{ id: string;
   return { id, name };
 }
 
+export async function selectApiToken(
+  config: SaedraConfig
+): Promise<{ id: string; name: string; prefix: string }> {
+  const res = await fetch(`${config.apiUrl}/projects/tokens`, {
+    headers: { Authorization: `Bearer ${config.token}` },
+  });
+
+  if (!res.ok) {
+    console.error(`\nFailed to fetch tokens: ${await parseError(res)}`);
+    process.exit(1);
+  }
+
+  const tokens = (await res.json()) as Array<{ id: string; name: string; token_prefix: string }>;
+
+  if (!tokens.length) {
+    console.error("\nNo tokens found. Create one with: saedra token create");
+    process.exit(1);
+  }
+
+  const id = await select({
+    message: "Select a token to revoke:",
+    choices: tokens.map((t) => ({ name: `${t.name} (${t.token_prefix}...)`, value: t.id })),
+  });
+
+  const token = tokens.find((t) => t.id === id)!;
+  return { id, name: token.name, prefix: token.token_prefix };
+}
+
 export async function fetchProjectSettings(
   apiUrl: string,
   projectId: string,

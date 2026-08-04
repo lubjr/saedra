@@ -206,6 +206,48 @@ $ saedra project delete
 Project deleted successfully.
 ```
 
+### `saedra token create [name]`
+
+Create a new API token for CI/automation use. Requires being logged in with a normal session (an API token cannot create another API token). The raw token value is printed **once** — save it immediately, it cannot be retrieved again.
+
+```bash
+$ saedra token create "CI - GitHub Actions"
+
+Token created. Save it now — it won't be shown again.
+
+  saedra_pat_ab12cd34ef56...
+
+Use it in CI as SAEDRA_TOKEN.
+```
+
+If no name is given, defaults to `"CI"`.
+
+### `saedra token list`
+
+List your API tokens (name, prefix, creation date, last used date). Never shows the full token value.
+
+```bash
+$ saedra token list
+
+  Your tokens:
+
+  - CI - GitHub Actions (saedra_pat_...)
+      Created:   8/4/2026
+      Last used: 8/4/2026
+```
+
+### `saedra token revoke`
+
+Revoke an API token. Shows an interactive list of your tokens to select from.
+
+```bash
+$ saedra token revoke
+
+? Select a token to revoke: > CI - GitHub Actions (saedra_pat_...)
+
+Token revoked successfully.
+```
+
 ### `saedra doc create`
 
 Create a new document inside a project. Shows an interactive project selector, then prompts for the document name and an optional local file path to use as content (leave empty to create a blank document).
@@ -1067,8 +1109,11 @@ Use in GitHub Actions:
 - name: Saedra Architecture Review
   run: saedra review --json
   env:
+    SAEDRA_TOKEN: ${{ secrets.SAEDRA_TOKEN }}
     SAEDRA_API_URL: ${{ secrets.SAEDRA_API_URL }}
 ```
+
+Generate the `SAEDRA_TOKEN` secret with `saedra token create "CI - GitHub Actions"` and paste the printed value into GitHub Settings → Secrets → Actions. Don't paste a session JWT (from `~/.saedra/config.json`) as the CI secret — it expires after 1 hour and there is no renewal, so the workflow will silently stop authenticating. An API token has no forced expiration and can be revoked independently with `saedra token revoke` if it ever leaks.
 
 #### `saedra review --base <ref>`
 
@@ -1144,11 +1189,12 @@ packages/cli/
     ├── index.ts            # Entry point - registers all commands
     ├── commands/
     │   ├── login.ts        # Login, config management (getConfig, clearConfig, SaedraConfig)
-    │   ├── helpers.ts      # Shared utilities: requireAuth, parseError, handleFetchError, selectProject, selectDocument
+    │   ├── helpers.ts      # Shared utilities: requireAuth, parseError, handleFetchError, selectProject, selectDocument, selectApiToken
     │   ├── prompts.ts      # AI prompt constants and builders: REVIEW/FEATURE/COMPRESS/ANALYZE system prompts + buildReviewPrompt, buildFeaturePrompt, buildCompressPrompt, buildAnalyzePrompt
     │   ├── context.ts      # .saedra context file management (init, findSaedraContext)
     │   ├── arch-context.ts # context / explain / memory compress (contextCommand, explainCommand, memoryCompressCommand, fetchState, fetchDecisions, fetchChanges, fetchRules)
     │   ├── projects.ts     # project create / list / delete
+    │   ├── token.ts        # token create / list / revoke
     │   ├── documents.ts    # doc create / list / read / edit / push / delete
     │   ├── memory.ts       # memory state view/update/update --ai, decision add/list, change log/list/analyze, rule add/list, timeline
     │   ├── ai.ts           # ai setup / status / remove (getAiConfig, AiConfig, AiProvider)
