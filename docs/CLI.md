@@ -7,10 +7,24 @@ Command-line tool to interact with Saedra from your terminal.
 ### For end users (production)
 
 ```bash
-npm install -g @saedra/cli
+npm install -g @usesaedra/cli
 ```
 
 After installing, the `saedra` command will be available globally.
+
+Other package managers work too, same package:
+
+```bash
+pnpm add -g @usesaedra/cli
+bun add -g @usesaedra/cli
+```
+
+No install, one-off run:
+
+```bash
+npx @usesaedra/cli status
+bunx @usesaedra/cli status
+```
 
 ### For developers (local)
 
@@ -19,7 +33,7 @@ After installing, the `saedra` command will be available globally.
 pnpm install
 
 # 2. Build the CLI
-pnpm --filter @saedra/cli build
+pnpm --filter @usesaedra/cli build
 
 # 3. Link it globally so you can use "saedra" in your terminal
 cd packages/cli && pnpm link --global
@@ -28,7 +42,7 @@ cd packages/cli && pnpm link --global
 To unlink later:
 
 ```bash
-pnpm unlink --global @saedra/cli
+pnpm unlink --global @usesaedra/cli
 ```
 
 To run without linking globally:
@@ -1164,15 +1178,15 @@ List all available commands.
 ```bash
 # 1. Start the local infrastructure and API
 pnpm run dev:infra
-pnpm run dev --filter @saedra/cli --filter ./apps/api
+pnpm run dev --filter @usesaedra/cli --filter ./apps/api
 
 # 2. Point CLI to local API
 export SAEDRA_API_URL=http://localhost:3002
 
 # 3. Build the CLI (or use dev mode for watch)
-pnpm --filter @saedra/cli build
+pnpm --filter @usesaedra/cli build
 # or
-pnpm --filter @saedra/cli dev
+pnpm --filter @usesaedra/cli dev
 
 # 4. Test commands
 node packages/cli/dist/index.js status
