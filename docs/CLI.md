@@ -477,6 +477,31 @@ Using project: my-infra (from .saedra)
 Decision "DEC-2026-03-04-use-document-type-fie" saved successfully.
 ```
 
+#### `saedra memory decision add --file <path>`
+
+Non-interactive mode. Reads a JSON file matching the `Decision` fields instead of prompting, and saves it directly with no confirmation step. Intended for scripting and for AI agents/tools that need to create decisions in bulk without driving interactive prompts.
+
+```json
+{
+  "title": "Use document type field for memory",
+  "context": "Need to differentiate free docs from memory records.",
+  "decision": "Add a type column to documents table.",
+  "risk_level": "low",
+  "impact": ["All document queries must filter by type"],
+  "affects": ["db-queries", "project-service"],
+  "constraints_introduced": [],
+  "supersedes": null
+}
+```
+
+```bash
+$ saedra memory decision add --file ./decision.json
+Using project: my-infra (from .saedra)
+Decision "DEC-2026-03-04-use-document-type-fie" saved.
+```
+
+Required fields: `title`, `context`, `decision`, `risk_level` (`low` | `medium` | `high`). Optional: `impact`, `affects`, `constraints_introduced` (default `[]`), `supersedes` (default `null`). Missing or invalid required fields exit with an error before any network call.
+
 ### `saedra memory decision list`
 
 List all architectural decisions recorded for the project.
@@ -650,6 +675,26 @@ Using project: my-infra (from .saedra)
 
 Rule "RULE-2026-03-23-controllers-cannot-impor" saved successfully.
 ```
+
+#### `saedra memory rule add --file <path>`
+
+Non-interactive mode. Reads a JSON file matching the `ViolationRule` fields instead of prompting, and saves it directly with no confirmation step. Intended for scripting and for AI agents/tools that need to create rules in bulk without driving interactive prompts.
+
+```json
+{
+  "description": "Controllers cannot import db-connector directly",
+  "severity": "high",
+  "related_decision": "DEC-2026-03-04-use-document-type-fie"
+}
+```
+
+```bash
+$ saedra memory rule add --file ./rule.json
+Using project: my-infra (from .saedra)
+Rule "RULE-2026-03-23-controllers-cannot-impor" saved.
+```
+
+Required fields: `description`, `severity` (`low` | `medium` | `high`). Optional: `related_decision` (default `null`). Missing or invalid required fields exit with an error before any network call.
 
 ### `saedra memory rule list`
 
