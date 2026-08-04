@@ -2,6 +2,14 @@ import { writeFileSync } from "node:fs";
 import { selectProject, requireAuth, handleFetchError, loadLocalContext, isContextFresh } from "./helpers.js";
 import type { ArchitectureState, Decision, ChangeEvent, ViolationRule } from "../memory/schemas.js";
 
+const SESSION_EXPIRED_MESSAGE = "Your session has expired or is invalid. Run: saedra login";
+
+function assertNotAuthError(res: Response) {
+  if (res.status === 401) {
+    throw new Error(SESSION_EXPIRED_MESSAGE);
+  }
+}
+
 export async function fetchState(
   apiUrl: string,
   projectId: string,
@@ -10,6 +18,7 @@ export async function fetchState(
   const res = await fetch(`${apiUrl}/projects/${projectId}/documents?type=architecture`, {
     headers: { Authorization: `Bearer ${token}` },
   });
+  assertNotAuthError(res);
   if (!res.ok) return null;
 
   const docs = (await res.json()) as Array<{ id: string; content: string }>;
@@ -18,6 +27,7 @@ export async function fetchState(
   const detailRes = await fetch(`${apiUrl}/projects/${projectId}/documents/${docs[0]!.id}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
+  assertNotAuthError(detailRes);
   if (!detailRes.ok) return null;
 
   const result = (await detailRes.json()) as { data?: { content: string }; content?: string };
@@ -37,6 +47,7 @@ export async function fetchDecisions(
   const res = await fetch(`${apiUrl}/projects/${projectId}/documents?type=decision`, {
     headers: { Authorization: `Bearer ${token}` },
   });
+  assertNotAuthError(res);
   if (!res.ok) return [];
 
   const docs = (await res.json()) as Array<{ id: string; content: string }>;
@@ -59,6 +70,7 @@ export async function fetchChanges(
   const res = await fetch(`${apiUrl}/projects/${projectId}/documents?type=change`, {
     headers: { Authorization: `Bearer ${token}` },
   });
+  assertNotAuthError(res);
   if (!res.ok) return [];
 
   const docs = (await res.json()) as Array<{ id: string; content: string }>;
@@ -79,6 +91,7 @@ export async function fetchRules(
   const res = await fetch(`${apiUrl}/projects/${projectId}/documents?type=rule`, {
     headers: { Authorization: `Bearer ${token}` },
   });
+  assertNotAuthError(res);
   if (!res.ok) return [];
 
   const docs = (await res.json()) as Array<{ id: string; content: string }>;

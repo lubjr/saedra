@@ -19,7 +19,7 @@ vi.mock("../commands/ai-client.js", () => ({
 }));
 
 vi.mock("node:child_process", () => ({
-  execSync: vi.fn(),
+  execFileSync: vi.fn(),
 }));
 
 vi.mock("@inquirer/prompts", () => ({
@@ -31,7 +31,7 @@ vi.mock("@inquirer/prompts", () => ({
 const mockRequireAuth = vi.mocked(helpersModule.requireAuth);
 const mockHandleFetchError = vi.mocked(helpersModule.handleFetchError);
 const mockSelectProject = vi.mocked(helpersModule.selectProject);
-const mockExecSync = vi.mocked(childProcess.execSync);
+const mockExecFileSync = vi.mocked(childProcess.execFileSync);
 const mockConfirm = vi.mocked(prompts.confirm);
 
 import * as aiModule from "../commands/ai.js";
@@ -189,7 +189,7 @@ describe("memory", () => {
     test("exits with 1 when git commands fail", async () => {
       mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
-      mockExecSync.mockImplementation(() => {
+      mockExecFileSync.mockImplementation(() => {
         throw new Error("not a git repo");
       });
 
@@ -201,7 +201,7 @@ describe("memory", () => {
     test("saves change event automatically from git commit", async () => {
       mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
-      mockExecSync
+      mockExecFileSync
         .mockReturnValueOnce("feat: add login flow\n" as any)
         .mockReturnValueOnce("apps/web/app/login/page.tsx\n" as any);
       mockFetch.mockResolvedValue({
@@ -222,7 +222,7 @@ describe("memory", () => {
     test("exits with 1 when API fails to save change event", async () => {
       mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
-      mockExecSync
+      mockExecFileSync
         .mockReturnValueOnce("feat: add login\n" as any)
         .mockReturnValueOnce("src/index.ts\n" as any);
       mockFetch.mockResolvedValue({

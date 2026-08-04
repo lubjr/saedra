@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { chmodSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { input, password } from "@inquirer/prompts";
@@ -13,6 +13,27 @@ export interface SaedraConfig {
   apiUrl: string;
 }
 
+const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "::1"]);
+
+function isAllowedApiUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol === "https:") return true;
+    return parsed.protocol === "http:" && LOCAL_HOSTS.has(parsed.hostname);
+  } catch {
+    return false;
+  }
+}
+
+function requireAllowedApiUrl(apiUrl: string) {
+  if (!isAllowedApiUrl(apiUrl)) {
+    console.error(
+      `\nRefusing to use SAEDRA_API_URL="${apiUrl}": only https:// or http://localhost are allowed (avoids sending your token in the clear to an arbitrary host).`
+    );
+    process.exit(1);
+  }
+}
+
 function ensureConfigDir() {
   if (!existsSync(CONFIG_DIR)) {
     mkdirSync(CONFIG_DIR, { recursive: true });
@@ -21,18 +42,23 @@ function ensureConfigDir() {
 
 function saveConfig(config: SaedraConfig) {
   ensureConfigDir();
-  writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2));
+  writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2), { mode: 0o600 });
 }
 
 export function getConfig(): SaedraConfig | null {
   const token = process.env.SAEDRA_TOKEN;
   const apiUrl = process.env.SAEDRA_API_URL;
   if (token && apiUrl) {
+    requireAllowedApiUrl(apiUrl);
     return { token, apiUrl, userId: process.env.SAEDRA_USER_ID ?? "", email: "" };
   }
   if (!existsSync(CONFIG_FILE)) return null;
   try {
-    return JSON.parse(readFileSync(CONFIG_FILE, "utf-8")) as SaedraConfig;
+    const parsed = JSON.parse(readFileSync(CONFIG_FILE, "utf-8")) as SaedraConfig;
+    try {
+      chmodSync(CONFIG_FILE, 0o600);
+    } catch {}
+    return parsed;
   } catch {
     return null;
   }
@@ -55,6 +81,7 @@ export async function loginCommand() {
   console.log("\n  Saedra - Login\n");
 
   const apiUrl = process.env.SAEDRA_API_URL ?? "https://saedra-api.onrender.com";
+  requireAllowedApiUrl(apiUrl);
 
   const email = await input({ message: "Email:" });
   const pwd = await password({ message: "Password:" });

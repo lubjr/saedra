@@ -23,7 +23,7 @@ vi.mock("../commands/ai-client.js", () => ({
 }));
 
 vi.mock("child_process", () => ({
-  execSync: vi.fn(),
+  execFileSync: vi.fn(),
 }));
 
 vi.mock("../commands/ai.js", () => ({
@@ -36,7 +36,7 @@ const mockFetchState = vi.mocked(archContextModule.fetchState);
 const mockFetchDecisions = vi.mocked(archContextModule.fetchDecisions);
 const mockFetchRules = vi.mocked(archContextModule.fetchRules);
 const mockCallAI = vi.mocked(aiClientModule.callAI);
-const mockExecSync = vi.mocked(childProcess.execSync);
+const mockExecFileSync = vi.mocked(childProcess.execFileSync);
 
 import * as aiModule from "../commands/ai.js";
 const mockGetAiConfig = vi.mocked(aiModule.getAiConfig);
@@ -130,7 +130,7 @@ describe("review", () => {
       mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
       mockGetAiConfig.mockReturnValue(MOCK_AI_CONFIG);
-      mockExecSync.mockReturnValue("" as any);
+      mockExecFileSync.mockReturnValue("" as any);
 
       await expect(reviewCommand()).rejects.toThrow();
 
@@ -141,7 +141,7 @@ describe("review", () => {
       mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
       mockGetAiConfig.mockReturnValue(MOCK_AI_CONFIG);
-      mockExecSync.mockReturnValue("" as any);
+      mockExecFileSync.mockReturnValue("" as any);
 
       await expect(reviewCommand({ json: true })).rejects.toThrow();
 
@@ -152,7 +152,7 @@ describe("review", () => {
       mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
       mockGetAiConfig.mockReturnValue(MOCK_AI_CONFIG);
-      mockExecSync
+      mockExecFileSync
         .mockReturnValueOnce("src/index.ts\n" as any)
         .mockReturnValueOnce("diff --git a/src/index.ts..." as any);
       mockFetchState.mockResolvedValue(null);
@@ -169,7 +169,7 @@ describe("review", () => {
       mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
       mockGetAiConfig.mockReturnValue(MOCK_AI_CONFIG);
-      mockExecSync
+      mockExecFileSync
         .mockReturnValueOnce("src/index.ts\n" as any)
         .mockReturnValueOnce("diff --git a/src/index.ts..." as any);
       mockFetchState.mockResolvedValue(null);
@@ -186,7 +186,7 @@ describe("review", () => {
       mockRequireAuth.mockReturnValue(MOCK_CONFIG);
       mockSelectProject.mockResolvedValue(MOCK_PROJECT);
       mockGetAiConfig.mockReturnValue(MOCK_AI_CONFIG);
-      mockExecSync
+      mockExecFileSync
         .mockReturnValueOnce("src/feature.ts\n" as any)
         .mockReturnValueOnce("diff --staged..." as any);
       mockFetchState.mockResolvedValue(null);
@@ -196,8 +196,9 @@ describe("review", () => {
 
       await reviewCommand({ staged: true });
 
-      expect(mockExecSync).toHaveBeenCalledWith(
-        "git diff --staged --name-only",
+      expect(mockExecFileSync).toHaveBeenCalledWith(
+        "git",
+        ["diff", "--staged", "--name-only"],
         expect.any(Object)
       );
     });

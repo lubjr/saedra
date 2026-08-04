@@ -39,7 +39,8 @@
       "@aws-sdk/client-rds": "3.901.0",
       "@aws-sdk/client-bedrock": "3.947.0",
       "@aws-sdk/client-bedrock-runtime": "3.947.0",
-      "aws-sdk": "2.1692.0"
+      "aws-sdk": "2.1692.0",
+      "ws": "8.21.2"
     }
   }
 }

@@ -94,6 +94,14 @@ describe("arch-context", () => {
       expect(result).toEqual(MOCK_STATE);
     });
 
+    test("throws instead of silently returning null when session is expired (401)", async () => {
+      mockFetch.mockResolvedValue({ ok: false, status: 401 });
+
+      await expect(fetchState(MOCK_API_URL, MOCK_PROJECT_ID, MOCK_TOKEN)).rejects.toThrow(
+        /session has expired/
+      );
+    });
+
     test("returns null when architecture doc detail fetch fails", async () => {
       mockFetch
         .mockResolvedValueOnce({
@@ -131,6 +139,14 @@ describe("arch-context", () => {
       const result = await fetchDecisions(MOCK_API_URL, MOCK_PROJECT_ID, MOCK_TOKEN);
 
       expect(result).toEqual([]);
+    });
+
+    test("throws instead of silently returning [] when session is expired (401)", async () => {
+      mockFetch.mockResolvedValue({ ok: false, status: 401 });
+
+      await expect(fetchDecisions(MOCK_API_URL, MOCK_PROJECT_ID, MOCK_TOKEN)).rejects.toThrow(
+        /session has expired/
+      );
     });
 
     test("returns only active decisions, skipping deprecated and malformed ones", async () => {
@@ -172,6 +188,14 @@ describe("arch-context", () => {
       const result = await fetchChanges(MOCK_API_URL, MOCK_PROJECT_ID, MOCK_TOKEN);
 
       expect(result).toEqual([]);
+    });
+
+    test("throws instead of silently returning [] when session is expired (401)", async () => {
+      mockFetch.mockResolvedValue({ ok: false, status: 401 });
+
+      await expect(fetchChanges(MOCK_API_URL, MOCK_PROJECT_ID, MOCK_TOKEN)).rejects.toThrow(
+        /session has expired/
+      );
     });
 
     test("returns changes up to the given limit", async () => {
@@ -227,6 +251,14 @@ describe("arch-context", () => {
       const result = await fetchRules(MOCK_API_URL, MOCK_PROJECT_ID, MOCK_TOKEN);
 
       expect(result).toEqual([]);
+    });
+
+    test("throws instead of silently returning [] when session is expired (401)", async () => {
+      mockFetch.mockResolvedValue({ ok: false, status: 401 });
+
+      await expect(fetchRules(MOCK_API_URL, MOCK_PROJECT_ID, MOCK_TOKEN)).rejects.toThrow(
+        /session has expired/
+      );
     });
 
     test("returns parsed rules skipping malformed entries", async () => {

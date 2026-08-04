@@ -37,6 +37,7 @@ import {
 } from "./commands/memory.js";
 import { contextCommand, explainCommand, memoryCompressCommand } from "./commands/arch-context.js";
 import { reviewCommand } from "./commands/review.js";
+import { tokenCreateCommand, tokenListCommand, tokenRevokeCommand } from "./commands/token.js";
 
 const program = new Command();
 
@@ -199,6 +200,25 @@ program
   .option("--base <ref>", "Compare against a specific git ref (e.g. origin/main) — for CI use")
   .option("--offline", "Use local snapshot (.saedra-context.json) without connecting to the server")
   .action((opts: { staged?: boolean; json?: boolean; base?: string; offline?: boolean }) => reviewCommand(opts));
+
+const token = program
+  .command("token")
+  .description("Manage API tokens for CI/automation");
+
+token
+  .command("create [name]")
+  .description("Create a new API token (shown only once)")
+  .action((name?: string) => tokenCreateCommand(name));
+
+token
+  .command("list")
+  .description("List your API tokens")
+  .action(tokenListCommand);
+
+token
+  .command("revoke")
+  .description("Revoke an API token")
+  .action(tokenRevokeCommand);
 
 const memory = program
   .command("memory")
