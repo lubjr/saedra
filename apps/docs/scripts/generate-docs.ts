@@ -35,13 +35,15 @@ const CLI_GROUPS: SectionGroup[] = [
   {
     output: "cli/auth",
     title: "Authentication",
-    description: "Login, logout, whoami, status and project initialization",
+    description:
+      "Login, logout, whoami, status, project initialization, and API tokens",
     h3Prefixes: [
       "`saedra login`",
       "`saedra whoami`",
       "`saedra status`",
       "`saedra logout`",
       "`saedra init`",
+      "`saedra token",
     ],
   },
   {
