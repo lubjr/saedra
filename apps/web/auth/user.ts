@@ -1,6 +1,9 @@
 "use server";
 
+import { updateTag } from "next/cache";
 import { cookies } from "next/headers";
+
+import { cacheTags } from "./cache-tags";
 
 export const getUser = async (): Promise<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -22,6 +25,7 @@ export const getUser = async (): Promise<
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
+      next: { tags: [cacheTags.user()], revalidate: false },
     },
   );
 
@@ -64,6 +68,8 @@ export const updateUserProfile = async (
   if (!res.ok) {
     throw new Error(data.error || "Failed to update profile");
   }
+
+  updateTag(cacheTags.user());
 
   return data;
 };

@@ -2,6 +2,8 @@
 
 import { cookies } from "next/headers";
 
+import { cacheTags } from "./cache-tags";
+
 export interface ReviewSummary {
   id: string;
   project_id: string;
@@ -41,7 +43,10 @@ export const getProjectReviews = async (
       `${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}/reviews`,
       {
         headers: { Authorization: `Bearer ${token}` },
-        cache: "no-store",
+        next: {
+          tags: [cacheTags.projectReviews(projectId)],
+          revalidate: false,
+        },
       },
     );
 
@@ -66,7 +71,10 @@ export const getProjectReview = async (
       `${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}/reviews/${reviewId}`,
       {
         headers: { Authorization: `Bearer ${token}` },
-        cache: "no-store",
+        next: {
+          tags: [cacheTags.projectReview(projectId, reviewId)],
+          revalidate: false,
+        },
       },
     );
 

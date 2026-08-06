@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import * as React from "react";
 import { toast } from "sonner";
 
-import { deleteProject } from "../../../auth/projects";
+import { useProjects } from "../../../app/contexts/ProjectsContext";
 import { SettingsCard } from "./SettingsCard";
 
 interface Props {
@@ -16,6 +16,7 @@ interface Props {
 
 export const DangerCard = ({ projectId, projectName }: Props) => {
   const router = useRouter();
+  const { delete: deleteProject } = useProjects();
   const [confirming, setConfirming] = React.useState(false);
   const [typed, setTyped] = React.useState("");
   const [isDeleting, setIsDeleting] = React.useState(false);
