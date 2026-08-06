@@ -1,6 +1,9 @@
 "use server";
 
+import { updateTag } from "next/cache";
 import { cookies } from "next/headers";
+
+import { cacheTags } from "./cache-tags";
 
 export interface ProjectSettings {
   ai_provider: string;
@@ -34,7 +37,10 @@ export const getProjectSettings = async (
       `${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}/settings`,
       {
         headers: { Authorization: `Bearer ${token}` },
-        cache: "no-store",
+        next: {
+          tags: [cacheTags.projectSettings(projectId)],
+          revalidate: false,
+        },
       },
     );
 
@@ -71,6 +77,10 @@ export const deleteProjectSettings = async (
       },
     );
 
+    if (res.ok) {
+      updateTag(cacheTags.projectSettings(projectId));
+    }
+
     return res.ok;
   } catch {
     return false;
@@ -96,6 +106,10 @@ export const updateProjectSettings = async (
         body: JSON.stringify(data),
       },
     );
+
+    if (res.ok) {
+      updateTag(cacheTags.projectSettings(projectId));
+    }
 
     return res.ok;
   } catch {

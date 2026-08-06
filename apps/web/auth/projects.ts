@@ -1,6 +1,9 @@
 "use server";
 
+import { updateTag } from "next/cache";
 import { cookies } from "next/headers";
+
+import { cacheTags } from "./cache-tags";
 
 export interface ProjectSummary {
   id: string;
@@ -40,6 +43,7 @@ export const getProjects = async (): Promise<
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
+      next: { tags: [cacheTags.projects()], revalidate: false },
     },
   );
 
@@ -84,6 +88,8 @@ export const createProject = async ({
     return { error: data.error ?? "Failed to create project", code: data.code };
   }
 
+  updateTag(cacheTags.projects());
+
   return { data };
 };
 
@@ -116,6 +122,8 @@ export const deleteProject = async ({
     };
   }
 
+  updateTag(cacheTags.projects());
+
   return {
     sucess: true,
   };
@@ -133,7 +141,7 @@ export const getProjectSummaries = async (): Promise<ProjectSummary[]> => {
       `${process.env.NEXT_PUBLIC_API_URL}/projects/summaries/user/${userId}`,
       {
         headers: { Authorization: `Bearer ${token}` },
-        cache: "no-store",
+        next: { tags: [cacheTags.projects()], revalidate: false },
       },
     );
     if (!res.ok) return [];

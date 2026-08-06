@@ -2,6 +2,8 @@
 
 import { cookies } from "next/headers";
 
+import { cacheTags } from "./cache-tags";
+
 export interface ArchitectureState {
   version: string;
   summary: string;
@@ -45,6 +47,19 @@ export interface ViolationRule {
 
 type DocumentType = "architecture" | "decision" | "change" | "rule";
 
+const documentTag = (projectId: string, type: DocumentType): string => {
+  switch (type) {
+    case "architecture":
+      return cacheTags.projectArchitecture(projectId);
+    case "decision":
+      return cacheTags.projectDecisions(projectId);
+    case "change":
+      return cacheTags.projectChanges(projectId);
+    case "rule":
+      return cacheTags.projectRules(projectId);
+  }
+};
+
 interface RawDocument {
   id: string;
   name: string;
@@ -67,7 +82,7 @@ const fetchDocuments = async (
       `${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}/documents?type=${type}`,
       {
         headers: { Authorization: `Bearer ${token}` },
-        cache: "no-store",
+        next: { tags: [documentTag(projectId, type)], revalidate: false },
       },
     );
 
