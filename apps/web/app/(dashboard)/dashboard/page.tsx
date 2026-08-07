@@ -2,7 +2,6 @@
 
 import { Button } from "@repo/ui/button";
 import { PlusIcon } from "@repo/ui/lucide";
-import { Skeleton } from "@repo/ui/skeleton";
 import Link from "next/link";
 import * as React from "react";
 import { toast } from "sonner";
@@ -18,6 +17,7 @@ import { FilterChips } from "../../../components/home/FilterChips";
 import { ProjectCard } from "../../../components/home/ProjectCard";
 import { SearchInput } from "../../../components/home/SearchInput";
 import { SetupBanner } from "../../../components/home/SetupBanner";
+import { HomeSkeleton } from "../../../components/skeletons/PageSkeletons";
 import { usePreferences } from "../../../hooks/usePreferences";
 import { useProjectLimit } from "../../../hooks/useProjectLimit";
 import { useProjects } from "../../contexts/ProjectsContext";
@@ -125,16 +125,7 @@ export default function Page() {
   });
 
   if (isLoading) {
-    return (
-      <div className="mx-auto max-w-6xl space-y-6">
-        <Skeleton className="w-full rounded-2xl" style={{ height: "240px" }} />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          <Skeleton className="w-full rounded-xl" style={{ height: "140px" }} />
-          <Skeleton className="w-full rounded-xl" style={{ height: "140px" }} />
-          <Skeleton className="w-full rounded-xl" style={{ height: "140px" }} />
-        </div>
-      </div>
-    );
+    return <HomeSkeleton />;
   }
 
   if (projectsList.length === 0) {
