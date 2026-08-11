@@ -1,6 +1,6 @@
 "use server";
 
-import { cookies } from "next/headers";
+import { apiRequest, getAuthToken, rethrowTransportError } from "./api-client";
 
 export const connectAWS = async ({
   projectId,
@@ -14,38 +14,34 @@ export const connectAWS = async ({
   };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 }): Promise<{ data: any } | { error: string }> => {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("access_token")?.value;
+  const token = await getAuthToken();
 
   if (!token) {
     return { error: "Unauthorized" };
   }
 
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}/connect-aws`,
+  const result = await apiRequest<unknown>(
+    `/projects/${projectId}/connect-aws`,
     {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
+      token,
+      body: {
         awsConfig: {
           accessKeyId: awsConfig.accessKey,
           secretAccessKey: awsConfig.secretKey,
           region: awsConfig.region,
         },
-      }),
+      },
+      fallbackError: "Failed to connect AWS",
     },
   );
 
-  const data = await res.json();
-
-  if (!res.ok) {
-    return { error: data.error || "Failed to connect AWS" };
+  if (!result.ok) {
+    rethrowTransportError(result);
+    return { error: result.error };
   }
 
-  return { data };
+  return { data: result.data };
 };
 
 export const getProjectCredentials = async ({
@@ -54,29 +50,24 @@ export const getProjectCredentials = async ({
   projectId: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 }): Promise<{ data: any } | { error: string }> => {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("access_token")?.value;
+  const token = await getAuthToken();
 
   if (!token) {
     return { error: "Unauthorized" };
   }
 
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}/credentials`,
+  const result = await apiRequest<unknown>(
+    `/projects/${projectId}/credentials`,
     {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
+      token,
+      fallbackError: "Failed to fetch credentials",
     },
   );
 
-  const data = await res.json();
-
-  if (!res.ok) {
-    return { error: data.error || "Failed to fetch credentials" };
+  if (!result.ok) {
+    rethrowTransportError(result);
+    return { error: result.error };
   }
 
-  return { data };
+  return { data: result.data };
 };

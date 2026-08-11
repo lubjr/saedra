@@ -1,7 +1,6 @@
 "use server";
 
-import { cookies } from "next/headers";
-
+import { apiRequest } from "./api-client";
 import { cacheTags } from "./cache-tags";
 
 export interface ArchitectureState {
@@ -72,27 +71,18 @@ const fetchDocuments = async (
   projectId: string,
   type: DocumentType,
 ): Promise<RawDocument[]> => {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("access_token")?.value;
+  const result = await apiRequest<RawDocument[]>(
+    `/projects/${projectId}/documents?type=${type}`,
+    {
+      tags: [documentTag(projectId, type)],
+    },
+  );
 
-  if (!token) return [];
-
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}/documents?type=${type}`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-        next: { tags: [documentTag(projectId, type)], revalidate: false },
-      },
-    );
-
-    if (!res.ok) return [];
-
-    const data = await res.json();
-    return Array.isArray(data) ? data : [];
-  } catch {
+  if (!result.ok) {
     return [];
   }
+
+  return Array.isArray(result.data) ? result.data : [];
 };
 
 const parseContent = <T>(raw: string): T | null => {

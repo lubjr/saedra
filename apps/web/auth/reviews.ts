@@ -1,7 +1,6 @@
 "use server";
 
-import { cookies } from "next/headers";
-
+import { apiRequest } from "./api-client";
 import { cacheTags } from "./cache-tags";
 
 export interface ReviewSummary {
@@ -27,61 +26,33 @@ export interface ReviewDetail extends ReviewSummary {
   files: FileResult[];
 }
 
-const getToken = async (): Promise<string | null> => {
-  const cookieStore = await cookies();
-  return cookieStore.get("access_token")?.value ?? null;
-};
-
 export const getProjectReviews = async (
   projectId: string,
 ): Promise<ReviewSummary[]> => {
-  const token = await getToken();
-  if (!token) return [];
+  const result = await apiRequest<ReviewSummary[]>(
+    `/projects/${projectId}/reviews`,
+    {
+      tags: [cacheTags.projectReviews(projectId)],
+    },
+  );
 
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}/reviews`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-        next: {
-          tags: [cacheTags.projectReviews(projectId)],
-          revalidate: false,
-        },
-      },
-    );
-
-    if (!res.ok) return [];
-
-    const data = await res.json();
-    return Array.isArray(data) ? data : [];
-  } catch {
+  if (!result.ok) {
     return [];
   }
+
+  return Array.isArray(result.data) ? result.data : [];
 };
 
 export const getProjectReview = async (
   projectId: string,
   reviewId: string,
 ): Promise<ReviewDetail | null> => {
-  const token = await getToken();
-  if (!token) return null;
+  const result = await apiRequest<ReviewDetail>(
+    `/projects/${projectId}/reviews/${reviewId}`,
+    {
+      tags: [cacheTags.projectReview(projectId, reviewId)],
+    },
+  );
 
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}/reviews/${reviewId}`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-        next: {
-          tags: [cacheTags.projectReview(projectId, reviewId)],
-          revalidate: false,
-        },
-      },
-    );
-
-    if (!res.ok) return null;
-
-    return await res.json();
-  } catch {
-    return null;
-  }
+  return result.ok ? result.data : null;
 };

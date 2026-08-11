@@ -1,8 +1,8 @@
 "use server";
 
 import { updateTag } from "next/cache";
-import { cookies } from "next/headers";
 
+import { apiRequest } from "./api-client";
 import { cacheTags } from "./cache-tags";
 
 export interface ProjectSettings {
@@ -16,103 +16,55 @@ export interface ProjectSettingsResponse {
   is_configured: boolean;
 }
 
-const getToken = async (): Promise<string | null> => {
-  const cookieStore = await cookies();
-  return cookieStore.get("access_token")?.value ?? null;
+const UNCONFIGURED: ProjectSettingsResponse = {
+  ai_provider: "claude",
+  model: "claude-sonnet-4-6",
+  is_configured: false,
 };
 
 export const getProjectSettings = async (
   projectId: string,
 ): Promise<ProjectSettingsResponse> => {
-  const token = await getToken();
-  if (!token)
-    return {
-      ai_provider: "claude",
-      model: "claude-sonnet-4-6",
-      is_configured: false,
-    };
+  const result = await apiRequest<ProjectSettings & { id?: string }>(
+    `/projects/${projectId}/settings`,
+    {
+      tags: [cacheTags.projectSettings(projectId)],
+    },
+  );
 
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}/settings`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-        next: {
-          tags: [cacheTags.projectSettings(projectId)],
-          revalidate: false,
-        },
-      },
-    );
-
-    if (!res.ok)
-      return {
-        ai_provider: "claude",
-        model: "claude-sonnet-4-6",
-        is_configured: false,
-      };
-
-    const data = await res.json();
-    return { ...data, is_configured: !!data.id };
-  } catch {
-    return {
-      ai_provider: "claude",
-      model: "claude-sonnet-4-6",
-      is_configured: false,
-    };
+  if (!result.ok) {
+    return UNCONFIGURED;
   }
+
+  return { ...result.data, is_configured: !!result.data.id };
 };
 
 export const deleteProjectSettings = async (
   projectId: string,
 ): Promise<boolean> => {
-  const token = await getToken();
-  if (!token) return false;
+  const result = await apiRequest(`/projects/${projectId}/settings`, {
+    method: "DELETE",
+  });
 
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}/settings`,
-      {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      },
-    );
-
-    if (res.ok) {
-      updateTag(cacheTags.projectSettings(projectId));
-    }
-
-    return res.ok;
-  } catch {
-    return false;
+  if (result.ok) {
+    updateTag(cacheTags.projectSettings(projectId));
   }
+
+  return result.ok;
 };
 
 export const updateProjectSettings = async (
   projectId: string,
   data: ProjectSettings,
 ): Promise<boolean> => {
-  const token = await getToken();
-  if (!token) return false;
+  const result = await apiRequest(`/projects/${projectId}/settings`, {
+    method: "PUT",
+    body: data,
+  });
 
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}/settings`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(data),
-      },
-    );
-
-    if (res.ok) {
-      updateTag(cacheTags.projectSettings(projectId));
-    }
-
-    return res.ok;
-  } catch {
-    return false;
+  if (result.ok) {
+    updateTag(cacheTags.projectSettings(projectId));
   }
+
+  return result.ok;
 };

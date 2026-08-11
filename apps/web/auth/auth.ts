@@ -2,8 +2,15 @@
 
 import { cookies } from "next/headers";
 
+import { apiRequest } from "./api-client";
+
 export interface LoginResponse {
-  session: string;
+  session: {
+    userId: {
+      access_token: string;
+      user: { id: string };
+    };
+  };
 }
 
 export interface SignUpResponse {
@@ -17,24 +24,23 @@ export const login = async (
   email: string,
   password: string,
 ): Promise<LoginResponse> => {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/login`, {
+  const result = await apiRequest<LoginResponse>("/projects/login", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
+    auth: false,
+    body: { email, password },
+    fallbackError: "Login failed",
   });
+
+  if (!result.ok) {
+    throw new Error(result.error);
+  }
 
   const cookieStore = await cookies();
 
-  const data = await res.json();
+  cookieStore.set("access_token", result.data.session.userId.access_token);
+  cookieStore.set("user_id", result.data.session.userId.user.id);
 
-  if (!res.ok) {
-    throw new Error(data.error || "Login failed");
-  }
-
-  cookieStore.set("access_token", data.session.userId.access_token);
-  cookieStore.set("user_id", data.session.userId.user.id);
-
-  return data;
+  return result.data;
 };
 
 export const logout = async () => {
@@ -47,63 +53,57 @@ export const signup = async (
   email: string,
   password: string,
 ): Promise<SignUpResponse> => {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/projects/signup`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    },
-  );
+  const result = await apiRequest<SignUpResponse>("/projects/signup", {
+    method: "POST",
+    auth: false,
+    body: { email, password },
+    fallbackError: "Sign up failed",
+  });
 
-  const data = await res.json();
-
-  if (!res.ok) {
-    throw new Error(data.error || "Sign up failed");
+  if (!result.ok) {
+    throw new Error(result.error);
   }
 
-  return data;
+  return result.data;
 };
 
 export const requestPasswordReset = async (
   email: string,
 ): Promise<{ message: string }> => {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/projects/forgot-password`,
+  const result = await apiRequest<{ message: string }>(
+    "/projects/forgot-password",
     {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
+      auth: false,
+      body: { email },
+      fallbackError: "Failed to request password reset",
     },
   );
 
-  const data = await res.json();
-
-  if (!res.ok) {
-    throw new Error(data.error || "Failed to request password reset");
+  if (!result.ok) {
+    throw new Error(result.error);
   }
 
-  return data;
+  return result.data;
 };
 
 export const resetPassword = async (
   token: string,
   password: string,
 ): Promise<{ message: string }> => {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/projects/reset-password`,
+  const result = await apiRequest<{ message: string }>(
+    "/projects/reset-password",
     {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token, password }),
+      auth: false,
+      body: { token, password },
+      fallbackError: "Failed to reset password",
     },
   );
 
-  const data = await res.json();
-
-  if (!res.ok) {
-    throw new Error(data.error || "Failed to reset password");
+  if (!result.ok) {
+    throw new Error(result.error);
   }
 
-  return data;
+  return result.data;
 };

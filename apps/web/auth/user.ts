@@ -1,41 +1,34 @@
 "use server";
 
 import { updateTag } from "next/cache";
-import { cookies } from "next/headers";
 
+import { apiRequest, getSession, rethrowTransportError } from "./api-client";
 import { cacheTags } from "./cache-tags";
 
 export const getUser = async (): Promise<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   { user: any } | undefined
 > => {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("access_token")?.value;
-  const userId = cookieStore.get("user_id")?.value;
+  const session = await getSession();
 
-  if (!token || !userId) {
+  if (!session) {
     return undefined;
   }
 
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/projects/profile/${userId}`,
+  const result = await apiRequest<{ user: unknown }>(
+    `/projects/profile/${session.userId}`,
     {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      next: { tags: [cacheTags.user()], revalidate: false },
+      token: session.token,
+      tags: [cacheTags.user()],
     },
   );
 
-  const data = await res.json();
-
-  if (!res.ok) {
+  if (!result.ok) {
+    rethrowTransportError(result);
     return undefined;
   }
 
-  return data;
+  return result.data;
 };
 
 export const updateUserProfile = async (
@@ -43,33 +36,27 @@ export const updateUserProfile = async (
   avatar_url: string,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<{ user: any } | { error: string }> => {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("access_token")?.value;
-  const userId = cookieStore.get("user_id")?.value;
+  const session = await getSession();
 
-  if (!token || !userId) {
+  if (!session) {
     throw new Error("Unauthorized");
   }
 
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/projects/profile/${userId}`,
+  const result = await apiRequest<{ user: unknown }>(
+    `/projects/profile/${session.userId}`,
     {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ username, avatar_url }),
+      token: session.token,
+      body: { username, avatar_url },
+      fallbackError: "Failed to update profile",
     },
   );
 
-  const data = await res.json();
-
-  if (!res.ok) {
-    throw new Error(data.error || "Failed to update profile");
+  if (!result.ok) {
+    throw new Error(result.error);
   }
 
   updateTag(cacheTags.user());
 
-  return data;
+  return result.data;
 };

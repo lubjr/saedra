@@ -1,6 +1,6 @@
 "use server";
 
-import { cookies } from "next/headers";
+import { apiRequest, getAuthToken, rethrowTransportError } from "./api-client";
 
 export const generateDiagram = async ({
   projectId,
@@ -10,30 +10,23 @@ export const generateDiagram = async ({
   credentialId: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 }): Promise<{ data: any } | { error: string } | undefined> => {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("access_token")?.value;
+  const token = await getAuthToken();
 
   if (!token) {
     return { error: "Unauthorized" };
   }
 
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}/diagram`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ credentialId }),
-    },
-  );
+  const result = await apiRequest<unknown>(`/projects/${projectId}/diagram`, {
+    method: "POST",
+    token,
+    body: { credentialId },
+    fallbackError: "Failed to generate diagram",
+  });
 
-  const data = await res.json();
-
-  if (!res.ok) {
-    return { error: data.error || "Failed to generate diagram" };
+  if (!result.ok) {
+    rethrowTransportError(result);
+    return { error: result.error };
   }
 
-  return { data };
+  return { data: result.data };
 };
