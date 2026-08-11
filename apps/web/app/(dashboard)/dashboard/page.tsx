@@ -2,12 +2,12 @@
 
 import { Button } from "@repo/ui/button";
 import { PlusIcon } from "@repo/ui/lucide";
-import { Skeleton } from "@repo/ui/skeleton";
 import Link from "next/link";
 import * as React from "react";
 import { toast } from "sonner";
+import useSWR from "swr";
 
-import type { Decision } from "../../../auth/documents";
+import { cacheTags } from "../../../auth/cache-tags";
 import { getDecisions } from "../../../auth/documents";
 import type { ProjectSummary } from "../../../auth/projects";
 import { getProjectSummaries } from "../../../auth/projects";
@@ -17,6 +17,7 @@ import { FilterChips } from "../../../components/home/FilterChips";
 import { ProjectCard } from "../../../components/home/ProjectCard";
 import { SearchInput } from "../../../components/home/SearchInput";
 import { SetupBanner } from "../../../components/home/SetupBanner";
+import { HomeSkeleton } from "../../../components/skeletons/PageSkeletons";
 import { usePreferences } from "../../../hooks/usePreferences";
 import { useProjectLimit } from "../../../hooks/useProjectLimit";
 import { useProjects } from "../../contexts/ProjectsContext";
@@ -33,10 +34,26 @@ export default function Page() {
   const { prefs } = usePreferences();
   const [filter, setFilter] = React.useState<Filter>("all");
   const [query, setQuery] = React.useState("");
-  const [summaries, setSummaries] = React.useState<
-    Record<string, ProjectSummary>
-  >({});
-  const [heroDecisions, setHeroDecisions] = React.useState<Decision[]>([]);
+
+  const { data: rawSummaryList } = useSWR(
+    "projects:summaries",
+    getProjectSummaries,
+    {
+      fallbackData: [],
+      revalidateOnFocus: true,
+      refreshInterval: 60_000,
+    },
+  );
+  const summaryList = React.useMemo(() => {
+    return rawSummaryList ?? [];
+  }, [rawSummaryList]);
+  const summaries = React.useMemo(() => {
+    const map: Record<string, ProjectSummary> = {};
+    for (const s of summaryList) {
+      map[s.id] = s;
+    }
+    return map;
+  }, [summaryList]);
 
   const projectsList = Array.isArray(projects)
     ? projects
@@ -66,25 +83,19 @@ export default function Page() {
 
   const hero = !query ? sorted[0] : undefined;
   const heroForDecisions = sorted[0];
+  const heroForDecisionsId = heroForDecisions?.id;
 
-  React.useEffect(() => {
-    getProjectSummaries().then((data) => {
-      const map: Record<string, ProjectSummary> = {};
-      for (const s of data) {
-        map[s.id] = s;
-      }
-      setSummaries(map);
-    });
-  }, []);
+  const { data: rawHeroDecisions } = useSWR(
+    heroForDecisionsId ? cacheTags.projectDecisions(heroForDecisionsId) : null,
+    () => {
+      return getDecisions(heroForDecisionsId as string);
+    },
+    { revalidateOnFocus: true },
+  );
+  const heroDecisions = React.useMemo(() => {
+    return (rawHeroDecisions ?? []).slice(0, 4);
+  }, [rawHeroDecisions]);
 
-  React.useEffect(() => {
-    if (!heroForDecisions?.id) return;
-    getDecisions(heroForDecisions.id).then((decisions) => {
-      setHeroDecisions(decisions.slice(0, 4));
-    });
-  }, [heroForDecisions?.id]);
-
-  const summaryList = Object.values(summaries);
   const totalDecisions = summaryList.reduce((acc, s) => {
     return acc + (s.decisions_count ?? 0);
   }, 0);
@@ -114,16 +125,7 @@ export default function Page() {
   });
 
   if (isLoading) {
-    return (
-      <div className="mx-auto max-w-6xl space-y-6">
-        <Skeleton className="w-full rounded-2xl" style={{ height: "240px" }} />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          <Skeleton className="w-full rounded-xl" style={{ height: "140px" }} />
-          <Skeleton className="w-full rounded-xl" style={{ height: "140px" }} />
-          <Skeleton className="w-full rounded-xl" style={{ height: "140px" }} />
-        </div>
-      </div>
-    );
+    return <HomeSkeleton />;
   }
 
   if (projectsList.length === 0) {

@@ -18,7 +18,7 @@ export async function projectCreateCommand() {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${config.token}`,
       },
-      body: JSON.stringify({ name, userId: config.userId }),
+      body: JSON.stringify({ name }),
     });
 
     if (!res.ok) {

@@ -1,6 +1,22 @@
-import { ShieldIcon } from "@repo/ui/lucide";
+"use client";
 
-import { ViolationsChart } from "../../ViolationsChart";
+import { ShieldIcon } from "@repo/ui/lucide";
+import { Skeleton } from "@repo/ui/skeleton";
+import dynamic from "next/dynamic";
+
+const ViolationsChart = dynamic(
+  () => {
+    return import("../../ViolationsChart").then((m) => {
+      return m.ViolationsChart;
+    });
+  },
+  {
+    ssr: false,
+    loading: () => {
+      return <Skeleton className="h-50 w-full" />;
+    },
+  },
+);
 
 interface DataPoint {
   date: string;

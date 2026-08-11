@@ -1,6 +1,7 @@
 "use server";
 
-import { cookies } from "next/headers";
+import { apiRequest } from "./api-client";
+import { cacheTags } from "./cache-tags";
 
 export interface ArchitectureState {
   version: string;
@@ -45,6 +46,19 @@ export interface ViolationRule {
 
 type DocumentType = "architecture" | "decision" | "change" | "rule";
 
+const documentTag = (projectId: string, type: DocumentType): string => {
+  switch (type) {
+    case "architecture":
+      return cacheTags.projectArchitecture(projectId);
+    case "decision":
+      return cacheTags.projectDecisions(projectId);
+    case "change":
+      return cacheTags.projectChanges(projectId);
+    case "rule":
+      return cacheTags.projectRules(projectId);
+  }
+};
+
 interface RawDocument {
   id: string;
   name: string;
@@ -57,27 +71,18 @@ const fetchDocuments = async (
   projectId: string,
   type: DocumentType,
 ): Promise<RawDocument[]> => {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("access_token")?.value;
+  const result = await apiRequest<RawDocument[]>(
+    `/projects/${projectId}/documents?type=${type}`,
+    {
+      tags: [documentTag(projectId, type)],
+    },
+  );
 
-  if (!token) return [];
-
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}/documents?type=${type}`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-        cache: "no-store",
-      },
-    );
-
-    if (!res.ok) return [];
-
-    const data = await res.json();
-    return Array.isArray(data) ? data : [];
-  } catch {
+  if (!result.ok) {
     return [];
   }
+
+  return Array.isArray(result.data) ? result.data : [];
 };
 
 const parseContent = <T>(raw: string): T | null => {

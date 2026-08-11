@@ -1,6 +1,14 @@
 "use server";
 
-import { cookies } from "next/headers";
+import { updateTag } from "next/cache";
+
+import {
+  apiRequest,
+  getAuthToken,
+  getSession,
+  rethrowTransportError,
+} from "./api-client";
+import { cacheTags } from "./cache-tags";
 
 export interface ProjectSummary {
   id: string;
@@ -24,32 +32,23 @@ export const getProjects = async (): Promise<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   { projects: any } | undefined
 > => {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("access_token")?.value;
-  const userId = cookieStore.get("user_id")?.value;
+  const session = await getSession();
 
-  if (!token || !userId) {
+  if (!session) {
     return undefined;
   }
 
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/projects/user/${userId}`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    },
-  );
+  const result = await apiRequest<unknown>(`/projects/user/${session.userId}`, {
+    token: session.token,
+    tags: [cacheTags.projects()],
+  });
 
-  const data = await res.json();
-
-  if (!res.ok) {
+  if (!result.ok) {
+    rethrowTransportError(result);
     return undefined;
   }
 
-  return { projects: data };
+  return { projects: result.data };
 };
 
 export const createProject = async ({
@@ -58,33 +57,27 @@ export const createProject = async ({
   name: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 }): Promise<{ data: any } | { error: string; code?: string }> => {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("access_token")?.value;
-  const userId = cookieStore.get("user_id")?.value;
+  const session = await getSession();
 
-  if (!token || !userId) {
+  if (!session) {
     return { error: "Not authenticated" };
   }
 
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/projects/create`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ name, userId }),
-    },
-  );
+  const result = await apiRequest<unknown>("/projects/create", {
+    method: "POST",
+    token: session.token,
+    body: { name },
+    fallbackError: "Failed to create project",
+  });
 
-  const data = await res.json();
-
-  if (!res.ok) {
-    return { error: data.error ?? "Failed to create project", code: data.code };
+  if (!result.ok) {
+    rethrowTransportError(result);
+    return { error: result.error, code: result.code };
   }
 
-  return { data };
+  updateTag(cacheTags.projects());
+
+  return { data: result.data };
 };
 
 export const deleteProject = async ({
@@ -92,55 +85,43 @@ export const deleteProject = async ({
 }: {
   projectId: string;
 }): Promise<{ sucess: boolean } | undefined> => {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("access_token")?.value;
+  const token = await getAuthToken();
 
   if (!token) {
     return undefined;
   }
 
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}`,
-    {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    },
-  );
+  const result = await apiRequest(`/projects/${projectId}`, {
+    method: "DELETE",
+    token,
+  });
 
-  if (!res.ok) {
-    return {
-      sucess: false,
-    };
+  if (!result.ok) {
+    rethrowTransportError(result);
+    return { sucess: false };
   }
 
-  return {
-    sucess: true,
-  };
+  updateTag(cacheTags.projects());
+
+  return { sucess: true };
 };
 
 export const getProjectSummaries = async (): Promise<ProjectSummary[]> => {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("access_token")?.value;
-  const userId = cookieStore.get("user_id")?.value;
+  const session = await getSession();
 
-  if (!token || !userId) return [];
-
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/projects/summaries/user/${userId}`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-        cache: "no-store",
-      },
-    );
-    if (!res.ok) return [];
-    return await res.json();
-  } catch {
+  if (!session) {
     return [];
   }
+
+  const result = await apiRequest<ProjectSummary[]>(
+    `/projects/summaries/user/${session.userId}`,
+    {
+      token: session.token,
+      tags: [cacheTags.projects()],
+    },
+  );
+
+  return result.ok ? result.data : [];
 };
 
 export const getProjectSummary = async (

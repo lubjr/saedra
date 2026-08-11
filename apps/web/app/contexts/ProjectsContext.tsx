@@ -1,11 +1,20 @@
 "use client";
 
 import * as React from "react";
+import useSWR from "swr";
 
+import { cacheTags } from "../../auth/cache-tags";
 import { createProject, deleteProject, getProjects } from "../../auth/projects";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ProjectsContextType = any[] | null;
+
+const PROJECTS_KEY = cacheTags.projects();
+
+const fetchProjects = async (): Promise<ProjectsContextType> => {
+  const data = await getProjects();
+  return data?.projects ?? null;
+};
 
 const ProjectsContext = React.createContext<{
   projects: ProjectsContextType;
@@ -32,41 +41,47 @@ export const ProjectsProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const [projects, setProjects] = React.useState<ProjectsContextType>(null);
-  const [isLoading, setIsLoading] = React.useState(true);
+  const {
+    data: projects,
+    isLoading,
+    mutate,
+  } = useSWR(PROJECTS_KEY, fetchProjects, {
+    fallbackData: null,
+    revalidateOnFocus: true,
+    refreshInterval: 60_000,
+  });
 
   const refresh = React.useCallback(async () => {
-    setIsLoading(true);
-    const data = await getProjects();
-    setProjects(data?.projects ?? null);
-    setIsLoading(false);
-  }, []);
-
-  React.useEffect(() => {
-    refresh();
-  }, [refresh]);
+    await mutate();
+  }, [mutate]);
 
   const deleteProj = React.useCallback(
     async (...args: Parameters<typeof deleteProject>) => {
       const resolve = await deleteProject(...args);
-      await refresh();
+      await mutate();
       return resolve;
     },
-    [refresh],
+    [mutate],
   );
 
   const create = React.useCallback(
     async (...args: Parameters<typeof createProject>) => {
       const resolve = await createProject(...args);
-      await refresh();
+      await mutate();
       return resolve;
     },
-    [refresh],
+    [mutate],
   );
 
   return (
     <ProjectsContext.Provider
-      value={{ projects, isLoading, create, delete: deleteProj, refresh }}
+      value={{
+        projects: projects ?? null,
+        isLoading,
+        create,
+        delete: deleteProj,
+        refresh,
+      }}
     >
       {children}
     </ProjectsContext.Provider>

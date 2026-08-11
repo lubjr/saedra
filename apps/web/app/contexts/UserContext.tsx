@@ -1,7 +1,9 @@
 "use client";
 
 import * as React from "react";
+import useSWR from "swr";
 
+import { cacheTags } from "../../auth/cache-tags";
 import { getUser } from "../../auth/user";
 
 type UserContextType = {
@@ -12,6 +14,13 @@ type UserContextType = {
   plan: string;
   updated_at: string;
 } | null;
+
+const USER_KEY = cacheTags.user();
+
+const fetchUser = async (): Promise<UserContextType> => {
+  const userData = await getUser();
+  return userData?.user ?? null;
+};
 
 const UserContext = React.createContext<{
   user: UserContextType;
@@ -24,26 +33,24 @@ const UserContext = React.createContext<{
 });
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = React.useState<UserContextType>(null);
-  const [isLoading, setIsLoading] = React.useState(true);
+  const {
+    data: user,
+    isLoading,
+    mutate,
+  } = useSWR(USER_KEY, fetchUser, {
+    fallbackData: null,
+    revalidateOnFocus: true,
+    refreshInterval: 60_000,
+  });
 
-  const fetchUser = async () => {
-    setIsLoading(true);
-    const userData = await getUser();
-    setUser(userData?.user || null);
-    setIsLoading(false);
-  };
-
-  const refreshUser = async () => {
-    await fetchUser();
-  };
-
-  React.useEffect(() => {
-    fetchUser();
-  }, []);
+  const refreshUser = React.useCallback(async () => {
+    await mutate();
+  }, [mutate]);
 
   return (
-    <UserContext.Provider value={{ user, isLoading, refreshUser }}>
+    <UserContext.Provider
+      value={{ user: user ?? null, isLoading, refreshUser }}
+    >
       {children}
     </UserContext.Provider>
   );
