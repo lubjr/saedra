@@ -66,7 +66,7 @@ export const createProject = async ({
   const result = await apiRequest<unknown>("/projects/create", {
     method: "POST",
     token: session.token,
-    body: { name, userId: session.userId },
+    body: { name },
     fallbackError: "Failed to create project",
   });
 
