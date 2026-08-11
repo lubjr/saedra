@@ -1,5 +1,11 @@
 #!/usr/bin/env node
+import { createRequire } from "node:module";
+
 import { Command } from "commander";
+
+const { version } = createRequire(import.meta.url)("../package.json") as {
+  version: string;
+};
 
 process.on("uncaughtException", (err: Error) => {
   if (err.name === "ExitPromptError") {
@@ -44,7 +50,7 @@ const program = new Command();
 program
   .name("saedra")
   .description("Saedra CLI - Manage your projects from the terminal")
-  .version("1.0.0");
+  .version(version);
 
 program
   .command("login")
