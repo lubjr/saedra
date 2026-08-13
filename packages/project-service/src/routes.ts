@@ -2,6 +2,8 @@ import { Router } from "express";
 import { rateLimit } from "express-rate-limit";
 import { authenticate } from "./middleware/authenticate.js";
 
+import { publishInvalidate } from "./events.js";
+import { documentResourceTag, resourceTags } from "./resource-tags.js";
 import * as repo from "./repository.js";
 
 const routes: Router = Router();
@@ -106,6 +108,8 @@ routes.put('/profile/:userId', authenticate, async (req, res) => {
     return res.status(400).json({ error: profile.error });
   }
 
+  publishInvalidate(userId, resourceTags.user());
+
   res.json(profile);
 });
 
@@ -123,6 +127,8 @@ routes.post('/create', authenticate, async (req, res) => {
     const status = project.code === 'PROJECT_LIMIT_REACHED' ? 403 : 400;
     return res.status(status).json(project);
   }
+
+  publishInvalidate(userId, resourceTags.projects());
 
   res.status(201).json(project);
 });
@@ -256,6 +262,11 @@ routes.post('/:projectId/documents', authenticate, async (req, res) => {
     return res.status(400).json({ error: document.error });
   }
 
+  const createTag = documentResourceTag(projectId, type);
+  if (createTag) {
+    publishInvalidate(req.user.id, createTag);
+  }
+
   res.status(201).json(document);
 });
 
@@ -293,7 +304,7 @@ routes.get('/:projectId/documents/:documentId', authenticate, async (req, res) =
 });
 
 routes.put('/:projectId/documents/:documentId', authenticate, async (req, res) => {
-  const { documentId } = req.params;
+  const { projectId, documentId } = req.params;
   const { content } = req.body;
 
   if (content === undefined || !documentId) {
@@ -306,20 +317,36 @@ routes.put('/:projectId/documents/:documentId', authenticate, async (req, res) =
     return res.status(404).json({ error: 'error updating document' });
   }
 
+  const document = await repo.getDocumentById(documentId);
+  if (projectId && !('error' in document)) {
+    const updateTag = documentResourceTag(projectId, document.type);
+    if (updateTag) {
+      publishInvalidate(req.user.id, updateTag);
+    }
+  }
+
   res.status(204).json({ message: 'document updated' });
 });
 
 routes.delete('/:projectId/documents/:documentId', authenticate, async (req, res) => {
-  const { documentId } = req.params;
+  const { projectId, documentId } = req.params;
 
   if (!documentId) {
     return res.status(400).json({ error: 'documentId required' });
   }
 
+  const document = await repo.getDocumentById(documentId);
   const success = await repo.deleteDocument(documentId);
 
   if (!success) {
     return res.status(404).json({ error: 'error deleting document' });
+  }
+
+  if (projectId && !('error' in document)) {
+    const deleteTag = documentResourceTag(projectId, document.type);
+    if (deleteTag) {
+      publishInvalidate(req.user.id, deleteTag);
+    }
   }
 
   res.status(204).json({ message: 'document deleted' });
@@ -346,6 +373,8 @@ routes.post('/:projectId/reviews', authenticate, async (req, res) => {
   if (review && 'error' in review) {
     return res.status(400).json({ error: review.error });
   }
+
+  publishInvalidate(req.user.id, resourceTags.projectReviews(projectId));
 
   res.status(201).json(review);
 });
@@ -415,6 +444,8 @@ routes.delete('/:projectId/settings', authenticate, async (req, res) => {
     return res.status(500).json({ error: 'failed to delete settings' });
   }
 
+  publishInvalidate(req.user.id, resourceTags.projectSettings(projectId));
+
   res.status(204).end();
 });
 
@@ -431,6 +462,8 @@ routes.put('/:projectId/settings', authenticate, async (req, res) => {
   if ('error' in settings) {
     return res.status(400).json({ error: settings.error });
   }
+
+  publishInvalidate(req.user.id, resourceTags.projectSettings(projectId));
 
   res.json(settings);
 });
@@ -510,7 +543,9 @@ routes.delete('/:id', authenticate, async (req, res) => {
   if (!success) {
     return res.status(404).json({ error: 'error deleting project' });
   }
-  
+
+  publishInvalidate(req.user.id, resourceTags.projects());
+
   res.status(204).json({ message: 'project deleted' });
 });
 
