@@ -3,6 +3,7 @@
 import { BreadcrumbProvider } from "../../contexts/BreadcrumbContext";
 import { ProjectsProvider } from "../../contexts/ProjectsContext";
 import { UserProvider } from "../../contexts/UserContext";
+import { EventsProvider } from "../../providers/EventsProvider";
 
 export default function ClientWrapper({
   children,
@@ -12,7 +13,9 @@ export default function ClientWrapper({
   return (
     <UserProvider>
       <ProjectsProvider>
-        <BreadcrumbProvider>{children}</BreadcrumbProvider>
+        <EventsProvider>
+          <BreadcrumbProvider>{children}</BreadcrumbProvider>
+        </EventsProvider>
       </ProjectsProvider>
     </UserProvider>
   );

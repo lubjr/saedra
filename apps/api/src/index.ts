@@ -1,4 +1,4 @@
-import { projectRoutes } from "@repo/project-service/projects";
+import { eventsRoutes, projectRoutes } from "@repo/project-service/projects";
 import cors from "cors";
 import express from "express";
 
@@ -31,6 +31,7 @@ const start = async () => {
 
   app.use("/projects", projectRoutes);
   app.use("/bedrock", bedrockRoutes);
+  app.use("/events", eventsRoutes);
 
   // eslint-disable-next-line turbo/no-undeclared-env-vars
   const PORT = process.env.PORT || 3002;
