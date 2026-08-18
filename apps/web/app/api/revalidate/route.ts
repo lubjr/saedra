@@ -1,4 +1,4 @@
-import { updateTag } from "next/cache";
+import { revalidateTag } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
@@ -22,7 +22,7 @@ export const POST = async (req: NextRequest) => {
     return NextResponse.json({ error: "resource required" }, { status: 400 });
   }
 
-  updateTag(resource);
+  revalidateTag(resource, { expire: 0 });
 
   return NextResponse.json({ ok: true });
 };
