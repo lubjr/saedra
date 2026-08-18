@@ -29,9 +29,10 @@ const MOCK_ERRORS = {
 
 vi.mock('@repo/db-connector/db', () => {
   const mockSingle = vi.fn()
+  const mockOrder = vi.fn()
   const mockDeleteEq = vi.fn()
   const mockUpdateEq = vi.fn()
-  const mockSelectEq = vi.fn(() => ({ single: mockSingle }))
+  const mockSelectEq = vi.fn(() => ({ single: mockSingle, order: mockOrder }))
   const mockSelect = vi.fn(() => ({ eq: mockSelectEq }))
   const mockInsert = vi.fn(() => ({ select: () => ({ single: mockSingle }) }))
   const mockDelete = vi.fn(() => ({ eq: mockDeleteEq }))
@@ -45,11 +46,11 @@ vi.mock('@repo/db-connector/db', () => {
 
   return {
     serviceClient: { from: mockFrom },
-    __mocks: { mockFrom, mockSelect, mockSelectEq, mockInsert, mockDelete, mockDeleteEq, mockSingle, mockUpdate, mockUpdateEq },
+    __mocks: { mockFrom, mockSelect, mockSelectEq, mockOrder, mockInsert, mockDelete, mockDeleteEq, mockSingle, mockUpdate, mockUpdateEq },
   }
 })
 
-const { mockFrom, mockSelect, mockSelectEq, mockInsert, mockDelete, mockDeleteEq, mockSingle, mockUpdate, mockUpdateEq } = (
+const { mockFrom, mockSelect, mockSelectEq, mockOrder, mockInsert, mockDelete, mockDeleteEq, mockSingle, mockUpdate, mockUpdateEq } = (
   await vi.importMock('@repo/db-connector/db') as any
 ).__mocks
 
@@ -103,13 +104,14 @@ describe('DocumentDB', () => {
         expected: { data: [], error: null },
       },
     ])('$scenario', async ({ projectId, mockResponse, expected }) => {
-      mockSelectEq.mockResolvedValue(mockResponse)
+      mockOrder.mockResolvedValue(mockResponse)
 
       const result = await DocumentDB.getDocumentsByProject(projectId)
 
       expect(mockFrom).toHaveBeenCalledWith('documents')
       expect(mockSelect).toHaveBeenCalledWith('*')
       expect(mockSelectEq).toHaveBeenCalledWith('project_id', projectId)
+      expect(mockOrder).toHaveBeenCalledWith('created_at', { ascending: false })
       expect(result).toEqual(expected)
     })
   })
