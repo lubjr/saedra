@@ -4,8 +4,13 @@ import { SearchIcon } from "@repo/ui/lucide";
 import * as React from "react";
 
 import type { ViolationRule } from "../../../auth/documents";
-import { formatRelativeDate } from "../decisions/helpers";
-import { SEVERITY_CLASSES, SEVERITY_DOT, sortBySeverity } from "./helpers";
+import {
+  formatRelativeDate,
+  sortByOption,
+  type SortOption,
+} from "../decisions/helpers";
+import { SortControl } from "../SortControl";
+import { SEVERITY_CLASSES, SEVERITY_DOT } from "./helpers";
 import { RuleDetail } from "./RuleDetail";
 
 interface Props {
@@ -14,7 +19,10 @@ interface Props {
 }
 
 export const RulesBoard = ({ rules, initialSelectedId }: Props) => {
-  const sorted = sortBySeverity(rules);
+  const [sort, setSort] = React.useState<SortOption>("newest");
+  const sorted = sortByOption(rules, sort, (r) => {
+    return r.severity;
+  });
   const [selected, setSelected] = React.useState<string | null>(
     initialSelectedId ?? sorted[0]?.id ?? null,
   );
@@ -53,6 +61,7 @@ export const RulesBoard = ({ rules, initialSelectedId }: Props) => {
             }}
             className="w-full bg-transparent font-mono text-xs text-foreground/80 placeholder:text-muted-foreground/50 outline-none"
           />
+          <SortControl value={sort} onChange={setSort} tierLabel="Severity" />
         </div>
         <div className="overflow-y-auto">
           {filtered.length === 0 ? (
@@ -70,7 +79,7 @@ export const RulesBoard = ({ rules, initialSelectedId }: Props) => {
                       onClick={() => {
                         setSelected(r.id);
                       }}
-                      className={`w-full text-left px-4 py-3.5 border-l-2 transition-colors ${isSelected ? "border-brand bg-brand-fill/50" : "border-transparent hover:bg-muted/50"}`}
+                      className={`w-full cursor-pointer text-left px-4 py-3.5 border-l-2 transition-colors ${isSelected ? "border-brand bg-brand-fill/50" : "border-transparent hover:bg-muted/50"}`}
                     >
                       <div className="flex items-start justify-between gap-2 min-w-0">
                         <div className="flex items-start gap-2.5 min-w-0">

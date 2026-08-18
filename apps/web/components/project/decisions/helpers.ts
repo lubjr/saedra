@@ -26,6 +26,36 @@ export const TIER_DOT: Record<Tier, string> = {
 
 export const RISK_CLASSES = TIER_CLASSES;
 
+export type SortOption = "newest" | "oldest" | "tier";
+
+const TIER_RANK: Record<Tier, number> = { high: 0, medium: 1, low: 2 };
+
+export const sortByOption = <T extends { created_at: string }>(
+  items: T[],
+  option: SortOption,
+  getTier?: (item: T) => Tier,
+): T[] => {
+  const sorted = [...items];
+
+  if (option === "tier" && getTier) {
+    sorted.sort((a, b) => {
+      const byTier = TIER_RANK[getTier(a)] - TIER_RANK[getTier(b)];
+      if (byTier !== 0) return byTier;
+      return (
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+    });
+    return sorted;
+  }
+
+  sorted.sort((a, b) => {
+    const delta =
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    return option === "oldest" ? -delta : delta;
+  });
+  return sorted;
+};
+
 export const formatRelativeDate = (iso: string): string => {
   const diff = Date.now() - new Date(iso).getTime();
   const minutes = Math.floor(diff / 60_000);
