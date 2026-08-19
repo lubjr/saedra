@@ -14,7 +14,11 @@ export const DocumentDB: DocumentDBType = {
   },
 
   async getDocumentsByProject(projectId: string, type?: string) {
-    const query = serviceClient.from('documents').select('*').eq('project_id', projectId);
+    const query = serviceClient
+      .from('documents')
+      .select('*')
+      .eq('project_id', projectId)
+      .order('created_at', { ascending: false });
     return type ? query.eq('type', type) : query;
   },
 

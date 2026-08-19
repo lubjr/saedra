@@ -4,8 +4,15 @@ import { SearchIcon } from "@repo/ui/lucide";
 import * as React from "react";
 
 import type { Decision } from "../../../auth/documents";
+import { SortControl } from "../SortControl";
 import { DecisionDetail } from "./DecisionDetail";
-import { formatRelativeDate, RISK_CLASSES, STATUS_CLASSES } from "./helpers";
+import {
+  formatRelativeDate,
+  RISK_CLASSES,
+  sortByOption,
+  type SortOption,
+  STATUS_CLASSES,
+} from "./helpers";
 
 const STATUS_DOT: Record<string, string> = {
   active: "bg-brand",
@@ -24,12 +31,16 @@ export const DecisionsBoard = ({
   supersededBy,
   initialSelectedId,
 }: Props) => {
+  const [sort, setSort] = React.useState<SortOption>("newest");
+  const sorted = sortByOption(decisions, sort, (d) => {
+    return d.risk_level;
+  });
   const [selected, setSelected] = React.useState<string | null>(
-    initialSelectedId ?? decisions[0]?.id ?? null,
+    initialSelectedId ?? sorted[0]?.id ?? null,
   );
   const [query, setQuery] = React.useState("");
 
-  const filtered = decisions.filter((d) => {
+  const filtered = sorted.filter((d) => {
     if (!query) return true;
     const q = query.toLowerCase();
     return d.title.toLowerCase().includes(q) || d.id.toLowerCase().includes(q);
@@ -60,6 +71,7 @@ export const DecisionsBoard = ({
             }}
             className="w-full bg-transparent font-mono text-xs text-foreground/80 placeholder:text-muted-foreground/50 outline-none"
           />
+          <SortControl value={sort} onChange={setSort} tierLabel="Risk" />
         </div>
         <div className="overflow-y-auto">
           {filtered.length === 0 ? (
@@ -77,7 +89,7 @@ export const DecisionsBoard = ({
                       onClick={() => {
                         return setSelected(d.id);
                       }}
-                      className={`w-full text-left px-4 py-3.5 border-l-2 transition-colors ${isSelected ? "border-brand bg-brand-fill/50" : "border-transparent hover:bg-muted/50"}`}
+                      className={`w-full cursor-pointer text-left px-4 py-3.5 border-l-2 transition-colors ${isSelected ? "border-brand bg-brand-fill/50" : "border-transparent hover:bg-muted/50"}`}
                     >
                       <div className="flex items-start justify-between gap-2 min-w-0">
                         <div className="flex items-start gap-2.5 min-w-0">

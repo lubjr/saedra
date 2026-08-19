@@ -20,12 +20,11 @@ export const subscribeToUserEvents = (
 
 export const publishInvalidate = (userId: string, resource: string): void => {
   const event: ResourceEvent = { type: "invalidate", resource };
-  emitter.emit(userId, event);
-
   const webAppUrl = process.env.WEB_APP_URL;
   const secret = process.env.REVALIDATE_SECRET;
 
   if (!webAppUrl || !secret) {
+    emitter.emit(userId, event);
     return;
   }
 
@@ -36,10 +35,14 @@ export const publishInvalidate = (userId: string, resource: string): void => {
       "x-revalidate-secret": secret,
     },
     body: JSON.stringify({ resource }),
-  }).catch((error) => {
-    console.error(
-      "failed to call revalidate webhook:",
-      error instanceof Error ? error.message : error,
-    );
-  });
+  })
+    .catch((error) => {
+      console.error(
+        "failed to call revalidate webhook:",
+        error instanceof Error ? error.message : error,
+      );
+    })
+    .finally(() => {
+      emitter.emit(userId, event);
+    });
 };
