@@ -131,9 +131,6 @@ importers:
 
   apps/web:
     dependencies:
-      '@repo/nats-client':
-        specifier: workspace:*
-        version: link:../../packages/nats-client
       '@repo/ui':
         specifier: workspace:*
         version: link:../../packages/ui
