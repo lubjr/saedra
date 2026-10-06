@@ -11,34 +11,6 @@ export type CreateProjectResponse = {
   code?: string;
 };
 
-export type CreateCredentialsResponse = {
-  data: {
-    id: string;
-    project_id: string;
-    acess_key_id: string;
-    secret_access_key: string;
-    region: string;
-    created_at: string;
-    updated_at: string;
-  };
-} | {
-  error: string;
-};
-
-export type CreateDiagramResponse = {
-      id: string;
-      project_id: string;
-      graph: {
-        edges: object[];
-        nodes: object[];
-      };
-      created_at: string;
-      updated_at: string;
-    }
-  | {
-      error: string;
-};
-
 export type DocumentType = 'doc' | 'architecture' | 'decision' | 'change' | 'rule';
 
 export type FileResult = {

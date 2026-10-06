@@ -482,7 +482,7 @@ Using project: my-infra (from .saedra)
   Proposed Architecture State:
 
   Summary:
-    Monorepo (Turborepo + pnpm) combining auth, project management, AI via AWS Bedrock...
+    Monorepo (Turborepo + pnpm) combining auth, project management, and AI-powered architectural review...
 
   Core Principles:
     - TypeScript strict across all packages
@@ -825,7 +825,7 @@ Using project: my-infra (from .saedra)
   [ARCHITECTURE CONTEXT — my-infra]
 
   Summary:
-    Monorepo (Turborepo + pnpm) with auth, project management, and AI via AWS Bedrock.
+    Monorepo (Turborepo + pnpm) with auth, project management, and AI-powered architectural review.
 
   Core Principles:
     - TypeScript strict across all packages
@@ -901,7 +901,7 @@ Using project: my-infra (from .saedra)
   my-infra — Architecture Overview
 
   What is this project?
-    Monorepo (Turborepo + pnpm) with auth, project management, and AI via AWS Bedrock.
+    Monorepo (Turborepo + pnpm) with auth, project management, and AI-powered architectural review.
 
   Communication Patterns:
     - apps/api → project-service → db-queries → db-connector → Supabase
@@ -1176,8 +1176,7 @@ List all available commands.
 ## Development workflow
 
 ```bash
-# 1. Start the local infrastructure and API
-pnpm run dev:infra
+# 1. Start the local API
 pnpm run dev --filter @usesaedra/cli --filter ./apps/api
 
 # 2. Point CLI to local API

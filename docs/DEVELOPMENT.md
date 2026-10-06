@@ -23,11 +23,8 @@ pnpm run dev:fresh        # Clean cache + start dev server
 pnpm run build            # Build all packages and apps
 pnpm run build:fresh      # Clean cache + build
 
-# Infrastructure
-pnpm run dev:infra        # Start Docker infrastructure (databases, etc.)
-pnpm run stop:infra       # Stop Docker infrastructure
+# Apps
 pnpm run dev:apps         # Start only web and API apps
-pnpm run dev:all          # Start infra + apps together
 
 # Code Quality
 pnpm run lint             # Run linters
@@ -59,16 +56,9 @@ pnpm run dev
 pnpm run dev:fresh
 ```
 
-**Full stack development:**
+**Web + API only:**
 ```bash
-# Terminal 1: Infrastructure
-pnpm run dev:infra
-
-# Terminal 2: Applications (after infra is ready)
 pnpm run dev:apps
-
-# OR use the combined command
-pnpm run dev:all
 ```
 
 ### 2. Making Style Changes
@@ -257,23 +247,6 @@ pnpm run clean:all
 pnpm install
 ```
 
-### Issue: Docker Infrastructure Won't Start
-
-**Solution:**
-```bash
-# 1. Stop existing containers
-pnpm run stop:infra
-
-# 2. Check Docker status
-sudo systemctl status docker
-
-# 3. Restart infrastructure
-pnpm run dev:infra
-
-# 4. Check logs
-sudo docker-compose -f docker/docker-compose.yml logs
-```
-
 ### Issue: Port Already in Use
 
 **Symptoms:**
@@ -421,9 +394,6 @@ ps aux | grep -E "pnpm|node" | grep -v grep
 
 # Check specific port
 lsof -i :3000
-
-# See Docker containers
-sudo docker ps
 ```
 
 ## Quick Reference

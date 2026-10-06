@@ -19,9 +19,9 @@ The `db-queries` package uses [Vitest](https://vitest.dev/) as its testing frame
 
 ```
 packages/db-queries/src/tests/
+├── apiTokens.test.ts   # API token tests (create, lookup, list, revoke)
 ├── auth.test.ts        # Authentication tests (login, signup, token validation)
-├── credentials.test.ts # AWS credentials tests
-├── diagrams.test.ts    # Diagram tests
+├── documents.test.ts   # Document tests
 ├── profiles.test.ts    # User profile tests
 └── projects.test.ts    # Project tests
 ```

@@ -1,6 +1,4 @@
 export * from './projects.js'
-export * from './credentials.js'
-export * from './diagrams.js'
 export * from './auth.js'
 export * from './profiles.js'
 export * from './documents.js'

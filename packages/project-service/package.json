@@ -18,9 +18,7 @@
     "typescript": "5.8.3"
   },
   "dependencies": {
-    "@repo/aws-connector": "workspace:*",
     "@repo/db-queries": "workspace:*",
-    "@repo/diagram-service": "workspace:*",
     "express": "^4.22.2",
     "express-rate-limit": "^8.5.2"
   }

@@ -3,7 +3,6 @@ import cors from "cors";
 import express from "express";
 
 import { requestLogger } from "./middleware/logger.js";
-import { bedrockRoutes } from "./routes/bedrock.js";
 
 const start = async () => {
   const startTime = Date.now();
@@ -21,7 +20,6 @@ const start = async () => {
       timestamp: new Date().toISOString(),
       environment: {
         node: process.version,
-        aws_region: process.env.AWS_REGION ? "configured" : "not configured",
         supabase_url: process.env.SUPABASE_URL
           ? "configured"
           : "not configured",
@@ -30,7 +28,6 @@ const start = async () => {
   });
 
   app.use("/projects", projectRoutes);
-  app.use("/bedrock", bedrockRoutes);
   app.use("/events", eventsRoutes);
 
   // eslint-disable-next-line turbo/no-undeclared-env-vars

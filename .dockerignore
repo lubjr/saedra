@@ -3,6 +3,5 @@ node_modules
 .turbo
 .git
 *.md
-docker/
 docs/
 .env*
