@@ -1,7 +1,5 @@
-import { type CreateProjectResponse, type CreateCredentialsResponse, type CreateDiagramResponse, type DocumentResponse, type DocumentType, type ReviewData, type ProjectSettings, type ProjectSummary, type CreateApiTokenResponse, type ApiTokenListItem } from "./types.js";
-import { collectResources, type AwsCredentials } from "@repo/aws-connector/aws";
-import { generateDiagramFromResources } from "@repo/diagram-service/diagram";
-import { ProjectDB, AwsCredentialsDB, DiagramDB, LoginDB, ProfileDB, DocumentDB, ReviewDB, SettingsDB, ApiTokenDB } from "@repo/db-queries/queries";
+import { type CreateProjectResponse, type DocumentResponse, type DocumentType, type ReviewData, type ProjectSettings, type ProjectSummary, type CreateApiTokenResponse, type ApiTokenListItem } from "./types.js";
+import { ProjectDB, LoginDB, ProfileDB, DocumentDB, ReviewDB, SettingsDB, ApiTokenDB } from "@repo/db-queries/queries";
 
 export const signUpUser = async (email: string, password: string): Promise<{ userId: string } | { error: string }> => {
   const { data, error } = await LoginDB.signUpUser(email, password);
@@ -89,110 +87,6 @@ export const createProject = async (name: string, userId: string): Promise<Creat
 
   return data;
 };
-
-export const createDiagram = async (projectId: string, credentialId: string): Promise<CreateDiagramResponse | undefined> => {
-  const { data: credentials, error } = await AwsCredentialsDB.getCredentialById(credentialId);
-
-  if (error || !credentials) {
-    console.log(`error fetching credentials: ${error?.message}`);
-    return undefined;
-  }
-
-  const awsCredentials: AwsCredentials = {
-    accessKeyId: credentials.access_key_id,
-    secretAccessKey: credentials.secret_access_key,
-    region: credentials.region,
-  };
-
-  const getDiagram = await DiagramDB.getDiagramByProject(projectId);
-
-  if (getDiagram.data) {
-    return getDiagram.data;
-  }
-
-  try {
-        const { resources } = await collectResources(awsCredentials);
-        const diagram = generateDiagramFromResources(resources);
-
-        const { data, error } = await DiagramDB.insertDiagram(projectId, diagram);
-
-        if (error) {
-          return { error: error.message };
-        }
-
-        return data;
-    } catch (error) {
-        const message = error instanceof Error ? error.message : JSON.stringify(error);
-        console.log(`error generating diagram for project ${projectId}, message: ${message}`);
-        return undefined;
-    }
-}
-
-export const createCredentials = async (projectId: string, credentials: AwsCredentials): Promise<CreateCredentialsResponse | undefined> => {
-  const project = await getProjectById(projectId);
-
-  if (!project || 'error' in project) {
-    return undefined;
-  }
-
-  const { data, error } = await AwsCredentialsDB.insertCredentials(projectId, credentials);
-
-  if (error) {
-    return { error: error.message };
-  }
-
-  return data;
-}
-
-export const getCredentials = async (projectId: string): Promise<any[] | undefined> => {
-  const project = await getProjectById(projectId);
-
-  if (!project || 'error' in project) {
-    return undefined;
-  }
-
-  const { data, error } = await AwsCredentialsDB.getCredentialsByProject(projectId);
-
-  if (error) {
-    return undefined;
-  }
-
-  return data || [];
-}
-
-export const listCredentialsByUserId = async (userId: string): Promise<any> => {
-  const { data, error } = await AwsCredentialsDB.getCredentialsByUser(userId);
-
-  if (error) {
-    return { error: error.message };
-  }
-
-  return data.map((cred: any) => ({
-    id: cred.id,
-    projectId: cred.project_id,
-    projectName: cred.projects.name,
-    accessKeyId: cred.access_key_id,
-    region: cred.region,
-    createdAt: cred.created_at,
-  }));
-}
-
-export const deleteCredentials = async (projectId: string): Promise<boolean> => {
-  const project = await getProjectById(projectId);
-
-  if (!project || 'error' in project) {
-    return false;
-  }
-
-  const { error } = await AwsCredentialsDB.deleteCredentialsByProject(projectId);
-
-  if (error) {
-    console.error("error deleting credentials:", error.message);
-    return false;
-  }
-
-  return true;
-}
 
 export const getProjectSummaries = async (userId: string): Promise<ProjectSummary[]> => {
   const { projects, reviews, docs } = await ProjectDB.getProjectSummaryData(userId);

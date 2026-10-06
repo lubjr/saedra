@@ -1,6 +1,6 @@
 # Saedra🌳
 
-Project management platform with AWS Bedrock integration.
+CLI-first architectural memory and AI-powered code review for your codebase.
 
 ## Stack
 
@@ -31,11 +31,11 @@ apps/
   api/          # Express backend
   docs/         # Documentation (Fumadocs)
 packages/
+  cli/                # saedra CLI (@usesaedra/cli)
+  ui/                 # Design system (Tailwind + Radix)
   db-connector/       # Supabase connection
   db-queries/         # Database queries
-  bedrock-service/    # AWS Bedrock integration
-  project-service/    # Project logic
-  aws-connector/      # AWS connection
+  project-service/    # Project logic and API routes
 ```
 
 ## Development

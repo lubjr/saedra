@@ -9,12 +9,10 @@
     "start": "node dist/index.js"
   },
   "dependencies": {
-    "@repo/bedrock-service": "workspace:*",
     "@repo/project-service": "workspace:*",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
-    "express": "^4.22.2",
-    "express-rate-limit": "^8.5.2"
+    "express": "^4.22.2"
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
