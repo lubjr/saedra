@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { rateLimit } from "express-rate-limit";
 import { authenticate } from "./middleware/authenticate.js";
+import { requireProjectOwner } from "./middleware/requireProjectOwner.js";
 
 import { publishInvalidate } from "./events.js";
 import { documentResourceTag, resourceTags } from "./resource-tags.js";
@@ -79,11 +80,7 @@ routes.post("/reset-password", passwordResetLimiter, async (req, res) => {
 });
 
 routes.get('/profile/:userId', authenticate, async (req, res) => {
-  const { userId } = req.params;
-
-  if (!userId) {
-    return res.status(400).json({ error: 'userId required' });
-  }
+  const userId = req.user.id;
 
   const profile = await repo.getProfileById(userId);
 
@@ -95,11 +92,11 @@ routes.get('/profile/:userId', authenticate, async (req, res) => {
 });
 
 routes.put('/profile/:userId', authenticate, async (req, res) => {
-  const { userId } = req.params;
+  const userId = req.user.id;
   const { username, avatar_url } = req.body;
 
-  if (!userId || !username || !avatar_url) {
-    return res.status(400).json({ error: 'userId, username and avatar_url required' });
+  if (!username || !avatar_url) {
+    return res.status(400).json({ error: 'username and avatar_url required' });
   }
 
   const profile = await repo.updateProfileById(userId, username, avatar_url);
@@ -134,29 +131,21 @@ routes.post('/create', authenticate, async (req, res) => {
 });
 
 routes.get('/summaries/user/:userId', authenticate, async (req, res) => {
-  const { userId } = req.params;
-
-  if (!userId) {
-    return res.status(400).json({ error: 'userId required' });
-  }
+  const userId = req.user.id;
 
   const summaries = await repo.getProjectSummaries(userId);
   res.json(summaries);
 });
 
 routes.get('/user/:userId', authenticate, async (req, res) => {
-  const { userId } = req.params;
-
-  if (!userId) {
-    return res.status(400).json({ error: 'userId required' });
-  }
+  const userId = req.user.id;
 
   const projects = await repo.listProjectByUserId(userId);
 
   res.json(projects);
 });
 
-routes.post('/:projectId/documents', authenticate, async (req, res) => {
+routes.post('/:projectId/documents', authenticate, requireProjectOwner, async (req, res) => {
   const { projectId } = req.params;
   const { name, content, type } = req.body;
 
@@ -178,7 +167,7 @@ routes.post('/:projectId/documents', authenticate, async (req, res) => {
   res.status(201).json(document);
 });
 
-routes.get('/:projectId/documents', authenticate, async (req, res) => {
+routes.get('/:projectId/documents', authenticate, requireProjectOwner, async (req, res) => {
   const { projectId } = req.params;
   const { type } = req.query as { type?: string };
 
@@ -195,14 +184,14 @@ routes.get('/:projectId/documents', authenticate, async (req, res) => {
   res.json(documents);
 });
 
-routes.get('/:projectId/documents/:documentId', authenticate, async (req, res) => {
-  const { documentId } = req.params;
+routes.get('/:projectId/documents/:documentId', authenticate, requireProjectOwner, async (req, res) => {
+  const { projectId, documentId } = req.params;
 
-  if (!documentId) {
-    return res.status(400).json({ error: 'documentId required' });
+  if (!projectId || !documentId) {
+    return res.status(400).json({ error: 'projectId and documentId required' });
   }
 
-  const document = await repo.getDocumentById(documentId);
+  const document = await repo.getDocumentById(documentId, projectId);
 
   if (!document || 'error' in document) {
     return res.status(404).json({ error: 'document not found' });
@@ -211,56 +200,62 @@ routes.get('/:projectId/documents/:documentId', authenticate, async (req, res) =
   res.json(document);
 });
 
-routes.put('/:projectId/documents/:documentId', authenticate, async (req, res) => {
+routes.put('/:projectId/documents/:documentId', authenticate, requireProjectOwner, async (req, res) => {
   const { projectId, documentId } = req.params;
   const { content } = req.body;
 
-  if (content === undefined || !documentId) {
-    return res.status(400).json({ error: 'content and documentId required' });
+  if (content === undefined || !projectId || !documentId) {
+    return res.status(400).json({ error: 'content, projectId and documentId required' });
   }
 
-  const success = await repo.updateDocument(documentId, content);
+  const document = await repo.getDocumentById(documentId, projectId);
+
+  if (!document || 'error' in document) {
+    return res.status(404).json({ error: 'document not found' });
+  }
+
+  const success = await repo.updateDocument(documentId, projectId, content);
 
   if (!success) {
     return res.status(404).json({ error: 'error updating document' });
   }
 
-  const document = await repo.getDocumentById(documentId);
-  if (projectId && !('error' in document)) {
-    const updateTag = documentResourceTag(projectId, document.type);
-    if (updateTag) {
-      publishInvalidate(req.user.id, updateTag);
-    }
+  const updateTag = documentResourceTag(projectId, document.type);
+  if (updateTag) {
+    publishInvalidate(req.user.id, updateTag);
   }
 
   res.status(204).json({ message: 'document updated' });
 });
 
-routes.delete('/:projectId/documents/:documentId', authenticate, async (req, res) => {
+routes.delete('/:projectId/documents/:documentId', authenticate, requireProjectOwner, async (req, res) => {
   const { projectId, documentId } = req.params;
 
-  if (!documentId) {
-    return res.status(400).json({ error: 'documentId required' });
+  if (!projectId || !documentId) {
+    return res.status(400).json({ error: 'projectId and documentId required' });
   }
 
-  const document = await repo.getDocumentById(documentId);
-  const success = await repo.deleteDocument(documentId);
+  const document = await repo.getDocumentById(documentId, projectId);
+
+  if (!document || 'error' in document) {
+    return res.status(404).json({ error: 'document not found' });
+  }
+
+  const success = await repo.deleteDocument(documentId, projectId);
 
   if (!success) {
     return res.status(404).json({ error: 'error deleting document' });
   }
 
-  if (projectId && !('error' in document)) {
-    const deleteTag = documentResourceTag(projectId, document.type);
-    if (deleteTag) {
-      publishInvalidate(req.user.id, deleteTag);
-    }
+  const deleteTag = documentResourceTag(projectId, document.type);
+  if (deleteTag) {
+    publishInvalidate(req.user.id, deleteTag);
   }
 
   res.status(204).json({ message: 'document deleted' });
 });
 
-routes.post('/:projectId/reviews', authenticate, async (req, res) => {
+routes.post('/:projectId/reviews', authenticate, requireProjectOwner, async (req, res) => {
   const { projectId } = req.params;
   const { branch, base, total_files, violations, warnings, ok, files } = req.body;
 
@@ -287,7 +282,7 @@ routes.post('/:projectId/reviews', authenticate, async (req, res) => {
   res.status(201).json(review);
 });
 
-routes.get('/:projectId/reviews', authenticate, async (req, res) => {
+routes.get('/:projectId/reviews', authenticate, requireProjectOwner, async (req, res) => {
   const { projectId } = req.params;
 
   if (!projectId) {
@@ -303,14 +298,14 @@ routes.get('/:projectId/reviews', authenticate, async (req, res) => {
   res.json(reviews);
 });
 
-routes.get('/:projectId/reviews/:reviewId', authenticate, async (req, res) => {
+routes.get('/:projectId/reviews/:reviewId', authenticate, requireProjectOwner, async (req, res) => {
   const { projectId, reviewId } = req.params;
 
   if (!projectId || !reviewId) {
     return res.status(400).json({ error: 'projectId and reviewId required' });
   }
 
-  const review = await repo.getReviewById(reviewId);
+  const review = await repo.getReviewById(reviewId, projectId);
 
   if (!review) {
     return res.status(404).json({ error: 'review not found' });
@@ -323,7 +318,7 @@ routes.get('/:projectId/reviews/:reviewId', authenticate, async (req, res) => {
   res.json(review);
 });
 
-routes.get('/:projectId/settings', authenticate, async (req, res) => {
+routes.get('/:projectId/settings', authenticate, requireProjectOwner, async (req, res) => {
   const { projectId } = req.params;
 
   if (!projectId) {
@@ -339,7 +334,7 @@ routes.get('/:projectId/settings', authenticate, async (req, res) => {
   res.json(settings ?? { ai_provider: 'claude', model: 'claude-sonnet-4-6' });
 });
 
-routes.delete('/:projectId/settings', authenticate, async (req, res) => {
+routes.delete('/:projectId/settings', authenticate, requireProjectOwner, async (req, res) => {
   const { projectId } = req.params;
 
   if (!projectId) {
@@ -357,7 +352,7 @@ routes.delete('/:projectId/settings', authenticate, async (req, res) => {
   res.status(204).end();
 });
 
-routes.put('/:projectId/settings', authenticate, async (req, res) => {
+routes.put('/:projectId/settings', authenticate, requireProjectOwner, async (req, res) => {
   const { projectId } = req.params;
   const { ai_provider, model } = req.body;
 
@@ -423,14 +418,14 @@ routes.delete('/tokens/:id', authenticate, async (req, res) => {
   res.status(204).json({ message: 'token revoked' });
 });
 
-routes.get('/:id', authenticate, async (req, res) => {
-  const { id } = req.params;
+routes.get('/:projectId', authenticate, requireProjectOwner, async (req, res) => {
+  const { projectId } = req.params;
 
-  if (!id) {
-    return res.status(400).json({ error: 'id required' });
+  if (!projectId) {
+    return res.status(400).json({ error: 'projectId required' });
   }
 
-  const project = await repo.getProjectById(id);
+  const project = await repo.getProjectById(projectId);
 
   if (!project) {
     return res.status(404).json({ error: 'project not found' });
@@ -439,14 +434,14 @@ routes.get('/:id', authenticate, async (req, res) => {
   res.json(project);
 });
 
-routes.delete('/:id', authenticate, async (req, res) => {
-  const { id } = req.params;
+routes.delete('/:projectId', authenticate, requireProjectOwner, async (req, res) => {
+  const { projectId } = req.params;
 
-  if (!id) {
-    return res.status(400).json({ error: 'id required' });
+  if (!projectId) {
+    return res.status(400).json({ error: 'projectId required' });
   }
 
-  const success = await repo.deleteProjectById(id);
+  const success = await repo.deleteProjectById(projectId);
 
   if (!success) {
     return res.status(404).json({ error: 'error deleting project' });

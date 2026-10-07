@@ -4,6 +4,8 @@
   "scripts": {
     "dev": "tsc --watch",
     "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "check-types": "tsc --noEmit"
   },
   "exports": {
@@ -14,8 +16,10 @@
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
+    "@repo/vitest-config": "workspace:*",
     "@types/express": "^5.0.3",
-    "typescript": "5.8.3"
+    "typescript": "5.8.3",
+    "vitest": "^3.2.7"
   },
   "dependencies": {
     "@repo/db-queries": "workspace:*",

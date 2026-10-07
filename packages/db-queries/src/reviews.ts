@@ -20,7 +20,7 @@ interface InsertReviewData {
 type ReviewDBType = {
   insertReview(projectId: string, data: InsertReviewData): Promise<any>;
   getReviewsByProject(projectId: string): Promise<any>;
-  getReviewById(reviewId: string): Promise<any>;
+  getReviewById(reviewId: string, projectId: string): Promise<any>;
 };
 
 export const ReviewDB: ReviewDBType = {
@@ -49,11 +49,12 @@ export const ReviewDB: ReviewDBType = {
       .order("created_at", { ascending: false });
   },
 
-  async getReviewById(reviewId: string) {
+  async getReviewById(reviewId: string, projectId: string) {
     return serviceClient
       .from("reviews")
       .select("*")
       .eq("id", reviewId)
-      .single();
+      .eq("project_id", projectId)
+      .maybeSingle();
   },
 };

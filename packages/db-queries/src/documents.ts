@@ -3,9 +3,9 @@ import { serviceClient } from "@repo/db-connector/db";
 type DocumentDBType = {
   insertDocument(projectId: string, name: string, content: string, type?: string): Promise<any>;
   getDocumentsByProject(projectId: string, type?: string): Promise<any>;
-  getDocumentById(documentId: string): Promise<any>;
-  updateDocumentById(documentId: string, content: string): Promise<any>;
-  deleteDocumentById(documentId: string): Promise<any>;
+  getDocumentById(documentId: string, projectId: string): Promise<any>;
+  updateDocumentById(documentId: string, projectId: string, content: string): Promise<any>;
+  deleteDocumentById(documentId: string, projectId: string): Promise<any>;
 }
 
 export const DocumentDB: DocumentDBType = {
@@ -22,15 +22,15 @@ export const DocumentDB: DocumentDBType = {
     return type ? query.eq('type', type) : query;
   },
 
-  async getDocumentById(documentId: string) {
-    return serviceClient.from('documents').select('*').eq('id', documentId).single();
+  async getDocumentById(documentId: string, projectId: string) {
+    return serviceClient.from('documents').select('*').eq('id', documentId).eq('project_id', projectId).single();
   },
 
-  async updateDocumentById(documentId: string, content: string) {
-    return serviceClient.from('documents').update({ content, updated_at: new Date().toISOString() }).eq('id', documentId);
+  async updateDocumentById(documentId: string, projectId: string, content: string) {
+    return serviceClient.from('documents').update({ content, updated_at: new Date().toISOString() }).eq('id', documentId).eq('project_id', projectId);
   },
 
-  async deleteDocumentById(documentId: string) {
-    return serviceClient.from('documents').delete().eq('id', documentId);
+  async deleteDocumentById(documentId: string, projectId: string) {
+    return serviceClient.from('documents').delete().eq('id', documentId).eq('project_id', projectId);
   },
 };

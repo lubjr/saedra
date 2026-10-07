@@ -5,6 +5,7 @@ type ProjectDBType = {
   getProjectsByUser(userId: string): Promise<any>;
   countProjectsByUser(userId: string): Promise<any>;
   getProjectById(projectId: string): Promise<any>;
+  getProjectOwner(projectId: string): Promise<any>;
   deleteProjectById(projectId: string): Promise<any>;
   getProjectSummaryData(userId: string): Promise<{ projects: any[]; reviews: any[]; docs: any[] }>;
 }
@@ -24,6 +25,10 @@ export const ProjectDB: ProjectDBType = {
 
   async getProjectById(projectId: string) {
     return serviceClient.from('projects').select('*').eq('id', projectId).single();
+  },
+
+  async getProjectOwner(projectId: string) {
+    return serviceClient.from('projects').select('user_id').eq('id', projectId).maybeSingle();
   },
 
   async deleteProjectById(projectId: string) {
