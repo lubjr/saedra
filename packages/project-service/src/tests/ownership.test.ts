@@ -1,7 +1,5 @@
 import { describe, test, expect, vi, beforeEach, beforeAll, afterAll } from 'vitest'
 import express from 'express'
-import type { Server } from 'node:http'
-import type { AddressInfo } from 'node:net'
 
 const USERS = {
   owner: { id: 'user-owner', token: 'token-owner' },
@@ -77,7 +75,7 @@ vi.mock('@repo/db-queries/queries', () => {
 const { DocumentDB, ReviewDB, ProjectDB, ProfileDB } = (await import('@repo/db-queries/queries')) as any
 const { default: routes } = await import('../routes.js')
 
-let server: Server
+let server: ReturnType<express.Express['listen']>
 let baseUrl: string
 
 const request = async (method: string, path: string, token: string, body?: unknown) => {
@@ -97,7 +95,7 @@ beforeAll(async () => {
   app.use('/projects', routes)
   server = app.listen(0)
   await new Promise((resolve) => server.once('listening', resolve))
-  baseUrl = `http://127.0.0.1:${(server.address() as AddressInfo).port}`
+  baseUrl = `http://127.0.0.1:${(server.address() as { port: number }).port}`
 })
 
 afterAll(() => {
