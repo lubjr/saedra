@@ -223,8 +223,8 @@ export const listDocumentsByProject = async (projectId: string, type?: DocumentT
   return data || [];
 }
 
-export const getDocumentById = async (documentId: string): Promise<DocumentResponse> => {
-  const { data, error } = await DocumentDB.getDocumentById(documentId);
+export const getDocumentById = async (documentId: string, projectId: string): Promise<DocumentResponse> => {
+  const { data, error } = await DocumentDB.getDocumentById(documentId, projectId);
 
   if (error) {
     return { error: error.message };
@@ -233,8 +233,8 @@ export const getDocumentById = async (documentId: string): Promise<DocumentRespo
   return data;
 }
 
-export const updateDocument = async (documentId: string, content: string): Promise<boolean> => {
-  const { error } = await DocumentDB.updateDocumentById(documentId, content);
+export const updateDocument = async (documentId: string, projectId: string, content: string): Promise<boolean> => {
+  const { error } = await DocumentDB.updateDocumentById(documentId, projectId, content);
 
   if (error) {
     console.error("error updating document:", error.message);
@@ -244,8 +244,8 @@ export const updateDocument = async (documentId: string, content: string): Promi
   return true;
 }
 
-export const deleteDocument = async (documentId: string): Promise<boolean> => {
-  const { error } = await DocumentDB.deleteDocumentById(documentId);
+export const deleteDocument = async (documentId: string, projectId: string): Promise<boolean> => {
+  const { error } = await DocumentDB.deleteDocumentById(documentId, projectId);
 
   if (error) {
     console.error("error deleting document:", error.message);
@@ -275,8 +275,8 @@ export const listReviewsByProject = async (projectId: string): Promise<any> => {
   return data || [];
 }
 
-export const getReviewById = async (reviewId: string): Promise<any> => {
-  const { data, error } = await ReviewDB.getReviewById(reviewId);
+export const getReviewById = async (reviewId: string, projectId: string): Promise<any> => {
+  const { data, error } = await ReviewDB.getReviewById(reviewId, projectId);
 
   if (error) {
     return { error: error.message };

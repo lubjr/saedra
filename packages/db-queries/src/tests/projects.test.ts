@@ -126,6 +126,33 @@ describe('ProjectDB', () => {
     })
   })
 
+  describe('getProjectOwner', () => {
+    test.each([
+      {
+        scenario: 'returns owner when project exists',
+        projectId: 'project-123',
+        mockResponse: { data: { user_id: 'user-123' }, error: null },
+        expected: { data: { user_id: 'user-123' }, error: null },
+      },
+      {
+        scenario: 'returns null data when project does not exist',
+        projectId: 'non-existent',
+        mockResponse: { data: null, error: null },
+        expected: { data: null, error: null },
+      },
+    ])('$scenario', async ({ projectId, mockResponse, expected }) => {
+      const mockMaybeSingle = vi.fn().mockResolvedValue(mockResponse)
+      mockSelectEq.mockReturnValue({ maybeSingle: mockMaybeSingle })
+
+      const result = await ProjectDB.getProjectOwner(projectId)
+
+      expect(mockFrom).toHaveBeenCalledWith('projects')
+      expect(mockSelect).toHaveBeenCalledWith('user_id')
+      expect(mockSelectEq).toHaveBeenCalledWith('id', projectId)
+      expect(result).toEqual(expected)
+    })
+  })
+
   describe('deleteProjectById', () => {
     test.each([
       {

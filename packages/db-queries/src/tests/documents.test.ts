@@ -131,14 +131,15 @@ describe('DocumentDB', () => {
         expected: { data: null, error: MOCK_ERRORS.notFound },
       },
     ])('$scenario', async ({ documentId, mockResponse, expected }) => {
-      mockSelectEq.mockReturnValue({ single: mockSingle })
+      mockSelectEq.mockReturnValueOnce({ eq: mockSelectEq }).mockReturnValueOnce({ single: mockSingle })
       mockSingle.mockResolvedValue(mockResponse)
 
-      const result = await DocumentDB.getDocumentById(documentId)
+      const result = await DocumentDB.getDocumentById(documentId, 'project-123')
 
       expect(mockFrom).toHaveBeenCalledWith('documents')
       expect(mockSelect).toHaveBeenCalledWith('*')
       expect(mockSelectEq).toHaveBeenCalledWith('id', documentId)
+      expect(mockSelectEq).toHaveBeenCalledWith('project_id', 'project-123')
       expect(result).toEqual(expected)
     })
   })
@@ -158,9 +159,9 @@ describe('DocumentDB', () => {
         expected: { data: null, error: MOCK_ERRORS.updateFailed },
       },
     ])('$scenario', async ({ input, mockResponse, expected }) => {
-      mockUpdateEq.mockResolvedValue(mockResponse)
+      mockUpdateEq.mockReturnValueOnce({ eq: mockUpdateEq }).mockResolvedValueOnce(mockResponse)
 
-      const result = await DocumentDB.updateDocumentById(input.documentId, input.content)
+      const result = await DocumentDB.updateDocumentById(input.documentId, 'project-123', input.content)
 
       expect(mockFrom).toHaveBeenCalledWith('documents')
       expect(mockUpdate).toHaveBeenCalledWith(expect.objectContaining({
@@ -168,6 +169,7 @@ describe('DocumentDB', () => {
         updated_at: expect.any(String),
       }))
       expect(mockUpdateEq).toHaveBeenCalledWith('id', input.documentId)
+      expect(mockUpdateEq).toHaveBeenCalledWith('project_id', 'project-123')
       expect(result).toEqual(expected)
     })
   })
@@ -187,13 +189,14 @@ describe('DocumentDB', () => {
         expected: { data: null, error: MOCK_ERRORS.deleteFailed },
       },
     ])('$scenario', async ({ documentId, mockResponse, expected }) => {
-      mockDeleteEq.mockResolvedValue(mockResponse)
+      mockDeleteEq.mockReturnValueOnce({ eq: mockDeleteEq }).mockResolvedValueOnce(mockResponse)
 
-      const result = await DocumentDB.deleteDocumentById(documentId)
+      const result = await DocumentDB.deleteDocumentById(documentId, 'project-123')
 
       expect(mockFrom).toHaveBeenCalledWith('documents')
       expect(mockDelete).toHaveBeenCalled()
       expect(mockDeleteEq).toHaveBeenCalledWith('id', documentId)
+      expect(mockDeleteEq).toHaveBeenCalledWith('project_id', 'project-123')
       expect(result).toEqual(expected)
     })
   })
