@@ -8,10 +8,24 @@ export interface LoginResponse {
   session: {
     userId: {
       access_token: string;
+      expires_in?: number;
       user: { id: string };
     };
   };
 }
+
+const DEFAULT_SESSION_MAX_AGE = 60 * 60;
+
+const sessionCookieOptions = (maxAge: number) => {
+  return {
+    httpOnly: true,
+    // eslint-disable-next-line turbo/no-undeclared-env-vars
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax" as const,
+    path: "/",
+    maxAge,
+  };
+};
 
 export interface SignUpResponse {
   user: {
@@ -20,10 +34,7 @@ export interface SignUpResponse {
   };
 }
 
-export const login = async (
-  email: string,
-  password: string,
-): Promise<LoginResponse> => {
+export const login = async (email: string, password: string): Promise<void> => {
   const result = await apiRequest<LoginResponse>("/projects/login", {
     method: "POST",
     auth: false,
@@ -35,18 +46,21 @@ export const login = async (
     throw new Error(result.error);
   }
 
+  const session = result.data.session.userId;
+  const options = sessionCookieOptions(
+    session.expires_in ?? DEFAULT_SESSION_MAX_AGE,
+  );
   const cookieStore = await cookies();
 
-  cookieStore.set("access_token", result.data.session.userId.access_token);
-  cookieStore.set("user_id", result.data.session.userId.user.id);
-
-  return result.data;
+  cookieStore.set("access_token", session.access_token, options);
+  cookieStore.set("user_id", session.user.id, options);
 };
 
 export const logout = async () => {
   const cookieStore = await cookies();
 
   cookieStore.delete("access_token");
+  cookieStore.delete("user_id");
 };
 
 export const signup = async (
