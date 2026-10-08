@@ -13,6 +13,10 @@ export const GET = async () => {
     headers: { Authorization: `Bearer ${token}` },
   });
 
+  if (apiRes.status === 401) {
+    return new Response("unauthorized", { status: 401 });
+  }
+
   if (!apiRes.ok || !apiRes.body) {
     return new Response("failed to connect to events stream", {
       status: 502,
